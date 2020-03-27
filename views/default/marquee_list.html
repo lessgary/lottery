@@ -1,0 +1,159 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="text-center">
+        <a onclick="add()" class="btn  btn-primary pull-right mgb20">新增跑马灯</a>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["排序","标题","显示终端","编辑日期","操作人员","操作"],
+            //表格内容
+            colModel:[
+                {name:"sorts",index:"sorts",sorttype:"int",align:"center"},
+                {name:"subject",index:"subject",align:"center"},
+                {name:"version",index:"version",align:"center",formatter:'select',editoptions:{value:"0:全部终端;1:移动端;2:pc端"}},
+                {name:"time",index:"updatetime",sorttype:"datetime",align:"center"},
+                {name:"adminname",index:"adminname",align:"center"},
+                {name:"operate",index:"operate",align:'left',formatter:operate}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:-1,       //每页展示的记录数
+            pager:"#pager_list_2",
+            viewrecords:true
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var html = "";
+            html += "<a title='修改' onclick='edit(" + rowObject.id + ")' >";
+            html += "<span>修改</span></a>&nbsp;";
+            html += "|&nbsp;";
+            html += "<a title='查看' onclick='view(" + rowObject.id + ")' >";
+            html += "<span>查看</span></a>&nbsp;";
+
+            html += "|&nbsp;";
+            if(rowObject.isshow == 0){
+                html += "<a title='停用' onclick='isSet(" + rowObject.id + ")' >";
+                html += "<span style='color:#FF3333'>停用</span></a></a>&nbsp;";
+            }else {
+                html += "<a title='启用' onclick='isSet(" + rowObject.id + ")' >";
+                html += "<span>启用</span></a></a>&nbsp;";
+            }
+
+
+            html += "|&nbsp;";
+            html += "<a title='删除' onclick='doDel(" + rowObject.id + ")' >";
+            html += "<span>删除</span></a></a>";
+            return html;
+        }
+    });
+    //删除跑马灯
+    function doDel(id){
+        layer.confirm('确定删除吗？',{
+            btn:['确定','取消']
+        },function() {
+            window.location.href="marquee_delete.shtml?id="+id;
+        })
+        return false;
+    }
+
+    //新增跑马灯
+    function add() { //获取id
+        layer.open({
+            type: 2,
+            title: false,
+            shadeClose: false,
+            shade: [0.7,'#000'],
+            closeBtn: 2,
+            area: ['900px', '500px'],
+            content: 'marquee_add.shtml',
+            end: function () {
+                window.location.reload();//刷新
+            }
+        });
+    }
+    //修改跑马灯
+    function edit(id) { //获取id
+        layer.open({
+            type: 2,
+            title: false,
+            shadeClose: false,
+            shade: [0.7,'#000'],
+            closeBtn: 2,
+            area: ['900px', '500px'],
+            content: 'marquee_edit.shtml?id='+id,
+            end: function () {
+                window.location.reload();//刷新
+            }
+        });
+    }
+    //查看跑马灯
+    function view(id) { //获取id
+        layer.open({
+            type: 2,
+            title: false,
+            shadeClose: false,
+            shade: [0.7,'#000'],
+            closeBtn: 2,
+            area: ['900px', '400px'],
+            content: 'marquee_view.shtml?id='+id
+        });
+    }
+    // 停用跑马灯
+    function isSet(id){
+        layer.confirm('请确定您的操作吗？',{
+            btn:['确定','取消']
+        },function() {
+//            window.location.href="marquee_set.shtml?id="+id;
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                url: "marquee_set.shtml?id="+id,
+                data:'',
+            success: function (data) {
+                if (data.code === 1) {
+                    layer.alert(data.msg, function (index) {
+                        location.reload();
+                    });
+                } else {
+                    layer.alert(data.msg);
+                }
+            }
+            });
+        })
+        return false;
+    }
+</script>
+</body>
+
+
+</html>

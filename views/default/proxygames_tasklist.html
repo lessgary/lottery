@@ -1,0 +1,247 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        游戏类型:&nbsp;&nbsp;
+        <select class="form-control" name="type" id="type">
+            <option value="0">全部</option>
+            <option value="1">彩票</option>
+            <option value="2">真人娱乐</option>
+            <option value="3">电子游戏</option>
+            <option value="4">体育</option>
+            <option value="5">棋牌</option>
+        </select>&nbsp;&nbsp;
+        游戏厂商:&nbsp;&nbsp;
+        <select class="form-control" name="vendor_id" id="vendor_id">
+            <option value="0">全部</option>
+            {foreach from=$aData item=alottery key=k}
+            <option value="{$alottery.id}">{$alottery.name}</option>
+            {/foreach}
+        </select>&nbsp;&nbsp;
+        状态:&nbsp;&nbsp;
+        <select class="form-control" name="status" id="status">
+            <option value="0">全部</option>
+            <option value="1">开启</option>
+            <option value="2">关闭</option>
+        </select>&nbsp;&nbsp;
+        <div class="form-group">
+            游戏ID:&nbsp;&nbsp;
+            <input type="text" id="game_id" name="game_id" class="form-control">
+        </div>&nbsp;&nbsp;
+        <div class="form-group">
+            游戏名称:&nbsp;&nbsp;
+            <input type="text" id="game_name" name="game_name" class="form-control">
+        </div>
+        &nbsp;&nbsp;<button class="btn btn-primary" id='sub' type="submit">查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    //{name:"encodetaskid",index:"encodetaskid",sorttype:"string",formatter: searchUserName},
+    $(document).ready(function () {
+        $.jgrid.defaults.styleUI = "Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames: ["游戏ID", "游戏名称", "游戏类型", "游戏厂商", "状态", "属性", "操作", "添加时间"],
+            //表格内容
+            colModel: [
+                {name: "vendor_game_id", index: "vendor_game_id", align: "center", sorttype: "int"},
+                {name: "game_name", index: "game_name", align: "center", sorttype: "string"},
+                {name: "type", index: "type", align: "center", sorttype: "string"},
+                {name: "vendor_name", index: "vendor_name", align: "center", sorttype: "string"},
+                {
+                    name: "status",
+                    index: "stoponwin",
+                    align: "center",
+                    sorttype: "string",
+                    formatter: 'select',
+                    editoptions: {value: "0:未知;1:启用;2:停用"}
+                },
+                {name: "attributes", index: "attributes", sortable: false, align: "center", formatter: showAttributes},
+                {name: "options", index: "options", sortable: false, align: "center", formatter: showlink},
+                {name: "create_time", index: "create_time", align: "center", sorttype: "string"},
+            ],
+            //data:mydata,
+            height: "auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "local",   //数据类型
+            autowidth: true,    //表格自适应宽度
+            shrinkToFit: true,   //自适应列宽
+            viewrecords: true,
+            beforeRequest: function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4, true);
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function () {
+            $("#table_list_2").jqGrid("setGridParam", {
+                url: "proxygames_find.shtml",
+                page: 1,
+                datatype: 'json'
+            }).trigger('reloadGrid');
+            return false;
+        });
+
+        function searchUserName(cellValue, options, rowObject) {
+//            console.info([cellValue, options, rowObject]);
+            var html = "";
+            if (rowObject.encodetaskid != "") {
+                console.log(rowObject.encodetaskid);
+                html += "<a title=\"追单详情\"  onclick=\"detailLayer('" + rowObject.encodetaskid + "')\">";
+                html += "<span style='color:#1ab394'>" + rowObject.encodetaskid + "</span></a>";
+            }
+            return html;
+        }
+
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function () {
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+    });
+
+    //自定义操作表格
+    function showAttributes(cellValue, options, rowObject) {
+        var html = "";
+        let list = rowObject.attributes.split(",")
+        console.log(rowObject.attributes)
+        if (list.indexOf("1") !== -1) {
+            html += "<input  type='checkbox' id='attributes' name='attributes" + rowObject.id + "' value='1' checked='checked' onclick='setAttributes(" + rowObject.id + ")' />&nbsp;";
+        } else {
+            html += "<input  type='checkbox' id='attributes' name='attributes" + rowObject.id + "' value='1' onclick='setAttributes(" + rowObject.id + ")' />&nbsp;";
+        }
+        html += "<span style='color: black'>热门</span>&nbsp;&nbsp;";
+        if (list.indexOf("2") !== -1) {
+            html += "<input type='checkbox' id='attributes' checked='checked' name='attributes" + rowObject.id + "' value='2' onclick='setAttributes(" + rowObject.id + ")'/>&nbsp;";
+        } else {
+            html += "<input   type='checkbox' id='attributes' name='attributes" + rowObject.id + "' value='2' onclick='setAttributes(" + rowObject.id + ")' />&nbsp;";
+        }
+        html += "<span style='color: black'>推荐</span>&nbsp;&nbsp;";
+        if (list.indexOf("3") !== -1) {
+            html += "<input  type='checkbox' id='attributes' checked='checked' name='attributes" + rowObject.id + "' value='3' onclick='setAttributes(" + rowObject.id + ")'/>&nbsp;&nbsp;";
+        } else {
+            html += "<input  type='checkbox' id='attributes' name='attributes" + rowObject.id + "' value='3' onclick='setAttributes(" + rowObject.id + ")'/>&nbsp;";
+        }
+        html += "<span style='color: black'>精品</span>&nbsp;&nbsp;";
+        if (list.indexOf("4") !== -1) {
+            html += "<input   type='checkbox' id='attributes' checked='checked' name='attributes" + rowObject.id + "' value='4' onclick='setAttributes(" + rowObject.id + ")'/>&nbsp;&nbsp;";
+        } else {
+            html += "<input  type='checkbox' id='attributes' name='attributes" + rowObject.id + "' value='4' onclick='setAttributes(" + rowObject.id + ")'/>&nbsp;&nbsp;";
+        }
+        html += "<span style='color: black'>新上</span>&nbsp;&nbsp;";
+        return html;
+    }
+
+    //自定义操作表格
+    function showlink(cellValue, options, rowObject) {
+        var html = "";
+        if (rowObject.status == 1) {
+            html += "<a onclick='setStatus(" + rowObject.id + ",1)' >";
+            html += "<span style='color:#1AB394'>启用</span></a>&nbsp;&nbsp;|&nbsp;&nbsp;";
+            html += "<a  onclick='setStatus(" + rowObject.id + ",2)'  >";
+            html += "<span style='color: black'>停用</span></a>";
+        } else {
+            html += "<a onclick='setStatus(" + rowObject.id + ",1)' >";
+            html += "<span style='color: black'>启用</span></a>&nbsp;&nbsp;|&nbsp;&nbsp;";
+            html += "<a  onclick='setStatus(" + rowObject.id + ",2)'  >";
+            html += "<span style='color:#1AB394'>停用</span></a>";
+        }
+        return html;
+    }
+
+    function check() {
+        var $ids = [];    //定义一个空数组
+        var $chkBoxes = $('#table_list_2').find('input:checked');   //找到被选中的checkbox集
+        if ($chkBoxes.length == 0) {         //如果不勾选弹出警告框
+            alert('请至少选择一个数据集');
+            return false;
+        }
+        //遍历被选中的checkbox集
+        $($chkBoxes).each(function () {
+            $ids.push($(this).attr('data-id'));   //找到对应checkbox中data-id属性值，然后push给空数组$ids
+        });
+        var $ids_str = $ids.join(',');              //将数组转化为用逗号隔开的字符串
+        console.log($ids_str);
+    }
+
+    function setStatus(id, status) {
+        $.ajax({
+            type: "GET",
+            url: "./proxygames_change.shtml?id=" + id + "&status=" + status,
+            success: function (data) {
+                var data = eval("(" + data + ")")
+                layer.msg(data.msg,{
+                    time:1500
+                },function () {
+                    $('#sub').click();
+                });
+            }
+        });
+    }
+
+    function setAttributes(obj) {
+        var aa = "";
+        $("input[name='attributes" + obj + "']:checkbox:checked").each(function () {
+            aa += $(this).val() + ','
+        })
+        let attributes
+        if (aa.length > 1) {
+            if (aa.substring(0, aa.length - 1).length === 0) {
+                attributes = 'empty'
+            } else {
+                attributes = aa.substring(0, aa.length - 1)
+            }
+        } else if(aa.length===1) {
+            attributes = aa
+        }else {
+            attributes = 'empty'
+        }
+        $.ajax({
+            type: "GET",
+            url: "./proxygames_change.shtml?id=" + obj + "&attributes=" + attributes,
+            success: function (data) {
+                console.log(data)
+                var data = eval("(" + data + ")")
+                layer.msg(data.msg);
+            }
+        });
+    }
+</script>
+</body>
+
+<style>
+    .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+        overflow: hidden;
+        text-align: center;
+        white-space: nowrap;
+    }
+</style>
+
+</html>

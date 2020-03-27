@@ -1,0 +1,414 @@
+{include file="pageheader.html"}
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 800px;
+            height: 500px;
+            overflow: hidden;
+        }
+        .show-page-box {
+            width: 800px;
+            height: 500px;
+            background-color: white;
+            overflow-x: hidden;
+            overflow-y: scroll;
+            position: relative;
+        }
+        .top-bar {
+            width: 100%;
+            height: 25px;
+            background-color: #B2D160;
+            position: relative;
+        }
+        .top-bar-left-text {
+            position: absolute;
+            line-height: 27px;
+            color: white;
+            font-size: 14px;
+            left: 10px;
+        }
+        .top-bar-right-close-text {
+            position: absolute;
+            line-height: 27px;
+            color: white;
+            font-size: 14px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .page-info-box {
+            width: 100%;
+            height: 240px;
+            position: relative;
+        }
+        .page-info-box>div {
+            display: inline-block;
+        }
+        .page-info-box span {
+            font-size: 12px;
+            color: #373737;
+        }
+        .info-1-box {
+            width: 260px;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+            left: 0;
+        }
+        .info-2-box {
+            width: 260px;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+            left: 260px;
+        }
+        .info-3-box {
+            width: 260px;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+            left: 520px;
+        }
+        .info-item-box {
+            width: 100%;
+            height: 40px;
+            border-right: 1px solid #373737;
+            position: relative;
+        }
+        .item-left-text {
+            position: absolute;
+            text-align: left;
+            left: 10px;
+            line-height: 40px;
+        }
+        .item-right-text {
+            position: absolute;
+            text-align: right;
+            line-height: 40px;
+            right: 10px;
+        }
+        .info-item-box-no-border {
+            border: 0px solid #373737;
+        }
+
+        .page-middle-content {
+            margin: auto;
+            width: 730px;
+            height: 60px;
+            background-color: #DEDEDE;
+            border-radius: 5px;
+        }
+        .content-left-box {
+            display: inline-block;
+            width: 200px;
+            height: 56px;
+            margin-top: 2px;
+            border-right: 1px solid #FFFFFF;
+            font-size: 14px;
+            color: #373737;
+            text-align: center;
+            line-height: 56px;
+        }
+        .content-right-box {
+            display: inline-block;
+            width: 480px;
+            height: 56px;
+            margin-top: 2px;
+            font-size: 14px;
+            color: #373737;
+            text-align: left;
+        }
+        .page-middle-tip {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            font-size: 12px;
+            color: #373737;
+        }
+        .page-btm-box {
+            margin: auto;
+            width: 730px;
+            height: auto;
+            border: 1px solid #DEDEDE;
+        }
+        .btm-top-box {
+            width: 100%;
+            height: 40px;
+            background-color: #DEDEDE;
+        }
+        .btm-btm-box {
+            width: 100%;
+            height: auto;
+        }
+        .btm-box-item-box {
+            display: inline-block;
+            width: 16%;
+            height: 50%;
+        }
+
+        .btm-box-item-box-top {
+            width: 100%;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 12px;
+            color: #373737;
+        }
+        .btm-box-item-box-btm {
+            width: 100%;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 12px;
+            color: #373737;
+        }
+        .btm-bar-box {
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+            height: 35px;
+            background-color: #F6F6F6;
+            border-top: 1px solid #DDDDDD;
+        }
+        .sure-btn {
+            position: absolute;
+            width: 50px;
+            height: 25px;
+            background-color: #B2D160;
+            font-size: 12px;
+            text-align: center;
+            line-height: 25px;
+            right: 10px;
+            top: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            box-shadow: 3px 2px 3px grey;
+        }
+    </style>
+</head>
+<body>
+<script src="js/plugins/layer/layer-3.03/layer.js"></script>
+<script>
+    function cancel()
+    {
+        //撤单部分
+        layer.prompt({title: '撤单备注', formType: 2}, function(text, index){
+            document.location.href = "./pgame_playcancel.shtml?id={$aProject.projectid}&uid={$aProject.userid}&remark="+text;
+            layer.close(index);
+        });
+    }
+</script>
+<div class="show-page-box">
+    <div class="page-info-box">
+        <div class="info-1-box">
+            <div class="info-item-box">
+                <span class="item-left-text">用户名:</span>
+                <span class="item-right-text">{$aProject.username}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">注单编号:</span>
+                <span class="item-right-text">{$aProject.projectid}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">倍数模式:</span>
+                <span class="item-right-text">{$aProject.multiple}倍，{if $aProject.modes>0}{assign var=tmp value=$modes[$aProject.modes]}{$tmp.name}{else}&nbsp;{/if}模式</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">奖期:</span>
+                <span class="item-right-text">{$aProject.issue}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">用户ip:</span>
+                <span class="item-right-text">{$aProject.userip}</span>
+            </div>
+        </div>
+        <div class="info-2-box">
+            <div class="info-item-box">
+                <span class="item-left-text">游戏:</span>
+                <span class="item-right-text">{$aProject.cnname}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">投单时间:</span>
+                <span class="item-right-text">{$aProject.writetime}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">注单奖金:</span>
+                <span class="item-right-text">{$aProject.bonus|escape:money:4}{if isset($description)}&nbsp;&nbsp;({$description}){/if}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">开奖内容:</span>
+                <span class="item-right-text">{$aProject.nocode|truncate:20}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text"></span>
+                <span class="item-right-text"></span>
+            </div>
+        </div>
+        <div class="info-3-box">
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">玩法:</span>
+                <span class="item-right-text">{$aProject.methodname}{if $aProject.taskid != '0'}(&nbsp;<a href="./pgame_taskdetail.shtml?id={$aProject.taskid}">追号单详情</a>&nbsp;){/if}</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">总金额:</span>
+                <span class="item-right-text">{$aProject.totalprice|escape:money:4}</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">动态返点:</span>
+                <span class="item-right-text">{$aProject.userpoint}%</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">订单状态:</span>
+                <span class="item-right-text">{if ($aProject.iscancel==0)}
+                {if ($aProject.isgetprize==0)}
+                未开奖
+                {elseif ($aProject.isgetprize==2)}
+                未中奖
+                {elseif ($aProject.isgetprize==1)}
+                {if $aProject.prizestatus==0}
+                未派奖
+                {else}
+                已派奖
+                {/if}
+                {/if}
+                {elseif ($aProject.iscancel==1)}
+                本人撤单
+                {elseif ($aProject.iscancel==2)}
+                管理员撤单
+                {elseif ($aProject.iscancel==3)}
+                开错奖撤单
+                {/if}</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-right-text">
+                    {if ($aProject.isgetprize==0)}
+                    {if ($aProject.iscancel!=1 && $aProject.iscancel!=2 && $aProject.iscancel!=3)}
+                    <input type="button" class="btn btn-sm btn-outline btn-primary pull-right" value="撤单" onclick="javascript:cancel();">
+                    {/if}
+                    {/if}
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="page-middle-content">
+
+        <div class="content-left-box">
+            投注内容
+        </div>
+        <div class="content-right-box">{$aProject.code}</div>
+    </div>
+    {if !empty($projectprize)}
+    <div class="page-middle-tip">实际中奖情况</div>
+    <div class="page-btm-box">
+        <div class="btm-top-box">
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">奖级名称</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">中奖注数</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">单倍奖金</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">投注倍数</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">总奖金</div>
+            </div>
+        </div>
+        {foreach from=$projectprize.detail item=pl key=k}
+        <div class="btm-btm-box">
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.leveldesc}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.times}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.singleprize|escape:money:4}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.multiple}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.prize|escape:money:4}</div>
+            </div>
+        </div>
+        {/foreach}
+    </div>
+    <div class="page-middle-content">
+        <div class="content-left-box">
+            奖级说明
+        </div>
+        <div class="content-right-box">{$pl.levelcodedesc}</div>
+    </div>
+    {else}
+    <div class="page-middle-tip">可能中奖情况</div>
+    <div class="page-btm-box">
+        <div class="btm-top-box">
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">奖级名称</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">号码</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">单倍奖金</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">倍数</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">奖级</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-top">总奖金</div>
+            </div>
+        </div>
+        <div class="btm-btm-box">
+            {foreach from=$prizelevel item=pl key=k}
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.leveldesc}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.expandcode}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.singleprize|escape:money:4}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.codetimes}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.level}</div>
+            </div>
+            <div class="btm-box-item-box">
+                <div class="btm-box-item-box-btm">{$pl.prize|escape:money:4}</div>
+            </div>
+            {/foreach}
+        </div>
+    </div>
+    <div class="page-middle-content">
+        <div class="content-left-box">
+            奖级说明
+        </div>
+        <div class="content-right-box">{$pl.levelcodedesc}</div>
+    </div>
+    {/if}
+    <!--<div class="btm-bar-box">-->
+
+        <!--<div class="btn btn-sm btn-outline btn-primary pull-right">确定</div>-->
+    <!--</div>-->
+
+</div>
+
+</body>
+</html>

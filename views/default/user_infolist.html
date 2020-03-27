@@ -1,0 +1,249 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <style>
+        #account{
+            height:500px;
+            width:600px;
+            display:none;
+        }
+        #account .myrow{
+            margin:4px auto;
+            width:500px;
+        }
+        #account .myrow textarea{
+            height:100%;
+            width:100%;
+        }
+        #account .text-content{
+            height:460px;
+        }
+    </style>
+    <div id="account">
+        <div class="myrow">
+            <span>批量查询账号，一个账号一行：</span>
+        </div>
+        <div class="myrow text-content">
+            <textarea name="" id="u-search-all"></textarea>
+        </div>
+        <div class="myrow">
+            <a class="btn btn-primary pull-left mgr15" href="javascript:void(0);" id="search-all">提交</a>
+            <a href="javascript:void(0);" class="btn btn-primary pull-left mgr15 close-all">取消</a>
+        </div>
+    </div>
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" id="subbox" method="post">
+                <div class="form-group">
+                <label for="" class="sr-only">查询参数</label>
+                   <select class="form-control" id="select_1"  name="searchType"> 
+                   <option value="username">用户名</option>
+                   <option value="rname">真实姓名</option>
+                   <option value="ufather">所属上级</option>
+                   <option value="mobile">手机号</option>
+                   </select>
+                 </div>
+                 
+                <div class="form-group">
+                <label for="" class="sr-only">查询值</label>
+                   <input type="text" placeholder="请输入用户名" id="value_1" name="username" class="form-control">
+                 </div>
+
+                 <div class="form-group">
+                 <label for="" class="sr-only">所属组</label>
+                   &nbsp;&nbsp;所属组:<select class="form-control"  name="team"> 
+                   <option value="0">不限</option>
+                   {foreach from=$usergroup item=group key=k}
+                   <option value="{$group.groupid}" {if $userteam==$group.groupid}selected="selected"{/if}>{$group.groupname|escape:html}</option>
+                   {/foreach}
+                   </select>
+                 </div>
+
+                 <div class="form-group">
+                 <label for="" class="sr-only">所属层级</label>
+                   &nbsp;&nbsp;所属层级:<select class="form-control" name="layerid"> 
+                    <option value="-1">不限</option>
+                    {foreach from=$userlayer item=layer}
+                      <option value="{$layer.layerid}" >{$layer.name}</option>
+                    {/foreach}
+                    </select>
+                 </div>
+
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+                    开始时间:<input name="regstarttime" class="form-control layer-date" value="{$sdate}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                 </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+                    结束时间:<input name="regendtime" class="form-control layer-date" value="{$edate}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                </div>
+
+            <div class="form-group">
+                <label for="" class="sr-only">最后在线</label>
+                &nbsp;&nbsp;最后在线:<select class="form-control"  name="lastonline">
+                <option value="3" selected="selected">不限</option>
+                <option value=">">小于</option>
+                <option value="=" >等于</option>
+                <option value="<" >大于</option>
+            </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text"  name="lastonline_day"  class="form-control">天前
+                <label for="" class="sr-only"></label>
+
+            </div>
+
+            <button class="btn btn-primary submit-btn"  type="submit" value="query">提交</button>
+            <a class="btn btn-primary " href="javascript:void(0);" type="submit" id="search-all-id">批量查询</a>
+            <button class="btn btn-primary submit-btn" type="submit" value="export" name="export">导出资料</button>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var type=0;
+        $(document).ready(function(){
+           $('.submit-btn').click(function () {
+               type=0;
+           })
+
+            $('#select_1').change(function(){
+                let tips = $(this).find(':selected').text()
+                $('#value_1').val('').attr('placeholder', '请输入' + tips)
+            })
+            $('#search-all-id').click(function(){
+                layer.open({
+                    type: 1,
+                    area : ['600px', '600px'],
+                    title : '批量账号查询',
+                    resize : false,
+                    id : 'ufather',
+                    anim : 4,
+                    content:$('#account')
+                });
+            });
+
+            $('.close-all').click(function(){
+                layer.closeAll();
+            });
+
+            $('#search-all').click(function(){
+                layer.closeAll();
+                type=1;
+                let uSearchAll = $.trim($('#u-search-all').val());
+                var text=$('#u-search-all').val().replace(/\n/g, ',');
+                document.getElementById('value_1').value = text;
+                $("#table_list_2").jqGrid("setGridParam", {page: 1, postData:{usernamea:uSearchAll}}).trigger('reloadGrid');
+            });
+
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["用户ID","用户名","真实姓名" ,"所属组","上级代理","用户层级","昵称","QQ号","手机号","邮箱","账户余额","最后在线","最后登录日期","注册日期"],
+                //表格内容
+                colModel:[
+                    {name:"userid",index:"userid",editable:true,sorttype:"int",sortable:false},
+                    {name:"username",index:"username",editable:true,sorttype:"int",sortable:false},
+                    {name:"realname",index:"realname",editable:true,sorttype:"int",sortable:false},
+                    {name:"proxylevel",index:"proxylevel",editable:true,sortable:false},
+                    {name:"parentName",index:"parentName",editable:true,sortable:false},
+                    {name:"name",index:"name",editable:true,sortable:false},
+                    {name:"nickname",index:"nickname",editable:true,sortable:false},
+                    {name:"qq",index:"qq",editable:true,sortable:false},
+                    {name:"mobile",index:"mobile",editable:true,sortable:false},
+                    {name:"email",index:"email",editable:true,sortable:false},
+                    {name:"channelbalance",index:"channelbalance",align:"right",sortable:false},
+                    {name:"lastloginday",index:"lastloginday",sortable:false},
+                    {name:"lasttime",index:"lasttime",editable:true,width:"160",sorttype:"float",sortable:false},
+                    {name:"registertime",index:"registertime",editable:true,width:"160", sorttype:"float",sortable:false},
+                  
+                ],
+                //data:mydata,
+                height:650, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:30,       //每页展示的记录数
+                rowList:[30,50,80], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {ufather:''};
+                    var text=$('#u-search-all').val().replace(/\n/g, ',');
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                        if(i ==1 && !(n.value) && text!='' && type==1){
+                            postData[n.name]=text
+                        }//修复批量查询分页
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+
+                },
+
+                loadComplete: function(){
+                    $(this).jqGrid("setGridParam", {
+                        postData: {usernamea:'',rname:''}
+                    });
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                var action = $(this).find("button[type=submit]:focus").val();
+                // 导出
+                if ('export' == action) {
+                    $(this).attr('action', 'user_exportuserinfo.shtml');
+                    return true;
+                } else {
+                    $(this).attr('action', '');
+                }
+                $("#table_list_2").jqGrid("setGridParam", {
+                    page: 1,
+                }).trigger('reloadGrid');
+                return false;
+            });
+
+
+            // 搜索用户名下拉框
+            $(":input[id=select_1]").change(function(){
+                var id = 1; //$(this).attr('id');
+                $("#value_" + id).attr('name', $(this).val());
+            });
+            // 搜索金额下拉框
+            $(":input[id=select_2]").change(function(){
+               
+                $("#value_2" ).attr('name', 'min'+$(this).val());
+                $("#value_3" ).attr('name', 'max'+$(this).val());
+            });
+
+        });
+
+        </script>
+</body>
+
+
+</html>

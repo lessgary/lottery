@@ -1,0 +1,353 @@
+{include file="pageheader.html"}
+{if $action!='view'}
+{insert_scripts files="./js/jquery.js"}
+<script type="text/javascript" src="./js/calendar/jquery.dyndatetime.js"></script>
+<script type="text/javascript" src="./js/calendar/lang/calendar-utf8.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="./js/calendar/css/calendar-blue2.css"  />
+<script>
+    jQuery(document).ready(function(){
+        jQuery("#joinstarttime").dynDateTime({
+            ifFormat: "%Y-%m-%d %H:%M:00",
+            daFormat: "%l;%M %p, %e %m,  %Y",
+            align: "Br",
+            electric: true,
+            singleClick: true,
+            showOthers: true,
+            weekNumbers: true,
+            showsTime: true
+        });
+        jQuery("#joinstarttime").change(function(){
+            if(! validateInputDate(jQuery("#joinstarttime").val()) )
+            {jQuery("#joinstarttime").val('');alert("时间格式不正确,正确的格式为:2012-08-20 00:00:00");}
+        });
+        jQuery("#joinendtime").dynDateTime({
+            ifFormat: "%Y-%m-%d %H:%M:00",
+            daFormat: "%l;%M %p, %e %m,  %Y",
+            align: "Br",
+            electric: true,
+            singleClick: true,
+            showOthers: true,
+            weekNumbers: true,
+            showsTime: true
+        });
+        jQuery("#joinendtime").change(function(){
+            if(! validateInputDate(jQuery("#joinendtime").val()) )
+            {jQuery("#joinendtime").val('');alert("时间格式不正确,正确的格式为:2012-08-20 00:00:00");}
+        });
+        jQuery("#starttime").dynDateTime({
+            ifFormat: "%Y-%m-%d %H:%M:00",
+            daFormat: "%l;%M %p, %e %m,  %Y",
+            align: "Br",
+            electric: true,
+            singleClick: true,
+            showOthers: true,
+            weekNumbers: true,
+            showsTime: true
+        });
+        jQuery("#starttime").change(function(){
+            if(! validateInputDate(jQuery("#starttime").val()) )
+            {jQuery("#starttime").val('');alert("时间格式不正确,正确的格式为:2012-08-20 00:00:00");}
+        });
+        jQuery("#endtime").dynDateTime({
+            ifFormat: "%Y-%m-%d %H:%M:00",
+            daFormat: "%l;%M %p, %e %m,  %Y",
+            align: "Br",
+            electric: true,
+            singleClick: true,
+            showOthers: true,
+            weekNumbers: true,
+            showsTime: true
+        });
+        jQuery("#endtime").change(function(){
+            if(! validateInputDate(jQuery("#endtime").val()) )
+            {jQuery("#endtime").val('');alert("时间格式不正确,正确的格式为:2012-08-20 00:00:00");}
+        });
+        $("#activity").submit(function(){
+            if($("#title").val()==""){
+		alert("请输入活动主题!");
+		return false;
+	    }
+            if($("#desc").val()==""){
+		alert("请输入活动内容!");
+		return false;
+	    }
+            if($("#detail").val()==""){
+		alert("请输入活动规则!");
+		return false;
+	    }
+            if($("#function").val()==""){
+		alert("请输入活动对应函数!");
+		return false;
+	    }
+            if($("#starttime").val()==""){
+		alert("请输入活动开始时间!");
+		return false;
+	    }
+            if($("#endtime").val()==""){
+		alert("请输入活动结束时间!");
+		return false;
+	    }
+        });
+    });
+</script>
+{/if}
+<div class="list-div" id="listDiv">
+    {if $action!='view'}
+    <form name="activity" id="activity" method="post" action="">
+        {/if}
+        <table cellspacing='1' cellpadding='3' id='list-table'>
+            <tr>
+                <td class="narrow-label">活动主题</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.title}
+                    {else}
+                    <input type="text" value="{$result.title}" name="title" id="title">
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">活动说明</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.desc}
+                    {else}
+                    <textarea name="desc" cols="100" rows="10" id="desc">{$result.desc}</textarea>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td align="right"><b>活动规则</b>&nbsp;&nbsp;</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.detail}
+                    {else}
+                    <textarea name="detail" cols="100" rows="10" id="detail">{$result.detail}</textarea>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td align="right"><b>活动函数</b>&nbsp;&nbsp;</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.function}
+                    {else}
+                    <input type="text" value="{$result.function}" name="function" id="function">
+                    {/if}
+                </td>
+            </tr>
+            {if $result.function=='savegift' && $action=='edit'}
+            <tr>
+                <td align="right"><b>奖金级别</b>&nbsp;&nbsp;</td>
+                <td>
+                    <table cellspacing='1' cellpadding='3' style="background: #278296;width: 800px;">
+                        {foreach from=$result.level item=leveldata key=level}
+                        <tr>
+                            <td><b>第{$level}级</b></td>
+                            <td><b>最低投注：</b><input type="text" value="{$leveldata.0}" name="level[{$level}][]" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></td>
+                            <td><b>对应礼金：</b><input type="text" value="{$leveldata.1}" name="level[{$level}][]" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></td>
+                            <td><b>奖级别名：</b><input type="text" value="{$leveldata.2}" name="level[{$level}][]"></td>
+                        </tr>
+                        {/foreach}
+                    </table>
+                </td>
+            </tr>
+            {/if}
+	    {if $result.function=='runlevel' && $action=='edit'}
+            <tr>
+                <td align="right"><b>奖金级别</b>&nbsp;&nbsp;</td>
+                <td>
+                    <table cellspacing='1' cellpadding='3' style="background: #278296;width: 1000px;">
+                        {foreach from=$result.level item=leveldata key=level}
+                        <tr>
+                            <td><b>第{$level}关</b></td>
+                            <td><b>最低投注：</b><input type="text" value="{$leveldata.0}" name="level[{$level}][]" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></td>
+			    <td><b>对应奖金：</b><input type="text" value="{$leveldata.1}" name="level[{$level}][]" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></td>
+                        </tr>
+                        {/foreach}
+                    </table>
+                </td>
+            </tr>
+            {/if}
+            {if $result.function=='mooncake' && $action=='edit'}
+            <tr>
+                <td align="right"><b>奖金级别</b>&nbsp;&nbsp;</td>
+                <td>
+                    <table cellspacing='1' cellpadding='3' style="background: #278296;width: 1000px;">
+                        {foreach from=$result.level item=leveldata key=level}
+                        <tr>
+                            <td><b>第{$level}级</b></td>
+                            <td><b>最低投注：</b><input type="text" value="{$leveldata.0}" name="level[{$level}][]" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></td>
+			    <td><b>对应奖金：</b><input type="text" value="{$leveldata.1}" name="level[{$level}][]" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></td>
+                        </tr>
+                        {/foreach}
+                    </table>
+                </td>
+            </tr>
+            {/if}
+            {if $result.function=='competition'}
+            <tr>
+                <td class="narrow-label">擂台赛报名开始时间</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.joinstarttime}
+                    {else}
+                    <input type="text" value="{$result.joinstarttime}" name="joinstarttime" id="joinstarttime">&nbsp;&nbsp;<font color="red"><b>针对擂台赛</b></font>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">擂台赛报名结束时间</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.joinendtime}
+                    {else}
+                    <input type="text" value="{$result.joinendtime}" name="joinendtime" id="joinendtime">&nbsp;&nbsp;<font color="red"><b>针对擂台赛</b></font>
+                    {/if}
+                </td>
+            </tr>
+            {/if}
+            <tr>
+                <td class="narrow-label">活动开始时间</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.starttime}
+                    {else}
+                    <input type="text" value="{$result.starttime}" name="starttime" id="starttime">
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">活动结束时间</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.endtime}
+                    {else}
+                    <input type="text" value="{$result.endtime}" name="endtime" id="endtime">
+                    {/if}
+                </td>
+            </tr>
+            {if $result.function=='competition'}
+            <tr>
+                <td class="narrow-label">最低投注金额</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.minbet|escape:money}
+                    {else}
+                    <input type="text" value="{$result.minbet}" name="minbet" id="minbet">&nbsp;&nbsp;<font color="red"><b>针对擂台赛，活动期间投注金额低于最小值没有资格领取礼金</b></font>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">擂台赛基础奖金</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.baseprize|escape:money}
+                    {else}
+                    <input type="text" value="{$result.baseprize}" name="baseprize" id="baseprize">&nbsp;&nbsp;<font color="red"><b>针对擂台赛，保底奖池</b></font>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">放入奖池的奖金百分比</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.rebaterate}
+                    {else}
+                    <input type="text" value="{$result.rebaterate}" name="rebaterate" id="rebaterate">&nbsp;&nbsp;<font color="red"><b>针对擂台赛，投注金额加入奖池的比例</b></font>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">是否需要报名费</td>
+                <td>
+                    {if $action=='view'}
+                    {if $result.havejoinfee == 0}否{else}是{/if}
+                    {else}
+                    <select name="havejoinfee">
+                        <option value="0" {if $result.havejoinfee == 0}selected{/if}>否</option>
+                        <option value="1" {if $result.havejoinfee == 1}selected{/if}>是</option>
+                    </select>
+                    {/if}&nbsp;&nbsp;<font color="red"><b>针对擂台赛</b></font>
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">擂台赛报名费</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.joinfee}
+                    {else}
+                    <input type="text" value="{$result.joinfee|default:2}" name="joinfee" id="joinfee" size="4">元&nbsp;&nbsp;<font color="red"><b>针对擂台赛</b></font>
+                    {/if}
+                </td>
+            </tr>
+            {/if}
+            <tr>
+                <td class="narrow-label">活动类型</td>
+                <td>
+                    {if $action=='view'}
+                    {if $result.type == 0}充值送礼{else}非充值送礼{/if}
+                    {else}
+                    <select name="type">
+                        <option value="0" {if $result.type == 0}selected{/if}>充值送礼</option>
+                        <option value="1" {if $result.type == 1}selected{/if}>非充值送礼</option>
+                    </select>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">所属平台</td>
+                <td>
+                    <select id="channelid" name="channelid[]" multiple="mutiple" size="3">
+                        <option value="0" title="公共活动" {if $public==1}selected{/if}>公共活动</option>
+                        {foreach from=$channelList item=channel key=c}
+                        <option value="{$channel.id}" title="{$channel.ename}" {if $channel.selected==1}selected{/if}>{$channel.channel}</option>
+                        {/foreach}
+                    </select>&nbsp;&nbsp;<font color="red"><b>如果选择公共活动，针对所有平台,可多选，多个平台使用同一个活动</b></font>
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">活动状态</td>
+                <td>
+                    {if $action=='view'}
+                    {if $result.disable == 0}<font color="green">启用</font>{else}<font color="red">禁用</font>{/if}
+                    {else}
+                    <select name="disable">
+                        <option value="0" {if $result.disable == 0}selected{/if}>启用</option>
+                        <option value="1" {if $result.disable == 1}selected{/if}>禁用</option>
+                    </select>
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td class="narrow-label">活动排序</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.sort}
+                    {else}
+                    <input type="text" value="{$result.sort|default:255}" name="sort" id="sort" size="3">
+                    {/if}
+                </td>
+            </tr>
+            <tr>
+                <td align="right"><b>页面样式</b>&nbsp;&nbsp;</td>
+                <td>
+                    {if $action=='view'}
+                    {$result.css}
+                    {else}
+                    <textarea name="css" cols="100" rows="10" id="css">{$result.css}</textarea>
+                    {/if}&nbsp;&nbsp;<font color="red"><b>样式中的图片地址请写绝对地址</b></font>
+                </td>
+            </tr>
+            {if $action!='view'}
+            <tr>
+                <td class="narrow-label"><input type="hidden" name="id" value="{$result.id}"></td>
+                <td><input type="submit" value="{if $action=='edit'}修改{else}增加{/if}" class="button"></td>
+            </tr>
+            {/if}
+        </table>
+    {if $action!='view'}
+    </form>
+    {/if}
+</div>
+{include file="pagefooter.html"}

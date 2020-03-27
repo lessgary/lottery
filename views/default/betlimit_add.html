@@ -1,0 +1,164 @@
+{include file="pageheader.html"}
+{insert_scripts files="jquery.js"}
+<head>
+<style type="text/css">
+ #table_list_2{
+     border:1px solid #e7eaec;  
+     width:100%;
+ }
+#table_list_2 tr th{
+    text-align:center;
+    background-color: #f3f3f4;
+ } 
+#table_list_2 tr {
+    text-align:center;
+
+ } 
+#table_list_2 tr td {
+    height: 40px;
+    text-align:center;
+ }
+#table_list_2 tr td input {
+    width: 30%;
+    margin:auto;
+ }
+ </style>
+</head>
+<script>
+    $(document).ready(function() {
+            jQuery("#methodids").click(function(){
+                $(":checkbox[class='checkval']").attr("checked",jQuery("#methodids").attr("checked"));
+            });
+            //jQuery(":input").change();//数据默认加载
+        });
+       
+    var isChange = function(methodid , level ,val ,fixval){
+        if(val != fixval){
+            jQuery("#lastprofit_"+methodid+'_'+level).css("background-color","#eee")
+            jQuery("#userpoint_"+methodid+'_'+level).css("background-color","#eee")
+            jQuery("#biggestPrize_"+methodid+'_'+level).css("background-color","#eee")
+        }else{
+            jQuery("#lastprofit_"+methodid+'_'+level).css("background-color","white")
+            jQuery("#userpoint_"+methodid+'_'+level).css("background-color","white")
+            jQuery("#biggestPrize_"+methodid+'_'+level).css("background-color","white")
+        }
+    }
+
+</script>
+<body class="white-bg">
+    <div class="ibox-content">
+        <form role="form" class="form-inline" action="" method="get" id="subbox">
+                <div class="form-group">
+                <label >游戏 ：</label>
+
+                   <select class="form-control" name="id">
+                   {foreach from=$lotterylist item=info}
+                       <option value="{$info.lvtop_lottery}" {if $info.lvtop_lottery==$iLvtopLottery}selected{/if}>{$info.cnname}</option>
+                    {/foreach}
+                   </select>
+                 </div>
+                <div class="form-group">
+                <!-- <label >基数设置</label>
+                   <input type="text" placeholder="" id="value_1" name="username" value="" class="form-control">
+                 </div> -->
+                  <input type="hidden" name="pid" id="pgid" value="{$pid}">
+            <button class=" btn   btn-primary" type="submit">确定</button>
+        </form>
+    </div>
+    <form role="form" class="form-inline" action="pgame_editprize.shtml" method="POST" id="prize_form" onsubmit="return false;" >
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2" cellspacing="0"  border="1px"  >
+                                <tr height="40px" width="100%"> 
+                                    <th>玩法群</th>
+                                    <th>玩法组</th>
+                                    <th>单一用户单期最高中奖金额</th>
+                                    <th  align="left" ><label><input type="checkbox" id="methodids">&nbsp;全选</label></th>
+                                </tr>
+                                {foreach from=$amethod item=crowd key=k}
+                                <tr>
+                                    <td rowspan="{$crowd.count}" >   <!--玩法群名称-->
+                                        <b>{$crowd.crowdname}</b>  
+                                    </td>
+
+                                    {foreach from=$crowd.method item=method key=l}
+                                        <td  > <!--玩法名称-->
+                                             {$method.methodname}
+                                        </td>
+                                        <td><input type="text" class = "form-control" name="limitbonus[{$method.methodid}]" value="{$method.limitbonus}"> </td>
+                                        <td> <input type="checkbox" class="checkval"  value="[{$method.methodid}]"></td>
+                                        </tr>
+                                    {/foreach}
+                                
+                               {/foreach}
+                               <input type="hidden" name="pid"  id="pgid" value="{$pid}">
+                               <tr >
+                                <td colspan="2">全部设定</td>
+                                <td ><input class="form-control " id="allset" type="text" value=""></td>
+                                <td></td>
+                               </tr>
+                               <tr >
+                                    <td colspan="4"><input class="btn btn-primary" id="prizeformbtn" type="submit" value="保存">
+                                    <a href="betlimit_list.shtml" class="form-control " > 返回 </a>
+                                    </td>
+                               </tr>
+                            </table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</body>
+<script type="text/javascript">
+    $("#allset").blur(function(){
+        if($(this).val() != '') {
+            $(":input[name^='limitbonus']").val($(this).val());
+
+        }
+    });
+    $("#prizeformbtn").click(function(){
+            var postData = {};
+            $("input:checked").each(function(i,n){
+            var k =$(":input[name='limitbonus"+n.value+"']").attr("name");
+            var v =$(":input[name='limitbonus"+n.value+"']").val();
+            if(k != 'undefined') {
+                postData[k] = v;
+            }
+        });
+        postData['pid'] = $("#pgid").val();
+        $.ajax({
+                url:"betlimit_save.shtml",
+                type: "POST",
+                data:postData, 
+                success: function(data){
+                    var data = eval("("+data+")");
+                    if(data.code == 0){
+                        layer.alert(data.msg);
+                        //window.location.reload();
+                    }else{
+                        layer.alert(data.msg,function(){
+                            layer.closeAll();
+                            if($("#pgid").val() > 0) {
+                                 window.location.reload();
+                            }else{
+                                 window.location.href="betlimit_list.shtml";
+                            }
+                        });
+                   
+                    }
+                }
+        });
+    });
+   
+  
+    
+</script>
+
+</html>

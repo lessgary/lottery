@@ -1,0 +1,199 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="./css/systemconfig_set.css">
+
+<body class="gray-bg">
+<form action="" method="post">
+    <div class="ibox-content" style="padding: 10px;">
+        <div class="jqGrid_wrapper">
+            <div class="ui-jqgrid " id="gbox_table_list" dir="ltr" style="width: 100%">
+                <div class="jqgrid-overlay ui-overlay" id="lui_table_list"></div>
+                <div class="ui-jqgrid-view table-responsive" role="grid" id="gview_table_list">
+                    <div class="ui-jqgrid-hdiv">
+                        <div class="ui-jqgrid-hbox">
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list">
+                                <thead>
+                                <tr class="ui-jqgrid-labels">
+                                    <th>名称</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td class="center">
+                                        <input type="text" name="title" value="{$paysetlist.title}">
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list" style="margin-top: 35px">
+                                <thead>
+                                <tr class="ui-jqgrid-labels">
+                                    <th colspan="3" >出款手续费</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td class="center">达到有效投注额是否免手续费：
+                                        <input type="radio" name="withdraw_isallowfree" value="1" {if $paysetlist.withdraw_isallowfree ==1}checked="checked"{/if}>是
+                                        <input type="radio" name="withdraw_isallowfree" value="0"{if $paysetlist.withdraw_isallowfree ==0}checked="checked"{/if}>否
+                                    </td>
+                                    <td class="center">每天免手续费次数：
+                                        <input type="text" name="withdraw_freetimes" value="{$paysetlist.withdraw_freetimes}">
+                                    </td>
+                                    <td class="center" id="free">手续费：
+                                        <input type="text" value="{$paysetlist.withdraw_charge}" style="width: 90px" name="withdraw_charge">%
+                                        <label>
+                                            <input type="radio" name="withdraw_chargetype" value="0" {if $paysetlist.withdraw_chargetype ==0}checked="checked"{/if}>百分比
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="withdraw_chargetype" value="1" {if $paysetlist.withdraw_chargetype ==1}checked="checked"{/if}>固定金额
+                                        </label>
+                                        <span id="withdraw_chargemax" {if $paysetlist.withdraw_chargetype ==1}style="display:none"{/if}>&nbsp;&nbsp;每笔手续费上限：
+                                            <input type="text" style="width: 90px" name="withdraw_chargemax" value="{$paysetlist.withdraw_chargemax}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">每天可出款次数：
+                                        <input type="text" name="withdraw_times" value="{$paysetlist.withdraw_times}">
+                                    </td>
+                                    <td class="center">出款上限：
+                                        <input type="text" name="withdraw_max" value="{$paysetlist.withdraw_max}">
+                                    </td>
+                                    <td class="center">出款下限：
+                                        <input type="text" name="withdraw_min" value="{$paysetlist.withdraw_min}">
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list" style="margin-top: 35px">
+                                <thead>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>入款设定</th>
+                                    <th>线上入款</th>
+                                    <th>公司入款</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td class="center">存款优惠</td>
+                                    <td>
+                                        <input type="radio" name="fastpay_favortime" value="1" {if $paysetlist.fastpay_favortime ==1}checked="checked"{/if}>首次
+                                        <input type="radio" name="fastpay_favortime" value="2" {if $paysetlist.fastpay_favortime ==2}checked="checked"{/if}>每次
+                                        <input type="radio" name="fastpay_favortime" value="0" {if $paysetlist.fastpay_favortime ==0}checked="checked"{/if}>无优惠
+                                    </td>
+                                    <td>
+                                        <input type="radio" name="deposit_favortime" value="1" {if $paysetlist.deposit_favortime ==1}checked="checked"{/if}>首次
+                                        <input type="radio" name="deposit_favortime" value="2" {if $paysetlist.deposit_favortime ==2}checked="checked"{/if}>每次
+                                        <input type="radio" name="deposit_favortime" value="0" {if $paysetlist.deposit_favortime ==0}checked="checked"{/if}>无优惠
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">优惠标准（元）</td>
+                                    <td>
+                                        <input type="text" name="fastpay_favorbase" value="{$paysetlist.fastpay_favorbase}">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_favorbase" value="{$paysetlist.deposit_favorbase}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">优惠百分比(%)</td>
+                                    <td>
+                                        <input type="text" name="fastpay_favorrate" value="{$paysetlist.fastpay_favorrate}">%负数为手续费
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_favorrate" value="{$paysetlist.deposit_favorrate}">%负数为手续费
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">优惠上限金额</td>
+                                    <td>
+                                        <input type="text" name="fastpay_favormax" value="{$paysetlist.fastpay_favormax}">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_favormax" value="{$paysetlist.deposit_favormax}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">入款上限</td>
+                                    <td>
+                                        <input type="text" name="fastpay_max" value="{$paysetlist.fastpay_max}">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_max" value="{$paysetlist.deposit_max}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">入款下限</td>
+                                    <td>
+                                        <input type="text" name="fastpay_min" value="{$paysetlist.fastpay_min}">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_min" value="{$paysetlist.deposit_min}">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">综合额度流水审核</td>
+                                    <td>
+                                        <input type="text" name="fastpay_extbets" value="{$paysetlist.fastpay_extbets}">
+                                        <input type="radio" name="fastpay_isextbets" value="1" {if $paysetlist.fastpay_isextbets ==1}checked="checked"{/if}>是
+                                        <input type="radio" name="fastpay_isextbets" value="0" {if $paysetlist.fastpay_isextbets ==0}checked="checked"{/if}>否
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_extbets" value="{$paysetlist.deposit_extbets}">
+                                        <input type="radio" name="deposit_isextbets" value="1" {if $paysetlist.deposit_isextbets ==1}checked="checked"{/if}>是
+                                        <input type="radio" name="deposit_isextbets" value="0" {if $paysetlist.deposit_isextbets ==0}checked="checked"{/if}>否
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">常态性流水审核</td>
+                                    <td>
+                                        <input type="text" name="fastpay_betsrate" value="{$paysetlist.fastpay_betsrate}">%
+                                        <input type="radio" name="fastpay_isbets" value="1" {if $paysetlist.fastpay_isbets ==1}checked="checked"{/if}>是
+                                        <input type="radio" name="fastpay_isbets" value="0" {if $paysetlist.fastpay_isbets ==0}checked="checked"{/if}>否
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_betsrate" value="{$paysetlist.deposit_betsrate}">%
+                                        <input type="radio" name="deposit_isbets" value="1" {if $paysetlist.deposit_isbets ==1}checked="checked"{/if}>是
+                                        <input type="radio" name="deposit_isbets" value="0" {if $paysetlist.deposit_isbets ==0}checked="checked"{/if}>否
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">常态性流水放宽额度</td>
+                                    <td>
+                                        <input type="text" name="fastpay_betsreducerate" value="{$paysetlist.fastpay_betsreducerate}">%
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_betsreducerate" value="{$paysetlist.deposit_betsreducerate}">%
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">常态性流水审核行政费率</td>
+                                    <td>
+                                        <input type="text" name="fastpay_betschargerate" value="{$paysetlist.fastpay_betschargerate}">%
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_betschargerate" value="{$paysetlist.deposit_betschargerate}">%
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="center">
+        <button class="btn btn-primary" type="submit">保存</button>
+        <button class="btn btn-primary" onclick="window.history.go(-1)" type="submit">取消</button>
+    </div>
+</form>
+</body>
+<script>
+    $(function () {
+        $('#free').find('input[type="radio"]').click(function () {
+            if($(this).val() == 1){
+                $('#withdraw_chargemax').css({display:'none'})
+            }else {
+                $('#withdraw_chargemax').css({display:'block'})
+            }
+        });
+    })
+</script>
+</html>

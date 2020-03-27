@@ -1,0 +1,184 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg"> 
+    <div class="wrapper wrapper-content  animated fadeInRight">
+	    <div class="mgb20 zom">
+         <a href="" class="btn  btn-primary pull-right " style="margin-right: 20px" >刷新</a>
+         &nbsp;&nbsp;
+         <a href="#" onclick='addgroup();' class="btn  btn-primary pull-right " style="margin-right: 20px" >新增商户组</a>
+    </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["组别名称","组别状态","操作"],
+                //表格内容
+                colModel:[
+                    {name:"groupname",index:"groupname",editable:true,sorttype:"int",search:true},
+                    {name:"isdisabled",index:"isdisabled",align:"left",editable:true,formatter:'select',editoptions:{value:"0:启用;1:锁定"}},
+                    {name:"operate",index:"operate",align:'left',formatter:operate},/*格式化本列为超链接*/ 
+                ],
+                //data:mydata,
+                height:"750", //默认高度
+                mtype: "get", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:120,       //每页展示的记录数
+                rowList:[10,20,30], //每页展示的记录数
+               // pager:"#pager_list_2",viewrecords:true,
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+
+            //表单提交
+            $("#subbox").submit(function(){
+                var postData = {};
+                $.each($(this).serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $("#table_list_2").jqGrid("setGridParam", {
+                    page: 1,
+                    mtype: "post",
+                    datatype: 'json',
+                    postData: postData
+                }).trigger('reloadGrid');
+
+                return false;
+            });
+            //自定义操作表格
+            function operate(cellValue, options, rowObject) {  
+                var html =""; 
+                if(rowObject.parentid == 0) {
+                    html += "<a title='查看组成员' href='proxy_memberlist.shtml?groupid="+rowObject.groupid+"' >";  
+                    html += "<span >查看组成员</span></a>&nbsp;&nbsp;"; 
+                    html += "<a title='添加子组别' onclick='addChildGroup("+rowObject.groupid+")' >";  
+                    html += "<span >添加子组别</span></a>&nbsp;&nbsp;"; 
+                } else {
+                    html += "<a title='修改组别'  onclick='editgroup("+rowObject.groupid+")'>";  
+                    html += "<span >修改组别</span></a>&nbsp;&nbsp;";
+
+                    html += "<a title='查看组成员' href='proxy_memberlist.shtml?groupid="+rowObject.groupid+"' >";  
+                    html += "<span >查看组成员</span></a>&nbsp;&nbsp;"; 
+
+                    html += "<a title='分配权限' href='proxy_setpermission.shtml?parentid="+rowObject.parentid+"&groupid="+rowObject.groupid+" ' >";  
+                    html += "<span >分配权限</span></a>&nbsp;&nbsp;";
+                    
+                    html += "<a title='添加子组别' onclick='addChildGroup("+rowObject.groupid+")' >";  
+                    html += "<span >添加子组别</span></a>&nbsp;&nbsp;"; 
+
+                    html += "<a title='复制组别' onclick='copyGroup("+rowObject.groupid+")' >";  
+                    html += "<span >复制组别</span></a>&nbsp;&nbsp;"; 
+
+                    if(rowObject.isdisabled == 0){
+                        html += "<a title='禁用'onclick='lockgroup("+rowObject.groupid+",1)'  >";  
+                        html += "<span >禁用</span></a>&nbsp;&nbsp;";  
+                    }else{
+                        html += "<a title=''onclick='lockgroup("+rowObject.groupid+",0)'  >";  
+                        html += "<span style='color:#ed5565'>启用</span></a>&nbsp;&nbsp;"; 
+                    } 
+                     
+                    html += "<a title='删除'onclick='delgroup("+rowObject.groupid+")'  >";  
+                    html += "<i class='fa fa-remove'></i></a>&nbsp;";  
+               }  
+                return html; 
+            } 
+           
+        
+
+    }); //ready 结束
+
+        //增加组
+        function addgroup() {
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '增加商户组',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['proxy_addgroup.shtml', 'no'],
+            });
+        }
+        //删除商户组
+        function delgroup(groupid) {
+            layer.confirm('确定操作吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="proxy_delgroup.shtml?groupid="+groupid;
+            })
+            return false;
+        }
+        //锁定/解锁商户组
+        function lockgroup(groupid,isdisabled) {
+            layer.confirm('确定操作吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="proxy_lockgroup.shtml?groupid="+groupid+"&isdisabled="+isdisabled;
+
+            })
+            return false;
+        }
+        //复制商户组
+        function copyGroup(groupid) {
+            layer.confirm('确定复制当前商户组吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="proxy_copygroup.shtml?groupid="+groupid;
+
+            })
+            return false;
+        }
+        //添加子组别
+        function addChildGroup(groupid){
+            layer.open({
+                  type: 2,
+                  title: '增加商户组',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['proxy_addgroup.shtml?groupid='+groupid, 'no'],
+            });
+        }
+        //编辑组别
+        function editgroup(groupid){
+            layer.open({
+                  type: 2,
+                  title: '编辑商户组',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '300px'],
+                   content: ['proxy_editgroup.shtml?groupid='+groupid, 'no'],
+            });
+        }
+        </script>
+</body>
+
+
+</html>

@@ -1,0 +1,70 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content  animated fadeInRight">
+    {if ($sPayaccInfo)}
+    <button class="btn btn-primary pull-right mgr15 " onclick="window.history.go(-1)" type="button">返回</button>
+    {/if}
+    <span style="text-align: center">{$sPayaccInfo}</span>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["序号","会员","金额"],
+            //表格内容
+            colModel:[
+                {name:"order",index:"order",sorttype:"int",align:'center',sortable: false},
+                {name:"username",index:"username",align:"center",sorttype:"string",sortable: false},
+                {name:"apply_amount",index:"apply_amount",align:'right',sorttype:"float"}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:-1,       //每页展示的记录数,-1表示关闭分页
+            sortable:true,//开启排序
+            viewrecords:true,
+            beforeRequest: function() {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1
+            }).trigger('reloadGrid');
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

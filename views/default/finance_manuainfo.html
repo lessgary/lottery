@@ -1,0 +1,87 @@
+{include file="pageheader.html"}
+
+<body class="white-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <form  id="subbox" onsubmit="return false;">
+
+            <input type="hidden" name="dateKey" value="{$dateKey}">
+            <input type="hidden" name="optype" value="{$optype}">
+            <input type="hidden" name="order_type" value="{$order_type}">
+        </form>
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                             <div id="pager_list_2"></div> <!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["序号","会员","金额"],
+                //表格内容
+                colModel:[
+                    {name:"number",index:"number",editable:true,sorttype:"int",sortable:false},
+                    {name:"username",index:"dateKey",editable:true,sorttype:"int",sortable:false},
+                    {name:"manuapay_money",index:"manuapay_money",editable:true,align:"right",sortable:false,formatter:manuamoney},
+                ],
+                //data:mydata,
+                height:600, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:30,       //每页展示的记录数
+                rowList:[30,50,100], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                }
+            });
+
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                $("#table_list_2").jqGrid("setGridParam", {page: 1 }).trigger('reloadGrid');
+                return false;
+            });
+            //用户资金列表
+            function manuamoney(cellValue, options, rowObject) {
+                var html ="";  
+                var order_type = "{$order_type}";
+                var optype = "{$optype}";
+                html += "<a class  href='finance_manuaindex.shtml?optype="+optype+"&order_type="+order_type+"&dateKey="+rowObject.dateKey+"&userid="+rowObject.userid+"' >";  
+                html += "<span >"+rowObject.manuapay_money+"</span></a>&nbsp;&nbsp;";    
+                return html; 
+            }
+
+           
+        }); //end ready
+        
+        
+        </script>
+</body>
+</html>

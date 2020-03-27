@@ -1,0 +1,37 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="./css/systemconfig_set.css">
+
+<body class="gray-bg">
+<div class="ibox-content" style="padding: 10px;">
+    <div class="jqGrid_wrapper">
+        <div class="ui-jqgrid-hdiv">
+            <div class="ui-jqgrid-hbox">
+                <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list" >
+                    {foreach from=$aDomains item=aDomains}
+                    <tr>
+                        <td class="center">
+                            <span id="{$code}{$aDomains.i}">{$aDomains.domain}/users_register.shtml?code={$code}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="{$code}{$aDomains.i}" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    {/foreach}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(".copy").click(function(){
+        var copy_text = $("#" + $(this).data("id")).html();
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(copy_text).select();
+        document.execCommand("copy");
+        $temp.remove();
+        layer.msg('复制成功');
+    });
+</script>
+</html>

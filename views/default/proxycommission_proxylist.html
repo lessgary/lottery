@@ -1,0 +1,253 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label for="" class="sr-only">查询参数</label>
+            <select class="form-control" name="nametype" id="select_1">
+                <option value="username">代理账号</option>
+                <option value="domain">绑定域名</option>
+                <option value="code">邀请码</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">查询值</label>
+            <input type="text" id="value_1" name="username" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">数量查询</label>
+            &nbsp;&nbsp;&nbsp;&nbsp;<select class="form-control" name="numtype" id="select_2">
+            <option value="Register">注册人数</option>
+            <option value="Visit">访问量</option>
+        </select>
+        </div>
+        <div class="form-group">
+            <label for="" class="sr-only">数量值</label>
+            <input type="text"  name="minRegister" id="value_2" class="form-control">
+        </div>
+        <span>-</span>
+        <div class="form-group">
+            <label for="" class="sr-only">数量值</label>
+            <input type="text" name="maxRegister" id="value_3" class="form-control">
+        </div>
+        &nbsp;&nbsp;
+        <div class="form-group">
+            <label>开户类型</label>
+            <select class="form-control" name="user_type" id="user_type">
+                <option value="2" selected="selected">全部</option>
+                <option value="1">代理</option>
+                <option value="0">会员</option>
+        </select>&nbsp;&nbsp;&nbsp;
+
+        <a onclick="addLayer()" class="btn btn-primary pull-right ">新增推广</a>
+        <button class="btn btn-primary pull-right mgr15 "type="submit">搜索</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["代理账号","推广码","绑定域名","访问量","返点","注册人数","开户类型","生成时间","备注","操作"],
+            //表格内容
+            colModel:[
+                {name:"username",index:"username",editable:true,sorttype:"int",search:true,},
+                {name:"reg_code",index:"reg_code",align:"center",formatter:getSortUrl},
+                {name:"reg_domain",index:"reg_domain",align:"center"},
+                {name:"views",index:"views",align:"right",sorttype:"int"},
+                {name:"user_point",index:"user_point",align:"right"},
+                {name:"reg_users",index:"reg_users",align:"right",sorttype:"int"},
+                {name:"user_type",index:"user_type",align:"center",formatter:'select',editoptions:{value:"0:会员;1:代理"}},
+                {name:"instertime",index:"instertime",align:"center",sorttype:"date"},
+                {name:"remark",index:"remark",align:"center",sorttype:"string"},
+                {name:"operate",index:"operate",align:'center',formatter:showlink},/*格式化本列为超链接*/
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:50,       //每页展示的记录数
+            rowList:[50,100,200,500], //每页展示的记录数
+            pager:"#pager_list_2",viewrecords:true,
+            beforeRequest:function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list_2").jqGrid("setGridParam", {page: 1 }).trigger('reloadGrid');
+            return false;
+        });
+
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+        // 搜索金额下拉框
+        $(":input[id=select_2]").change(function(){
+
+            $("#value_2" ).attr('name', 'min'+$(this).val());
+            $("#value_3" ).attr('name', 'max'+$(this).val());
+        });
+        function getSortUrl(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title=\"获取推广连接\"  onclick=\"sortUrl('"+rowObject.reg_code+"')\">";
+            html += "<span style='color:cornflowerblue'>"+rowObject.reg_code+"</span></a>&nbsp;";
+            return html;
+        }
+
+    });
+    //自定义操作表格
+    function showlink(cellValue, options, rowObject) {
+        var html ="";
+        if (rowObject.addHomeLink == 1 && rowObject.user_type == 1){
+            html += "<a title='作为加盟'  onclick='setHomeLink("+rowObject.id+",1)'>";
+            html += "<span>作为加盟</span></a>&nbsp;";
+        }else if(rowObject.addHomeLink == 0 && rowObject.user_type == 1 && rowObject.ishomelink ==1) {
+            html += "<a title='解除加盟'  onclick='setHomeLink("+rowObject.id+",0)'>";
+            html += "<span>解除加盟</span></a>&nbsp;";
+        }
+        html += "<a title='修改'  onclick='editLayer("+rowObject.id+","+rowObject.userid+")'>";
+        html += "<span>修改</span></a>&nbsp;";
+        html += "<a title='删除' onclick='delLayer("+rowObject.id+")' >";
+        html += "删除</a>";
+        return html;
+    }
+    //添加默认代理配额
+    function addLayer(){
+        layer.open({
+            type: 2,
+            title: '新增推广链接',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['300px', '540px'],
+            content: ['proxycommission_addproxy.shtml', 'no'],
+            end: function () {
+                $("#table_list_2").trigger('reloadGrid');
+            }
+        });
+    }
+    //编辑代理域名
+    function editLayer(id,userid){
+        layer.open({
+            type: 2,
+            title: '编辑代理域名',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['300px', '540px'],
+            content: ['proxycommission_editproxy.shtml?id='+id+'&userid='+userid, 'no'],
+            end: function () {
+                $("#table_list_2").trigger('reloadGrid');
+            }
+        });
+    }
+    //删除默认代理配额
+    function delLayer(id){
+        layer.confirm('确定删除吗？',{
+            btn:['确定','取消']
+        },function() {
+            $.ajax({
+                type: "get",
+                url:"/proxycommission_deleteproxy.shtml",
+                data:{
+                    'id':id,
+                },
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    layer.msg(data.msg,{
+                        time: 1500,//自动关闭时间
+                    },function () {
+                        if(data.code == 0){
+                            parent.layer.closeAll();
+                        }else{
+                            layer.closeAll();
+                        }
+                        $("#table_list_2").trigger('reloadGrid');
+                    });
+                }
+            });
+        })
+        return false;
+    }
+    //复制功能
+    function sortUrl(code) {
+        layer.open({
+            type: 2,
+            title: '获取推广链接',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['420px', '350px'],
+            content: ['proxycommission_getsorturl.shtml?code='+code, 'no']
+        });
+    }
+    //设置代理加盟
+    function setHomeLink(id,ishomelink){
+        layer.confirm('确定此操作吗？',{
+            btn:['确定','取消']
+        },function() {
+            $.ajax({
+                type: "get",
+                url:"/proxycommission_sethomelink.shtml",
+                data:{
+                    'id':id,
+                    'ishomelink':ishomelink
+                },
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    layer.msg(data.msg,{
+                        time: 1500, //自动关闭时间
+                    },function () {
+                        if(data.code == 0){
+                            parent.layer.closeAll();
+                        }else{
+                            layer.closeAll();
+                        }
+                        $("#table_list_2").trigger('reloadGrid');
+                    });
+                }
+            });
+        })
+        return false;
+    }
+
+</script>
+</body>
+</html>

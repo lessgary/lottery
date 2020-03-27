@@ -1,0 +1,359 @@
+{include file="pageheader.html"}
+<link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+<link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+<link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+<script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+<style>
+    .text-primary{
+        color: #337ab7;
+    }
+</style>
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div class="form-group">
+            <label for="" class="sr-only">状态</label>
+            状态：
+            <select class="form-control" name="status">
+                <option value="-1">全部</option>
+                <option value="0" {if isset($smarty.get.status) && $smarty.get.status == '0'}selected{/if} >正常</option>
+                <option value="1" {if isset($smarty.get.status) && $smarty.get.status == '1'}selected{/if} >隐藏</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary mgl15" type="submit">查询</button>
+        <a onclick="addlayer()" class="btn btn-primary mgl15">添加轮播</a>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list"></table><!--初始化表格必须-->
+                        <div id="page_list"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ibox-content" id="box_add" style="display: none">
+    <form method="post" class="form-horizontal" action="rotation_add.shtml" id="box_add_form" enctype='multipart/form-data'>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">名称</label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="title">
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <label class="col-sm-1 control-label">电脑端图片</label>
+            <div class="col-sm-10">
+                <input type="file" name="pc_image">
+                <span class='text-primary'>图片不允许超过 2M 大小</span>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <label class="col-sm-1 control-label">手机端图片</label>
+            <div class="col-sm-10">
+                <input type="file" class="" name="mobile_image">
+                <span class='text-primary'>图片不允许超过 2M 大小</span>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <div class="col-sm-10">
+                <label class="checkbox-inline">
+                    <input type="radio" value="0" name="link_type" checked>内链
+                </label>
+                <label class="checkbox-inline">
+                    <input type="radio" value="1" name="link_type">外链
+                </label>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <label class="col-sm-1 control-label">链接</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="link" id="link">
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <div class="col-sm-10">
+                <label class="checkbox-inline">
+                    <input type="radio" value="0" name="status" checked>启用
+                </label>
+                <label class="checkbox-inline">
+                    <input type="radio" value="1" name="status">禁用
+                </label>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <label class="col-sm-1 control-label">排序</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="sort">
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <div class="col-sm-4 col-sm-offset-2">
+                <input type="hidden" name="image_id">
+                <button class="btn btn-primary" type="submit">保存</button>
+                <button class="btn btn-white" type="button" onclick="closeAll()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("input[type=radio]").change(function(){
+            $('#link').trigger('change');
+        });
+        // 自定义url校验规则
+        !function ($) {
+            // 表单校验
+            var myurl = function (value, element, param) {
+                var link_type = $("input[type=radio]:checked").val();
+                value = $.trim(value);
+                if ('' === value) {
+                    return true;
+                }
+                if ('1' === link_type) {
+                    var rule = /^(http:\/\/|ftp:\/\/|https:\/\/|\/\/)([\w-]+\.)+[\w-]+\.\w*?/i;
+                } else {
+                    var rule = /^(\/)([\w-]+_)+[\w-]+\.\w*?/i;
+                }
+                return rule.test(value);
+            };
+            jQuery.validate.setRule('myurl', myurl, '外链请填写url协议，内链请不要填写域名且以/开头');
+        }(window.jQuery);
+        // 表单校验
+        $('#box_add_form').validate({
+            rules : {
+                'title' : {
+                    required : true
+                },
+                'link' : {
+                    myurl : true
+                }
+            },
+            messages: {
+                'title' : ['请填写标题']
+            }
+        });
+        // 自定义图片预览html
+        function pcPre(cellValue, options, rowObject){
+            var html = '';
+            if (cellValue) {
+                html += "<a title='图片预览' class='mgr15' onclick=\"showPicture('preview_pc_"+rowObject.image_id +"')\" >";
+                html += "<div id='preview_pc_" + rowObject.image_id + "' style='display: none;'>";
+                html += "<img width='300px' src='" + rowObject.pc_image + "'>";
+                html += "</div>";
+                html += "<span>图片预览</span></a>&nbsp;";
+            } else {
+                html = '无图片';
+            }
+
+            return html;
+        }
+
+        // 自定义图片预览html
+        function mobilePre(cellValue, options, rowObject){
+            var html = '';
+            if (cellValue) {
+                html += "<a title='图片预览' class='mgr15' onclick=\"showPicture('preview_mobile_"+rowObject.image_id +"')\" >";
+                html += "<div id='preview_mobile_" + rowObject.image_id + "' style='display: none;'>";
+                html += "<img width='300px' src='" + rowObject.mobile_image + "'>";
+                html += "</div>";
+                html += "<span>图片预览</span></a>&nbsp;";
+            } else {
+                html = '无图片';
+            }
+
+            return html;
+        }
+
+        // 自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var json = JSON.stringify(rowObject);
+            var html ="";
+            html += "<a title='修改'  class='mgr15' onclick='edit("+json+")'>";
+            html += "<span>修改</span></a>";
+            html += "<a title='删除' onclick='dele("+rowObject.image_id+")' >";
+            html += "删除</a>";
+            return html;
+        }
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list").jqGrid({
+            //表格头
+            colNames:['排序', '状态', '名称', '电脑版图片', '手机版图片', '链接地址', '更新时间', '操作者', '操作'],
+            //表格内容
+            colModel:[
+                {name:"sort",index:"sort",editable:false,sortable:false},
+                {name:"status_msg",index:"status_msg",editable:false,sortable:false},
+                {name:"title",index:"title",editable:false,sortable:false},
+                {name:"pc_image",index:"pc_image",editable:false,sortable:false,align:'left',formatter:pcPre},
+                {name:"mobile_image",index:"mobile_image",editable:false,sortable:false,align:'left',formatter:mobilePre},
+                {name:"link",index:"link",editable:false,sortable:false},
+                {name:"last_time",index:"last_time",editable:false,sortable:false},
+                {name:"admin_name",index:"admin_name",editable:false,sortable:false},/*格式化本列为超链接*/
+                {name:"operate",index:"operate",align:'left',formatter:operate}/*格式化本列为超链接*/
+            ],
+            mtype: "post",
+            datatype: 'json',
+            height:450, //默认高度
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:10,       //每页展示的记录数
+            rowList:[10,50,100,150,200,500], //每页展示的记录数
+            pager:"#page_list",
+            viewrecords:true,
+            beforeRequest: function(){
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $("#table_list").jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list").jqGrid("setGridParam", {
+                page: 1,
+                mtype: "post",
+                datatype: 'json',
+            }).trigger('reloadGrid');
+
+            return false;
+        });
+    });
+
+    // 预览图片弹出层
+    function showPicture(id) {
+        if (!$('#' + id).find('img').is('[src]')) {
+            return false;
+        }
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: '300px',
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: $('#' + id)
+        });
+    }
+
+    // 删除资讯
+    function dele(image_id){
+        layer.confirm('确定删除吗？', function(index){
+            $.ajax({
+                type: 'POST',
+                url: 'rotationconfig_delete.shtml',
+                data: {
+                    'image_id' : image_id
+                },
+                success: function (data){
+                    if (data.result !== undefined) {
+                        layer.alert(data.msg, function(index){
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                },
+                dataType:'json'
+            });
+        });
+    }
+
+    // 添加层级
+    function addlayer(){
+        $('#box_add_form').attr('action', 'rotationconfig_add.shtml');
+        layer.open({
+            type: 1,
+            title: '添加轮播',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: '900px',
+            content: $('#box_add'),
+            cancel: function(index, layero){
+                reSet();
+            }
+        });
+    }
+
+    // 编辑弹窗
+    function edit(obj){
+        $('#box_add').find("input[name='title']").val(obj.title);
+        $('#box_add').find("input[name='sort']").val(obj.sort);
+        $('#box_add').find("input[name='status']").removeAttr('checked');
+        $('#box_add').find("input[name='status'][value='" + obj.status + "']").prop('checked', true);
+        $('#box_add').find("input[name='link_type']").removeAttr('checked');
+        $('#box_add').find("input[name='link_type'][value='" + obj.link_type + "']").prop('checked', true);
+        $('#box_add').find("input[name='image_id']").val(obj.image_id);
+        $('#box_add').find("input[name='link']").val(obj.link);
+        $('#box_add_form').attr('action', 'rotationconfig_edit.shtml');
+        layer.open({
+            type: 1,
+            title: '修改轮播',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: '900px',
+            content: $('#box_add'),
+            cancel: function(index, layero){
+                reSet();
+            }
+        });
+        $('#link').trigger('change');
+    }
+
+    // 关闭layer弹窗
+    function closeAll(){
+        reSet();
+        layer.closeAll();
+    }
+
+    // 重置
+    function reSet(){
+        document.getElementById("box_add_form").reset();
+        $('#box_add').find("input[name='status'][value='0']").prop('checked', true);
+        $('#box_add').find("input[name='link_type'][value='0']").prop('checked', true);
+        $('#box_add_form').validate('hideError');
+    }
+</script>
+</body>
+
+</html>

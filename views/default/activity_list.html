@@ -1,0 +1,271 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form action="./activity_list.shtml" method="POST" id="subbox" class="form-inline">
+        <div class="form-group">
+            <label for="name1">活动名称：</label>
+            <input type="text" class="form-control layer-date" name="title" id="name1" placeholder="请输入活动名称...">
+        </div>
+        <div class="form-group mgl15">
+            <label for="name2">活动状态：</label>
+            <select name="disable" id="name2" class="form-control layer-date" >
+                <option value="3">全部</option>
+                <option value="0">启用</option>
+                <option value="1">停用</option>
+            </select>
+        </div>
+        <div class="form-group" style="padding-left: 60%">
+             <input type="submit"  class="btn btn-primary"  value="点击查询">
+            <button class="btn btn-warning mgr15" onclick="addNew()">新增活动</button>
+           
+        </div>
+    </form>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $.jgrid.defaults.styleUI = "Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames: ["排序值","活动名称", "开始时间", "结束时间", "显示终端", "编辑时间", "操作人员",  "活动状态", "操作"], /*10*/
+            //表格内容
+            colModel: [
+                {name: "sort", index: "sort", align: "left", editable: true,formatter: showsort},
+                {name: "title", index: "title", editable: true,sortable:false},
+                {name: "starttime", index: "starttime", align: 'left', editable: true},
+                {name: "endtime", index: "endtime", align: 'left', editable: true},
+                {name: "client", index:"client",align:"left",editable:false,formatter:showclient,sortable:false},
+                {name: "lasttime", index: "lasttime", align: "left", editable: true},
+                {name: "adminname", index: "adminname", align: "left", editable: true,sortable:false},
+                {name: "disable", index: "disable", align: "left", editable: true,formatter: 'select',
+                    editoptions: {value: "0:启用;1:停用"}},
+                {name: "operate", index: "operate", align: 'left', width: "200", formatter: showlink,sortable:false}, /*格式化本列为超链接*/
+            ],
+            //data:mydata,
+            height: 450, //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth: true,    //表格自适应宽度
+            shrinkToFit: true,   //自适应列宽
+            rowNum: 10,       //每页展示的记录数
+            rowList: [10, 20, 30], //每页展示的记录数
+            pager: "#pager_list_2",
+            viewrecords: true,
+            sortname: 'sort',//默认排序
+            loadtext: "正在拼命加载中",
+//            multiselect: true,//多选
+            beforeRequest: function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4, true);
+        //尾部导航栏
+        $("#table_list_2").jqGrid("navGrid", "#pager_list_2", {
+            edit: false,
+            add: false,
+            del: false,
+            search: false
+        }, {height: 300, reloadAfterSubmit: true});
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function () {
+            $("#table_list_2").jqGrid("setGridParam", {page: 1}).trigger('reloadGrid');
+            return false;
+        });
+
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function () {
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+        // 搜索金额下拉框
+        $(":input[id=select_2]").change(function () {
+
+            $("#value_2").attr('name', 'min' + $(this).val());
+            $("#value_3").attr('name', 'max' + $(this).val());
+        });
+    });
+    //自定义操作表格
+    function showlink(cellValue, options, rowObject) {
+        var html = "";
+        html += "<a title='修改' onclick='editNew(" + rowObject.id + ")' >";
+        html += "<span>修改</span></a>&nbsp;|&nbsp;";
+
+        if (rowObject.disable == 1) {
+            html += "<a title='solution_use' onclick='solOnly(" + rowObject.id +",0)' >";
+            html += "<span style='color: green'>启用</span></a>&nbsp;|&nbsp;";
+        }else {
+            html += "<a title='solution_stop' onclick='solOnly(" + rowObject.id +",1)' >";
+            html += "<span style='color: red'>停用</span></a>&nbsp;|&nbsp;";
+        }
+
+        html += "<a title='del' onclick='delAct(" + rowObject.id + ")' >";
+        html += "<span>删除</span></a>&nbsp;";
+        return html;
+    }
+    function showclient(cellValue, options, rowObject) {
+        var html = "";
+        if (rowObject.web_banner ) {
+            html = 'web';
+        }
+        if (rowObject.app_banner ) {
+            html = html ? html + '/app' : 'app'
+        }
+        return html;
+    }
+    //排序
+    function showsort(cellValue, options, rowObject) {
+        var html = '';
+        html += "<input type=\"text\" name=\"sort\" onblur=\"editsort('"+rowObject.id+"','"+rowObject.sort+"',$(this))\" value='"+rowObject.sort+"' class=\"form-control\" >";
+        return html;
+    }
+    function editsort(id,sort,obj) {
+        var newsort = obj.val();
+        if(newsort == sort ){
+            //layer.msg("未做任何修改");
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: 'activity_editsort.shtml',
+            data: {
+                id:id,
+                sort:sort,
+                newsort:newsort,
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.code == 1) {
+                    layer.msg(data.msg);
+                }else {
+                    layer.msg(data.msg);
+                }
+                 $("#subbox").submit();
+            }
+
+        });
+    }
+    function storeShowJspData(id) {//显示弹出框方法
+        $("#addmaterialNextForm #ids").val(id);
+        alert(id);
+    }
+
+    function pcPre(cellValue, options, rowObject) {
+        var html = '';
+        if (cellValue) {
+            html += "<a title='图片预览' onclick=\"showPicture('preview_pc_" + rowObject.id + "')\" >";
+            html += "<div id='preview_pc_" + rowObject.id + "' style='display: none;'>";
+            html += "<img width='300px' src='" + rowObject.image + "'>";
+            html += "</div>";
+            html += "<span>图片预览</span></a>&nbsp;";
+        } else {
+            html = '无预览图片';
+        }
+
+        return html;
+    }
+
+    function addNew() {
+        layer.open({
+            type: 2,
+            title: '新增活动',
+            closeBtn: 1,
+            area: ['1000px','800px'],
+            maxmin: true, //开启最大化最小化按钮
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: 'activity_add.shtml'
+        });
+    }
+
+    function editNew(id) {
+        layer.open({
+            type: 2,
+            title: '修改活动',
+            closeBtn: 1,
+            maxmin: true, //开启最大化最小化按钮
+//            time:500,
+            area: ['1000px','800px'],
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: 'activity_edit.shtml?id='+id
+        });
+    }
+
+    // 启用或者停用某条活动，强制
+    function solOnly(id,status) {
+        $.ajax({
+            type: 'POST',
+            url: 'activity_edit.shtml',
+            data: {
+                id:id,
+                disable:status,
+                flag:"sol"
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.code == 1) {
+                    location.reload();
+                }else {
+                    layer.alert('修改失败！');
+                }
+            }
+        });
+        return false;
+    }
+
+    //    删除活动
+    function delAct(id) {
+        layer.confirm('是否确认删除活动？', {
+            btn: ['确认', '取消']
+        },function () {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: 'activity_delete.shtml',
+                data: {
+                    id: id
+                },
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.alert(data.msg, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                }
+            });
+        });
+        return false;
+    }
+
+
+</script>
+</body>
+</html>

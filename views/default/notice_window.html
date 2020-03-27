@@ -1,0 +1,61 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content">
+    <form action="notice_window.shtml" method="POST" enctype="multipart/form-data">
+    <div class="container">
+        <div class="form-group">
+            <label class="col-sm-3">是否开放首页弹窗：</label>
+            <div class="col-sm-8">
+                <input name="window" type="checkbox" value="1" id="check1">
+                <label for="check1">是</label>
+                <input name="window" type="checkbox" value="0" id="check2">
+                <label for="check1">否</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3">选择弹跳内容：</label>
+            <div class="col-sm-8">
+                <input name="wincontent" type="checkbox" value="1" id="check3">
+                <label for="check3">文字</label>
+                <input name="wincontent" type="checkbox" value="0" id="check4">
+                <label for="check4">图片</label>
+            </div>
+        </div>
+        <div class="form-group" id="isword">
+            <div class="col-sm-12">
+                <textarea name="content" placeholder="请输入公告内容..." style="width: 100%;height: 200px;"></textarea>
+            </div>
+        </div>
+        <div class="form-group" id="isimage">
+            <div class="col-sm-12">
+                <input type="file" name="imgnotice">
+            </div>
+        </div>
+        <input type="submit" value="提交">
+        <a href="#">取消</a>
+    </div>
+
+    </form>
+</div>
+
+<script>
+    $("#check3").click(function () {
+        $("#check4").prop('checked', false);
+        var ckvalue = $("#check3").val();
+        if (ckvalue == 1){
+            $("#isword").show();
+            $('#isimage').hide();
+
+        }
+    });
+    $("#check4").click(function () {
+        $("#check3").prop('checked', false);
+        var ckvalue = $("#check4").val();
+        if (ckvalue == 0){
+            $("#isword").hide();
+            $('#isimage').show();
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="text-center">
+        <a href="cash_addpayset.shtml" class="btn  btn-primary pull-right mgb20">新增</a>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["编号","名称","操作"],
+            //表格内容
+            colModel:[
+                {name:"id",index:"id",sorttype:"int",align:"left"},
+                {name:"title",index:"title",align:"left"},
+                {name:"operate",index:"operate",align:'left',formatter:operate}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:20,       //每页展示的记录数
+            rowList:[10,20,30], //每页展示的记录数
+            pager:"#pager_list_2",viewrecords:true
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title='修改'class='mgr15' href='cash_editpayset.shtml?id="+rowObject.id+"'>";
+            html += "<span >修改</span></a>&nbsp;";
+            if (rowObject.isdefault != 1){
+                html += "<a title='删除' onclick='delLayer("+rowObject.id+")' >";
+                html += "<i class='fa fa-remove'></i></a>&nbsp;";
+            }
+            return html;
+        }
+    });
+    //删除默认代理配额
+    function delLayer(id){
+        layer.confirm('确定删除吗？',{
+            btn:['确定','取消']
+        },function() {
+            window.location.href="cash_delpayset.shtml?id="+id;
+        })
+        return false;
+    }
+    function message(msg){
+        $(document).note("add", {
+            type : "error",
+            message : msg
+        });
+    }
+</script>
+</body>
+
+
+</html>

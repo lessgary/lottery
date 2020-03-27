@@ -1,0 +1,80 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="row">
+    <div class="col-sm-6" style="width: 100%">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form role="form" id="editForm">
+                    <div class="form-group">
+                        <label>代理层级：</label>
+                        <select id="proxy" name="proxy" class="form-control">
+                            <option value="1" {if $proxyLayer.proxy_level==1}selected="selected"{/if}>一级代理</option>
+                            <option value="2" {if $proxyLayer.proxy_level==2}selected="selected"{/if}>二级代理</option>
+                            <option value="3" {if $proxyLayer.proxy_level==3}selected="selected"{/if}>三级代理</option>
+                            <option value="4" {if $proxyLayer.proxy_level==4}selected="selected"{/if}>四级代理</option>
+                            <option value="5" {if $proxyLayer.proxy_level==5}selected="selected"{/if}>五级代理</option>
+                            <option value="6" {if $proxyLayer.proxy_level==6}selected="selected"{/if}>六级代理</option>
+                            <option value="7" {if $proxyLayer.proxy_level==7}selected="selected"{/if}>七级代理</option>
+                            <option value="8" {if $proxyLayer.proxy_level==8}selected="selected"{/if}>八级代理</option>
+                            <option value="9" {if $proxyLayer.proxy_level==9}selected="selected"{/if}>九级代理</option>
+                            <option value="10" {if $proxyLayer.proxy_level==10}selected="selected"{/if}>十级代理</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>返点等级：</label>
+                        <input type="text" id="point" name="point"value="{$point}" class="form-control">%
+                    </div>
+                    <div class="form-group">
+                        <label>默认配额：</label>
+                        <input type="text" id="def_quota" name="def_quota" value="{$proxyLayer.def_quota}" class="form-control">
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-primary" id="editSubmit"  type="submit"><strong>确认</strong></button>
+                        <button class="btn btn-primary" id="closeSubmit">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/plugins/validate/jquery.validate.min.js"></script>
+<script src="js/plugins/validate/messages_zh.min.js"></script>
+<script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script type="text/javascript">
+    $().ready(function() {
+        $('#closeSubmit').click(function () {
+            parent.layer.closeAll();
+        });
+        $("#editSubmit").click(function(){
+            var postData = {};
+            $.each($("#editForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                type: "POST",
+                url:"",
+                data:postData,
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    if(data.code == 0){
+                        layer.alert(data.msg,function () {
+                            parent.layer.closeAll();
+                        });
+                    }else{
+                        layer.alert(data.msg,function () {
+                            layer.closeAll();
+                        });
+                    }
+                }
+            });
+            return false;
+        });
+    })
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

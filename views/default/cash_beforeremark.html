@@ -1,0 +1,71 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="row">
+    <div class="col-sm-6" style="width: 100%">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form role="form" id="addForm">
+                    <div class="form-group">
+                        <span class="btn btn-outline btn-primary"  onclick="assignment(this)">已出款</span>
+                        <span class="btn btn-outline btn-primary" onclick="assignment(this)">打码未达标</span>
+                        <span class="btn btn-outline btn-primary" onclick="assignment(this)">银行资料有误</span>
+                        <input type="hidden" name="id" value="{$data.id}">
+                        <input type="hidden" name="userid" value="{$data.userid}">
+                    </div>
+                    <div class="form-group">
+                        <label>前台备注：</label>
+                        <input type="text" id="user_remark" name="user_remark" value="{$data.user_remark}" class="form-control">
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-primary" id="addSubmit"  type="submit"><strong>确认</strong></button>
+                        <span class="btn btn-primary" id="addcommission-cancel">取消</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/plugins/validate/jquery.validate.min.js"></script>
+<script src="js/plugins/validate/messages_zh.min.js"></script>
+<script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script type="text/javascript">
+    //给input赋值
+    function assignment(e) {
+        var dom1 = document.getElementById('user_remark');
+        dom1.value = e.innerText;
+    }
+    $().ready(function() {
+        $('#addcommission-cancel').click(function () {
+            parent.layer.closeAll();
+        });
+        $("#addSubmit").click(function(){
+            var postData = {};
+            $.each($("#addForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                type: "POST",
+                url:"cash_addremark.shtml",
+                data:postData,
+                success: function(data) {
+                    var data = eval("("+data+")");
+                    parent.layer.msg(data.msg, {
+                        time:1000
+                    }, function () {
+                        if(data.code == 0){
+                            parent.layer.closeAll();
+                            parent.myrefresh();
+                        }
+                    });
+                }
+            });
+            return false;
+        });
+
+
+    })
+
+</script>
+</body>
+</html>

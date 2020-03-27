@@ -1,0 +1,121 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+        <div class="row">
+            <div class="col-sm-6" style="width: 100%">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" method="POST" action="user_review.shtml"  id="signupForm">
+                            <input type="hidden" name="userid"  value="{$smarty.get.userid}" />
+                            <input type="hidden" name="type"  value="5" />
+                            <input type="hidden" name="entry"  value="{$bankinfo.entry}" />
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">账号名：</label>
+                                <div class="col-sm-8">
+                                    <input  value="{$bankinfo.username}" id="layername" name="username" class="form-control" disabled="true"type="text">
+                                </div>
+                            </div>
+                               <div class="form-group">
+                            <label  class=" col-sm-2 control-label" style="width: 20%;">银行</label>
+                             <div class="col-sm-8">
+                               <select class="form-control" name="bankid" > 
+                                {foreach from=$banklist item=bank key=k1}
+                                    <option value="{$bank.bankid}" {if $bankinfo.bankid== $bank.bankid}selected{/if}>{$bank.bankname}</option>
+                                {/foreach}
+                                </select>
+                               <!--  <input type="hidden" name="keepmin" id="keepmin" value="{$minpoint}" />
+                                <input type="hidden" name="keepmax" id="keepmax" value="{$maxpoint}" /> -->
+                                </div>
+                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">省市：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" name="provinceid" > 
+                                        {foreach from=$regionlist item=region key=k1}
+                                            <option value="{$region.provinceid}" {if $bankinfo.provinceid== $region.provinceid}selected{/if}>{$region.title}</option>
+                                        {/foreach}
+                                        </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">卡号：</label>
+                                <div class="col-sm-8">
+                                    <input id="cardno" name="cardno" value="{$bankinfo.cardno}" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">支行名称</label>
+                                <div class="col-sm-8">
+                                    <input id="withdrawal_num" name="branch" value="{$bankinfo.branch}" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+								<label class="col-sm-2" style="width: 20%;"></label>
+                                <div class="col-sm-8">
+                                    <button class="btn btn-primary" id="formsubmit" type="submit">提交</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="js/plugins/validate/messages_zh.min.js"></script>
+    <script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script type="text/javascript">
+    $().ready(function() {
+        $("#formsubmit").click(function(){
+            var postData = {};
+            $.each($("#signupForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            for(var k in postData){
+                if(k=="remark") continue;
+                if(postData[k].indexOf(" ") != -1){
+                    layer.alert("填写的数据中不允许存在空格");
+                    return false;
+                }
+                if(postData[k] == ""){
+                    layer.alert("请将信息填写完整");
+                    return false;
+                }
+                if(k == "cardno"){
+                     var re = /^\d{16}$|^\d{17}$|^\d{18}$|^\d{19}$/;
+                     if (!re.test($("#cardno").val())) {
+                        layer.alert("银行卡号不符合规则，请输入16-19位银行卡账号");
+                        return false;
+                     }
+                }
+            }
+             $.ajax({
+                type: "POST",
+                url:"user_addreview.shtml",
+                data:postData, 
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    if(data.code == 0){
+                        layer.alert(data.msg);
+                    }else{
+                        layer.alert(data.msg,function(){
+                               parent.location.reload();
+                            });
+                    }
+                }
+            });
+             return false;
+        });
+       
+    })
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

@@ -1,0 +1,136 @@
+{include file="pageheader.html"}
+
+<body class="">
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["注单编号","用户名","注册时间","投注时间","用户IP","玩法","投注内容","投注金额","中奖金额"],
+            //表格内容
+            colModel:[
+                {name:"projectid",index:"projectid",align:"left",sortable:false,},
+                {name:"username",index:"username",align:"left",sortable:false,},
+                {name:"registertime",index:"registertime",align:"left",sortable:false,},
+                {name:"writetime",index:"writetime",align:"left",sortable:false,},
+                {name:"lastip",index:"lastip",align:"left",sortable:false,},
+                {name:"methodname",index:"methodname",align:"left",sortable:false,},
+                {name:"code",index:"code",align:"left",sortable:false,},
+                {name:"totalprice",index:"totalprice",align:"left",sortable:false},
+                {name:"bonus",index:"bonus",align:"left",sortable:false,},
+            ],
+            //data:mydata,
+            height:"650", //默认高度
+            mtype: "POST", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:20,       //每页展示的记录数
+            rowList:[20,30,50], //每页展示的记录数
+            //pager:"#pager_list_2",viewrecords:true
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var html ="";
+            if (rowObject.status == 1) {
+                    html += "<span title='' >已通过</span>";
+                } else {
+                    html += "<button class='btn  btn-primary' onclick='checkstatus("+rowObject.id+","+rowObject.status+")'>通过风控</button>";
+                }
+            return html;
+        }
+
+        //中奖注单比例
+        function getBetPercent(cellValue, options, rowObject) {
+           var betpercent =  (rowObject.bonu_count/rowObject.bet_count).toFixed(2);
+           return (betpercent*100).toFixed(0)+'%';
+        }
+        //中奖人数比例
+        function getBonuPercent(cellValue, options, rowObject) {
+            var bonupercent =  (rowObject.bonu_users/rowObject.bet_users).toFixed(2);
+            return (bonupercent*100).toFixed(0)+'%';
+        }
+        //亏损比
+        function  getLossPercent(cellValue, options, rowObject) {
+            return ((rowObject.bonu_money - rowObject.bet_money )/rowObject.bet_money).toFixed(2);
+        }
+        //中奖注单详情
+        function bonuInfo(cellValue, options, rowObject) {
+             var html ="";
+             html +="<a onclick='bonuInfo("+rowObject.lotteryid+","+rowObject.issue+")'> "+rowObject.bonu_count+" </a>";
+             return html;
+        }
+    });
+        /** * desc 编辑分组名称 */
+       function bonuInfo(lotteryid,issue) {
+          layer.open({
+                  type: 2,
+                  title: '中奖注单详情',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['900px', '700px'],
+                   content: ['lotteryrisk_bonuinfo.shtml?lotteryid='+lotteryid+'&issue='+issue],
+            }); 
+       }
+        //通过风控
+        function checkstatus(id,status) {
+            $.ajax({
+                type: "POST",
+                url:"lotteryrisk_updatestatus.shtml",
+                data:{"id":id,"status":1}, 
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    if(data.code == 0) {
+                        layer.msg(data.msg);
+                    } else {
+                        layer.msg(data.msg); 
+                        $("#table_list_2").jqGrid("setGridParam", {page: 1, mtype: "post", datatype: 'json' }).trigger('reloadGrid');
+                    }
+                }
+            });
+        }
+    //删除默认代理配额
+    function delbet(id){
+        layer.confirm('确定删除吗？',{
+            btn:['确定','取消']
+        },function() {
+            window.location.href="betlimit_delete.shtml?id="+id;
+        })
+        return false;
+    }
+    function message(msg){
+        $(document).note("add", {
+            type : "error",
+            message : msg
+        });
+    }
+</script>
+</body>
+
+
+</html>

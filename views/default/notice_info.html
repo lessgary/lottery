@@ -1,0 +1,164 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content" style="height: 120px;">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label class="">发送用户名：</label>
+            &nbsp;&nbsp;
+            <input type="text" placeholder="请输入管理员名" name="adminname" class="form-control" >
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="form-group">
+            <label for="" class="">状态：</label>
+            &nbsp;&nbsp;
+            <select class="form-control"  name="isdel"> <!--0:未删除;1:删除-->
+                <option value="0" >正常</option>
+                <option value="1" >删除</option>
+            </select>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="form-group">
+            <label for="" class="">公告状态：</label>
+            &nbsp;&nbsp;
+            <select class="form-control"  name="status">
+                <option value="1" selected="selected">启用</option>
+                <option value="2">停用</option>
+            </select>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="form-group">
+            <label for="value_subject" class="">标题：</label>
+            &nbsp;&nbsp;
+            <input type="text" placeholder="请输入标题" id="value_subject" name="subject" class="form-control">
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="form-group">
+            <label>日期：</label>
+            &nbsp;&nbsp;
+            <input name="regstarttime" class="form-control layer-date" value="{$sdate}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        &nbsp;&nbsp;
+        <div class="form-group">
+            <label>~</label>
+            &nbsp;&nbsp;
+            <input name="regendtime" class="form-control layer-date" value="{$edate}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+    <p></p>
+        <br>
+        <a href="notice_add.shtml" class="btn btn-sm btn-primary pull-right" style="margin-right: 80px" >新增公告</a>
+        <button class="btn btn-sm btn-primary pull-right " style="margin-right: 80px" type="submit">点击查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="jqGrid_wrapper">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["ID","公告状态","排序值","标题","编辑日期","发布人员","种类","操作"],
+            //表格内容
+            colModel:[
+                {name:"id",index:"id",editable:true},
+                {name:"status",index:"status",editable:true,formatter:'select',editoptions:{value:"1:启用;2:停用"}},// @TODO KEN STATUS
+                {name:"sorts",index:"sorts",editable:true},
+                {name:"subject",index:"subject",editable:true},
+                {name:"sendtime",index:"sendtime",align:"right", editable:true},
+                {name:"adminname",index:"adminname",align:"right",editable:true},
+                {name:"type",index:"type",align:"right",editable:true,formatter:'select',editoptions:{value:"1:文字公告;2:图片公告"}},
+                {name:"operate",index:"operate",align:'left',width:"200",formatter:showlink},/*格式化本列为超链接*/
+            ],
+            //data:mydata,
+            height:450, //默认高度
+            mtype: "get", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:10,       //每页展示的记录数
+            rowList:[10,20,30], //每页展示的记录数
+            pager:"#pager_list_2",
+            viewrecords:true,
+            sortname : 'id',//默认排序
+            loadtext:"正在拼命加载中",
+            //multiselect : true//多选
+        });
+        $("#table_list_2").setSelection(4,true);
+        //尾部导航栏
+        $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:true,add:true,del:true,search:true},{height:300,reloadAfterSubmit:true});
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            var postData = {};
+            $.each($(this).serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1,
+                mtype: "post",
+                datatype: 'json',
+                postData: postData
+            }).trigger('reloadGrid');
+
+            return false;
+        });
+
+
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+        // 搜索金额下拉框
+        $(":input[id=select_2]").change(function(){
+
+            $("#value_2" ).attr('name', 'min'+$(this).val());
+            $("#value_3" ).attr('name', 'max'+$(this).val());
+        });
+    });
+    //自定义操作表格
+    function showlink(cellValue, options, rowObject) {
+        //console.info([cellValue, options, rowObject]);
+        var html ="";
+        html += "<a href='notice_edit.shtml?id="+rowObject.id+"' class=' ' >";
+        html += "<span style='color:#1ab394'>修改</span></a>&nbsp;&nbsp;";
+        html += "|&nbsp;&nbsp;";
+        html += "<a href='notice_view.shtml?userid="+rowObject.userid+"' class=' ' >";
+        html += "<span style='color:#1ab394'>查看</span></a>&nbsp;&nbsp;";
+        html += "|&nbsp;&nbsp;";
+        html += "<a href='notice_view.shtml?userid="+rowObject.userid+"' class=' ' >";
+        html += "<span style='color:#1ab394'>启用</span></a>&nbsp;&nbsp;";
+        html += "|&nbsp;&nbsp;";
+        html += "<a href='http://www.lexcusa.com/user_info.shtml?userid="+rowObject.userid+"' class=' ' >";
+        html += "<span style='color:#1ab394'>删除</span></a>&nbsp;&nbsp;";
+        return html;
+    }
+
+    function storeShowJspData(id){//显示弹出框方法
+        $("#addmaterialNextForm #ids").val(id);
+        alert(id);
+        //$("#addmaterialNext").alert("open");
+    }
+
+
+</script>
+</body>
+</html>

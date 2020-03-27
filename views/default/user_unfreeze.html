@@ -1,0 +1,99 @@
+{include file="pageheader.html"}
+<style>
+    @media (min-width: 768px) {
+        .form-horizontal .control-label {
+            padding-top: 0px;
+        }
+    }
+</style>
+<body class="white-bg">
+    <!--分层-->
+    <div id ="layer"  class="modal-body">
+      <div class="row">
+        <form class="form-horizontal m-t" method="POST" action="" onsubmit="return false;" id="signupForm">
+                <div class="form-group">
+                    <label for="" class="col-sm-3 control-label">会员名称:</label>
+                    <div class="col-sm-8 ">
+                       <input type="hidden"  value="{$userid}" name="userid" > 
+                       <input type="input"  value="{$user.username}" disabled="true" > 
+                       </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">解冻范围:</label>
+                        <div class="col-sm-8">
+                          <input type="radio"  value="1" name="unfree" checked="checked"> 仅解冻此会员，不解冻其下级<br>
+                          <input type="radio"  value="2" name="unfree" > 解冻此会员和所有下级 
+                        </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">冻结方式:</label>
+                        <div class="col-sm-8">
+                         {if $usertree.isfrozen == 1}上级冻结{elseif $usertree.isfrozen == 2}公司冻结{/if}
+                        </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="" class="col-sm-3 control-label">冻结类型:</label>
+                    <div class="col-sm-8 ">
+                      {if $usertree.frozentype == 1}完全冻结{elseif $usertree.frozentype == 2}可登录，查看帮助中心，不可投注，不可充提{elseif $usertree.frozentype == 3}不可投注，可充提，查看用户列表和报表、帮助中心{/if}
+                       </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">冻结原因:</label>
+                        <div class="col-sm-8">
+                         {$usertree.frozenreason}
+                        </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">能否使用在线客服:</label>
+                        <div class="col-sm-8">
+                         {if $usertree.isallowcs == 1}允许{else}不允许{/if}
+                        </div>
+                </div>
+
+                <div class="form-group">
+                     <div class="col-sm-8 col-sm-offset-3">
+                        <button class="btn btn-primary" id="formsubmit" type="submit">提交</button>&nbsp;&nbsp;
+                     </div>
+                </div>
+          </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+      $(document).ready(function(){
+      //分层表单提交
+            $("#formsubmit").click(function(){
+                var postData = {};
+                $.each($("#signupForm").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                 $.ajax({
+                    url:"user_unfreeze.shtml",
+                    type: "POST",
+                    data:postData, 
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                parent.location.reload();
+                            });
+                        }
+                    }
+                });
+                 return false;
+            });
+            //隐藏分层div
+            $(".cancel").click(function(){
+              layer.alert();
+                layer.closeAll();
+            })
+      });
+    </script>
+    </body>
+    </html>
+

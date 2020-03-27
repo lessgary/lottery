@@ -1,0 +1,270 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="plugins/kindeditor/themes/default/default.css"/>
+<script charset="utf-8" src="plugins/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="plugins/kindeditor/lang/zh_CN.js"></script>
+
+<body>
+<div class="container">
+    <div class="row">
+        <div class="ibox-content">
+            <form class="form-horizontal m-t"  onsubmit="return false"
+                  enctype="multipart/form-data" id="subbox">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">公告标题：</label>
+                    <div class="col-sm-8">
+                        <input id="subject" name="subject" class="form-control" type="text" required="required"
+                               value="{$nvalue.subject}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="notice_type" class="col-sm-2 control-label">公告类型：</label>
+                    <div class="col-sm-8">
+                        <select name="type" id="notice_type">
+                            <option value="1" selected="selected">文字类型</option><!--1 文字 2 图片-->
+                            <option value="2">图片类型</option>
+                        </select>
+                    </div>
+                </div>
+                <!--<div class="form-group">-->
+                    <!--<label class="col-sm-2 control-label">开始时间：</label>-->
+                    <!--<div class="col-sm-8">-->
+                        <!--<input name="sdate" class="form-control layer-date" value="{$today}"-->
+                               <!--placeholder="YYYY-MM-DD hh:mm:ss"-->
+                               <!--onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                    <!--<label class="col-sm-2 control-label">结束时间：</label>-->
+                    <!--<div class="col-sm-8">-->
+                        <!--<input name="edate" class="form-control layer-date" value="{$today}"-->
+                               <!--placeholder="YYYY-MM-DD hh:mm:ss"-->
+                               <!--onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">显示排序：</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control layer-date" name="sorts" value="{$nvalue.sorts}" required="required">
+                        <span class="help-block m-b-none" style="color: red">(*不可重复，越小优先显示)</span>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-sm-2 control-label">是否弹窗：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="radio" value="1" name="iswindow"  >
+                            是 <span style="color: #ff2a2a"></span>
+                        </label>&nbsp;&nbsp;
+                        <label>
+                            <input type="radio" value="2" name="iswindow"  checked>
+                            否 <span style="color: #ff2a2a"></span>
+                        </label>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-sm-2 control-label">发送版本：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="checkbox" value="0" name="all_version" id="all_version" checked >
+                            全部 <span style="color: #ff2a2a"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="1" name="version[]"  checked>
+                            PC端 <span style="color: #ff2a2a"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="2" name="version[]"  checked>
+                            移动端 <span style="color: #ff2a2a"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">发送范围：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="checkbox" value="1" name="allUser" id="all_user" checked>
+                            所有用户 <span style="color: #ff2a2a">*(未登录用户和所有层级都会看到该公告)</span>
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">层级：</label>
+                    <div class="col-sm-8 "style="padding-top: 7px;">
+                        <label>
+                            <input type="checkbox" value="1" name="all_level"> 全部
+                        </label>
+                        {foreach item=lv from=$layer key=idd}
+                        <label>
+                            <input type="checkbox" name="layerid[]" value="{$lv.layerid}">{$lv.name}
+                        </label>
+                        {/foreach}
+                    </div>
+                </div>
+                <!--文本内容-->
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="display: none">添加文字公告：</label>
+                    <div class="col-sm-12">
+                        <textarea name="content" style="width:100%;height:250px;display: none"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" style="display: none" id="image_id">
+                    <br>
+                    <label class="col-sm-2 control-label" >添加图片公告：</label><span style="color: #ff2a2a">*上传图片最大不能超过2M</span>
+                    <div class="col-sm-8 ">
+                    <input type="file" name="image" class="layer-upload-file" id="img_id">
+                        <br>
+                    <!--<input type="button" class="btn btn-success" id="img_sub" value="确定">-->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-3">
+                        <button class="btn btn-primary mgr15" id="formsubmit" type="submit">保存内容</button>
+                        <button class="btn btn-white mgr15" type="button" onclick="closeA()">取消</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // 创建编辑器
+    var editor;
+    var yy = $("#notice_type").val();
+    if (yy == 1 ){
+        editor = KindEditor.create('textarea[name="content"]', {
+            uploadJson : 'default_kindeditoruploadimage.shtml',
+            fileManagerJson : 'default_kindeditorimagemanager.shtml',
+            allowImageUpload: true,
+            allowFileUpload: false
+    });
+    }
+
+    $("input[name='image']").change(function () {
+        var fileSize = this.files[0].size;
+        if (fileSize > 1048576) {
+            layer.alert("当前图片尺寸过大，请重新选择图片上传",{closeBtn:false},function () {
+                $("input[name='image']").val("");
+                layer.closeAll();
+            });
+        }
+    });
+
+    $("#notice_type").change(function () {
+        var xx = $(this).val();
+        if (xx == 1) {
+            editor = KindEditor.create('textarea[name="content"]', {
+                uploadJson : 'default_kindeditoruploadimage.shtml',
+                fileManagerJson : 'default_kindeditorimagemanager.shtml',
+                allowImageUpload: true,
+                allowFileUpload: false
+            });
+            $("#image_id").hide();
+        } else if (editor) {
+            editor.remove();
+            $("#image_id").hide();
+            if (xx == 2) {
+                $("#image_id").show();
+            }
+        }else {
+            if (xx == 2) {
+                $("#image_id").show();
+//                addImg();
+            }
+        }
+    });
+
+//    关闭弹出层
+     function closeA() {
+         layer.confirm('是否确认关闭，未发布的公告将不会被保存',function () {
+             parent.layer.closeAll();
+//             parent.location.reload();
+         });
+     }
+    $().ready(function () {
+        // 异步提交表单
+        $("#subbox").submit(function () {
+            $.ajax({
+                type: 'POST',
+                url: 'notice_send.shtml',
+                data: new FormData($(this)[0]),
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+//                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.alert(data.msg, function (index) {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        })
+                    } else {
+                        switch (data.code) {
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 14:
+                            case 15:
+                            case 16:
+                                layer.alert(data.msg);
+                                break;
+                            default:
+                                layer.alert('修改失败！');
+                        }
+                    }
+                }
+            });
+            return false;
+        });
+        //全部版本
+        $(":input[name=all_version]").click(function () {
+            $(":input[name^=version]").prop('checked', $(this).prop('checked'));
+        });
+        //web/app
+        $(":input[name^=version]").click(function(){
+
+              if ($(":input[name^=version]").length == $(":input[name^=version]:checked").length) {
+                $(":input[name=all_version]").prop('checked', true);
+            } else {
+                $(":input[name=all_version]").prop('checked', false);
+            }
+        });
+        $(":input[name=all_level]").click(function () {
+            $(":input[name^=layer]").prop('checked', $(this).prop('checked'));
+            $("#all_user").prop('checked', !$(this).prop('checked'));
+        });
+        $(":input[name^=layer]").click(function () {
+            if ($(":input[name^=layer]").length == $(":input[name^=layer]:checked").length) {
+                $(":input[name=all_level]").prop('checked', true);
+            } else {
+                $(":input[name=all_level]").prop('checked', false);
+            }
+            if($(":input[name^=layer]:checked").length == 0 ) {
+                $("#all_user").prop('checked', true);
+            }else {
+                $("#all_user").prop('checked', false);
+            }
+        });
+        $("#all_user").click(function(){
+            $(":input[name^=layer]").prop('checked', !$(this).prop('checked'));
+            $(":input[name=all_level]").prop('checked', !$(this).prop('checked'));
+        });
+
+    });
+
+
+
+</script>
+</body>
+</html>

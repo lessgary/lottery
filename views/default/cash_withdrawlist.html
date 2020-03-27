@@ -1,0 +1,526 @@
+{include file="pageheader.html"}
+<style>
+
+    .form-control {
+        height: auto !important;
+    }
+    input[type=checkbox], input[type=radio] {
+       margin-top: 17px !important;
+        margin-right: 0px !important;
+        margin-bottom: 17px !important;
+        margin-left: 4px !important;
+    }
+</style>
+<body class="gray-bg">
+<script src="js/plugins/layer/layer-3.03/layer.js"></script>
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label>申请时间</label>
+            <input name="sTime" id="sTime" class="form-control layer-date" value="{$sTime}"
+                   placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <label>~</label>
+            <input name="eTime" id="eTime" class="form-control layer-date" value="{$eTime}"
+                        placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <label>确认时间</label>
+            <input name="sFinishTime" id="sFinishTime" class="form-control layer-date" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <label>~</label>
+            <input name="eFinishTime" id="eFinishTime" class="form-control layer-date" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <label>金额:</label>
+            <input  name="withdrawMin" type="text" class="form-control" value="">
+        </div>
+        <div class="form-group">
+            <label>~</label>
+            <input  name="withdrawMax" type="text" class="form-control" value="">
+        </div><p></p>
+         <div class="form-group">
+            <label>刷新</label>
+            <select id="timer" class="form-control" onchange="change()">
+                <option value="-1">不刷新</option>
+                <option value="30000">30s</option>
+                <option value="60000">60s</option>
+                <option value="120000">120s</option>
+                <option value="180000">180s</option>
+            </select>
+        </div>
+         <div class="form-group">
+            <label>出款类型</label>
+            <select id="withdrawType" name="withdrawType" class="form-control" >
+                <option value="-1">全部</option>
+                <option value="0">人工出款</option>
+                <option value="1">三方出款</option>
+            </select>
+        </div>
+         <div class="form-group">
+            <label>出款状态</label>
+            <select id="withdrawCategory" name="withdrawCategory" class="form-control" >
+                <option value="-1">全部</option>
+                <option value="0">未处理</option>
+                <option value="1">预备出款</option>
+                <option value="2">已出款</option>
+                <option value="3">已取消</option>
+            </select>
+        </div>
+         <div class="form-group">
+            <label>审核状态</label>
+            <select id="verifyCategory" name="verifyCategory" class="form-control" >
+                <option value="-1">全部</option>
+                <option value="1">已通过</option>
+                <option value="2">已拒绝</option>
+                <option value="0">待审核</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>订单号</label>
+            <input  name="order" class="form-control" value="">
+        </div>
+        <div class="form-group">
+            <label>会员账号</label>
+            <input  name="username" class="form-control">
+        </div>
+        <button class="btn  btn-primary  " id="search_user"  type="submit" >查询</button>
+        </br>
+        <label>层级：</label>
+        {foreach from=$userLevel item=userLevel key=k}
+        <div class="form-group">
+            <input name="level[]" type="checkbox" value="{$userLevel.layerid}" class="form-control">
+            <label>{$userLevel.name}</label>
+        </div>
+        {/foreach}
+        <br/>
+        <button class="btn  btn-primary pull-right" id="make_excel" type="submit" value="export">导出</button>
+    </form>
+    <br/>
+    <div class="form-group">
+        总笔数：（<span class="text-danger" id="_count">0</span>）&nbsp;&nbsp;&nbsp;
+        出款金额：（<span class="text-danger" id="_sumApply">0.00</span>）&nbsp;&nbsp;&nbsp;
+        实际出款：（<span class="text-danger" id="_sumReal">0.00</span>）&nbsp;&nbsp;&nbsp;
+    </div>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var timer = "";
+    var isShowParagraph = false
+    $.is_lock = false;
+    function change() {
+        if(timer !== ""){
+            clearInterval(timer);
+        }
+        var reflesh_time = $('#timer').val();
+        if (-1 != reflesh_time) {
+            //if ($("#ref").is(":checked")){
+               timer = setInterval("myrefresh()",reflesh_time);
+            //}
+        }
+    }
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        // 显示入款时间
+        function showTime(cellValue, options, rowObject){
+            return '<div>申请时间：' + rowObject.applytime + '</div><div>确认时间：' + rowObject.finishtime + '</div>';
+        }
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["层级","订单号","会员账号","姓名","出款类型","手续费","实际出款","出款状态","申请时间","确认时间","风控","风控人","出款操作","出款人","前台备注","后台备注"],
+            //表格内容
+            colModel:[
+                {name:"name",index:"name",sorttype:"string"},
+                {name:"order_no",index:"order_no",width:"250px",sorttype:"string"},
+                {name:"username",index:"username"},
+                {name:"realname",index:"realname"},
+                {name:"withdraw_type",index:"withdraw_type",formatter:'select',editoptions:{value:"0:人工出款;1:三方出款"}},
+                {name:"totalCharge",index:"totalCharge",align:"left",formatter:getUserBetsCheck},//手续费
+                {name:"real_amount",index:"real_amount",formatter:getUserBankInfo,align:"left"},//实际出款金额
+                // {name:"is_first",index:"is_first",width:'70px',align:"left"}, //是否首次
+                // {name:"availablebalance",index:"availablebalance",align:"left",sorttype:"float"},//余额
+                {name:"status",index:"status",formatter:'select',editoptions:{value:"0:未处理;1:预备/锁定;2:已出款;3:取消出款"}}, //出款状态
+                {name:"applytime",index:"applytime",width:"200px",sorttype:"date",align:"left"}, //申请时间
+                {name:"finishtime",index:"finishtime",width:"200px",sorttype:"date",align:"left"}, //确认时间
+                {name:"verify_status",index:"verify_status",align:"left",formatter:setVerify}, //风控
+                {name:"verify_adminname",index:"verify_adminname",align:"left",sorttype:"string"}, //风控人
+                {name:"operate",index:"operate",width:'350px',align:'center',formatter:operate},/*格式化本列为超链接*/
+                {name:"adminname",index:"adminname",align:"left",sorttype:"string"}, //出款人
+                {name:"user_remark",index:"user_remark",align:"left",sorttype:"string",formatter:beforeRemark}, //前台备注
+                {name:"admin_remark",index:"admin_remark",align:"left",sorttype:"string",formatter:afterRemark} //后台备注
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:500,       //每页展示的记录数
+            rowList:[100,300,500,1000,2000], //每页展示的记录数
+            pager:"#pager_list_2",viewrecords:true,
+            beforeRequest: function() {
+                var postData = {};
+                var preg = /\[\]/;
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    if (preg.test(n.name)){
+                        var name = n .name.replace(preg,'');
+                        if (name in postData) {
+                            postData[name] += ',' + n.value;
+                        }else {
+                            postData[name] = n.value;
+                        }
+                    }else {
+                        postData[n.name] = n.value;
+                    }
+                });
+                if (typeof postData.level == 'undefined') {
+                    postData.level = '';
+                }
+                if (typeof postData.withdrawCategory == 'undefined') {
+                    postData.withdrawCategory = '';
+                }
+                if (typeof postData.verifyCategory == 'undefined') {
+                    postData.verifyCategory = '';
+                }
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            },
+            loadComplete: function (xhr){
+                if ('extend' in xhr) {
+                    $('#_count').html(xhr.extend.count);
+                    $('#_sumApply').html(xhr.extend.sumApply);
+                    $('#_sumReal').html(xhr.extend.sumReal);
+                }
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            var action = $(this).find("button[type=submit]:focus").val();
+            // 导出
+            if ('export' == action) {
+                $(this).attr('method', 'post');
+                $(this).attr('action', 'cash_makewithdrawexcel.shtml');
+                return true;
+            } else {
+                $(this).attr('action', '');
+            }
+            $("#table_list_2").jqGrid("setGridParam", {page: 1}).trigger('reloadGrid');
+            return false;
+        });
+        $('#table_list_2').trigger('reloadGrid');
+
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+
+            $("#value_1").attr('name', $(this).val());
+        });
+
+        //自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var html ="";
+            if (rowObject.verify_status == 1){
+                if (rowObject.status == 0){
+                    html += "<a style='color:#1ab394' onclick=\"ready("+rowObject.id+",1,"+rowObject.userid+","+rowObject.apply_amount+",'"+rowObject.username+"',0)\">";
+                    html += "人工出款</a>&nbsp;&nbsp;&nbsp;";
+                    html += "<a style='color:#1ab394' onclick=\"ready("+rowObject.id+",1,"+rowObject.userid+","+rowObject.apply_amount+",'"+rowObject.username+"',1)\">";
+                    html += "三方出款</a>&nbsp;&nbsp;&nbsp;";
+                    html += "<a style='color:#CE0000' onclick=\"confirmWithdraw(" + rowObject.id + ",3,"+rowObject.userid+")\">";
+                    html += "拒绝出款</a>&nbsp;&nbsp;";
+                }else if (rowObject.status == 1){
+                    if (rowObject.adminid == rowObject.proxyadminid) {
+                        if (rowObject.withdraw_type == 1) {
+                            html += "<a>出款中</a>&nbsp;&nbsp;&nbsp;";
+                        } else {
+                            html += "<a style='color:#1ab394;display: inline-block'onclick='confirmWithdraw(" + rowObject.id + ",2)'>确定出款</a>&nbsp;&nbsp;&nbsp;";
+                        }
+                        html += "<a " +  "onclick=\"ready("+rowObject.id+",0,"+rowObject.userid+","+rowObject.apply_amount+",'"+rowObject.username+"')\">取消出款</a>&nbsp;";
+                    }else {
+                        html += "<span style='color:#CE0000'>预备/锁定</span>";
+                    }
+                }else if (rowObject.status == 2){
+                    html += "<span style='color:#1ab394'>已出款</span>";
+                }else if (rowObject.status == 3){
+                    html += "<span style='color:grey'>已取消出款</span>";
+                }
+            }else{
+                var html ="";
+            }
+            return html;
+        }
+        //前台备注
+        function beforeRemark(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a onclick=\"beforeLayer('"+rowObject.id+"','"+rowObject.user_remark+"','"+rowObject.userid+"')\">";
+            html += "<span style='color:#1ab394'>"+rowObject.user_remark+"</span></a>&nbsp;";
+            return html;
+        }
+        //后台备注
+        function afterRemark(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a onclick=\"afterLayer('"+rowObject.id+"','"+rowObject.admin_remark+"','"+rowObject.userid+"')\">";
+            html += "<span>"+rowObject.admin_remark+"</span></a>&nbsp;";
+            return html;
+        }
+        //获取稽核
+        function getUserBetsCheck(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title=\"稽核\"  onclick=\"feeLayer('"+rowObject.username+"','"+rowObject.id+"','"+rowObject.status+"','"+rowObject.apply_amount+"')\">";
+            html += "<span style='color:red'>"+rowObject.totalCharge+"</span></a>&nbsp;";
+            return html; 
+        }
+
+        function getUserBankInfo(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title=\"银行资料\"  onclick=\"withdraw('"+rowObject.username+"','"+rowObject.userid+"','"+rowObject.apply_amount+"','"+rowObject.totalCharge+"','"+rowObject.real_amount+"','"+rowObject.userbankcardid+"')\">";
+            html += "<span style='color:cornflowerblue'>"+rowObject.real_amount+"</span></a>&nbsp;";
+            return html;
+        }
+        function setVerify(cellValue, options, rowObject) {
+            var html ="";
+
+            html += "<a title=\"出款详情\"  onclick=\"withdrawDetailLayer('"+rowObject.userid+"','"+rowObject.name+"','"+rowObject.id+"','"+rowObject.applytime+"','"+rowObject.userbankcardid+"','"+rowObject.verify_status+"')\">";
+            html += "<span style='color:cornflowerblue'>详情</span></a>&nbsp;&nbsp;";
+
+            if(rowObject.verify_status == 1){
+                html += "<span style='color:#1ab394'>已通过</span>";
+            }else if (rowObject.verify_status == 2){
+                html += "<span style='color:#ed5565'>已拒绝</span>";
+            }
+            return html;
+        }
+    }); //ready 结束
+
+    //手续费
+    function feeLayer(username,withdrawid,status,applyamount){
+        layer.open({
+            type: 2,
+            title: '稽核',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['1200px', '800px'],
+            content: ['userbetscheck_list.shtml?username='+username+'&isSearch=1&withdrawid='+ withdrawid+'&status='+status+'&withdrawamount='+applyamount, 'no']
+        });
+
+    }
+    //出款额度
+    function withdraw(username,userid,apply_amount,totalCharge,real_amount,userbankcardid){
+        layer.open({
+            type: 2,
+            title: username+'的银行资料',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['320px', '380px'],
+            content: ['cash_userbankinfo.shtml?userid='+userid+'&apply_amount='+apply_amount+'&totalCharge='+totalCharge+'&real_amount='+real_amount+'&userbankcardid='+userbankcardid, 'no']
+        });
+
+    }
+    //出款详情
+    function withdrawDetailLayer(userid,name,id,applytime,userbankcardid,verify_status){
+        layer.open({
+            type: 2,
+            title: '出款详情',
+            shadeClose: true,
+            shade: [0.3, '#000'],
+            maxmin: true, //开启最大化最小化按钮
+            area: ['960px', '98%'],
+            content: ['cash_withdrawdetail.shtml?userid='+userid+'&levelName= '+name+'&id= '+id+'&applytime= '+applytime+'&userbankcardid= '+userbankcardid+'&verify_status= '+verify_status]
+        });
+    }
+    //其他
+    function showBtn(self) {
+        var parent = self.parentNode;
+        $(parent).find('.cBtn').css({display: 'inline-block'});
+        $(parent).find('.cCancel').css({display: 'inline-block'});
+        $(parent).find('.cReady').css({display: 'inline-block'});
+        $(self).css({display: 'none'});
+    }
+    //关其他
+    function hideBtn(self) {
+        var parent = self.parentNode;
+        $(parent).find('.cBtn').css({display: 'none'});
+        $(parent).find('.oBtn').css({display: 'inline-block'});
+        $(parent).find('.cCancel').css({display: 'none'});
+        $(parent).find('.cReady').css({display: 'none'});
+        $(self).css({display: 'none'})
+    }
+    //确定/取消出款
+    function confirmWithdraw(id, is_confirm,userid) {
+        if (userid == undefined) {
+            userid = 0;
+        }
+        if ($.is_lock) {
+            layer.msg('请勿重复提交');
+            return false;
+        }
+        var text = "";
+        if (is_confirm == 2){
+            text = "确定出款吗？"
+            isShowParagraph = true
+            if(isShowParagraph){
+                $(this).keydown(function (e){
+                    if(e.which == "32" || e.which == "13"){
+                        $(".layui-layer-btn>.layui-layer-btn0").click();
+                    }
+                })
+            }
+        }else if(is_confirm == 3) { //取消出款
+            layer.open({
+                    type: 2,
+                    shadeClose: false,
+                    shade: [0.7,'#000'],
+                    area: ['360px', '300px'],
+                    content: ['cash_refuse.shtml?id='+id+'&verify_status=1&status=3&userid='+userid, 'no']
+                });
+            return false;
+        }
+        layer.confirm('是否确认出款？', {
+                btn: ['确定','取消'], //按钮
+                cancel: function(index, layero){
+                    //取消操作，点击右上角的X
+                    isShowParagraph = false
+                }
+            }, function()
+            {
+                isShowParagraph = false;
+                $.is_lock = true;
+                if (is_confirm == 2) {
+                    text = "已出款";
+                    // 确认要打款
+                    $.ajax({
+                        type: 'POST',
+                        url: 'cash_confirmwithdraw.shtml',
+                        dataType: 'json',
+                        data: {id: id,remark:text},
+                        success: function (data) {
+                            if (data.error !== undefined) {
+                             /*   layer.alert(data.msg, function (index) {
+                                    if (data.error == 0) {
+                                        myrefresh();
+                                    }
+                                    layer.close(index);
+                                });*/
+                                if (data.error == 0) {
+                                    myrefresh();
+                                }
+                                layer.msg(data.msg);
+                            } else {
+                                layer.msg('没有修改权限！');
+                            }
+                        }
+                    });
+                } /*else if (is_confirm == 3){
+                    // 取消，不给钱
+                    $.ajax({
+                        type: 'GET',
+                        url: 'cash_confirmwithdraw.shtml?id=' + id + '&remark=' + text,
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.error !== undefined) {
+                               /!* layer.alert(data.msg, function(index){
+                                    if (data.error == 0) {
+                                        myrefresh();
+                                    }
+                                    layer.close(index);
+                                });*!/
+                                if (data.error == 0) {
+                                    myrefresh();
+                                }
+                                layer.msg(data.msg);
+                            } else {
+                                layer.msg('没有修改权限！');
+                            }
+                        }
+                    });
+                    
+                }*/
+                $.is_lock =  false;
+                layer.close(index);
+            },
+            function () {
+                isShowParagraph = false
+
+                $.is_lock =  false;
+                layer.closeAll();
+            }
+        );
+    }
+    //预备出款
+    function ready(id,status,userid,apply_amount,username,withdraw_type) {
+        $.ajax({
+            type: 'POST',
+            url: 'cash_setisready.shtml',
+            dataType: 'json',
+            data: {id: id,status:status,userid:userid,apply_amount:apply_amount,username:username,withdraw_type:withdraw_type},
+            success: function (data) {
+                if (data.error !== undefined) {
+                    if (data.error == 0) {
+                        myrefresh();
+                    }
+                    layer.msg(data.msg);
+                } else {
+                    layer.msg('没有修改权限！');
+                }
+            }
+        });
+    }
+    function beforeLayer(id,user_remark,userid) {
+        layer.open({
+            type: 2,
+            shadeClose: true,
+            shade:[0.7,'#000'],
+            area: ['360px', '300px'],
+            content: ['cash_beforeremark.shtml?id='+id+'&user_remark='+user_remark+'&userid='+userid, 'no']
+        });
+    }
+    function afterLayer(id,admin_remark,userid) {
+        layer.open({
+            type: 2,
+            shadeClose: true,
+            shade: [0.7,'#000'],
+            area: ['360px', '300px'],
+            content: ['cash_afterremark.shtml?id='+id+'&admin_remark='+admin_remark+'&userid='+userid, 'no']
+        });
+    }
+
+    //定时器刷新事件
+    function myrefresh()
+    {
+        $("#subbox").submit();
+    }
+    function parentRefresh() {
+        myrefresh();
+    }
+    function closeAll() {
+        layer.closeAll();
+    }
+</script>
+</body>
+
+
+</html>

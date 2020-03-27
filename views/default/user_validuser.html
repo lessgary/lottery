@@ -1,0 +1,73 @@
+{include file="pageheader.html"}
+<head>
+<style type="text/css">
+ #table_list_2{
+     border:1px solid #e7eaec;  
+     width:100%;
+ }
+ #table_list_2 tr th{
+    text-align:center;
+    background-color: #f3f3f4;
+ } 
+  #table_list_2 tr {
+    text-align:center;
+
+ } 
+ </style>
+</head>
+<body class="gray-bg">
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" action="" method="POST" id="subbox">
+                <div class="form-group">
+                <label for="" class="">代理名称</label>
+                   <input type="text" placeholder="请输入代理账号名称" id="value_1" name="username" value="{$username}" class="form-control">
+                 </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+                    开始时间:<input name="starttime" class="form-control layer-date" value="{$starttime}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                 </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+                    结束时间:<input name="endtime" class="form-control layer-date" value="{$endtime}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                </div>
+            <button class=" btn   btn-primary" type="submit">提交</button>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2" cellspacing="0"  border="1px"  >
+                                <tr height="40px" width="100%"> <th>一级代理</th> <th>有效会员</th><th>新增用户</th><th>总存款</th><th>总出款</th></tr>
+                                {foreach from=$userlist item=val} 
+                                <tr height="40px">
+                                <td><a href="user_inoutcash.shtml?proxyname={$val.username}">{$val.username}</a></td>
+                                <td>{$val.count_valid_user}</td>
+                                <td >{$val.count_new_user}</td>
+                                <td align="right">{$val.count_charge}</td>
+                                <td align="right">{$val.count_withdraw}</td>
+                                </tr>
+                                {/foreach}
+                                <tr height="40px"><td>总计</td><td>{$total.total_valid_user}</td><td>{$total.total_new_user}</td><td align="right">{$total.total_charge}</td><td align="right">{$total.total_withdraw}</td></tr>
+                            </table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+
+        });
+              
+        
+    </script>
+</body>
+
+
+</html>

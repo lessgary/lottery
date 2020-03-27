@@ -1,0 +1,94 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+    <div class="container">
+        <form action="manualpayconfirm_updateconfirm.shtml" method="post" id="subbox">
+            <table class="table table-bordered">
+                <tr>
+                    <th colspan="2">审核人工出入款</th>
+                </tr>
+                <tr>
+                    <td>审核编号</td>
+                    <td>{$result.id}</td>
+                </tr>
+                <tr>
+                    <td>金额</td>
+                    <td>{$result.amount}</td>
+                </tr>
+                <tr>
+                    <td>类型</td>
+                    <td>{$result.optype}</td>
+                </tr>
+                <tr>
+                    <td>会员账号</td>
+                    <td>{$result.usernames}</td>
+                </tr>
+                <tr>
+                    <td>提交人</td>
+                    <td>{$result.adminname}</td>
+                </tr>
+                <tr>
+                    <td>审核人</td>
+                    <td>{$adminname}</td>
+                </tr>
+            </table>
+            <input type="hidden" name="confirm_admin" value="{$adminname}">
+            <input type="hidden" name="id"  value="{$result.id}">
+            <div class="form-group">
+            <label><input name="isconfirm" type="radio" value="1">审核通过</label>
+            <label><input name="isconfirm" type="radio" value="2">审核拒绝</label>
+            </div>
+            <div class="form-group">
+            <label for="text_id"></label>
+            <textarea name="confirm_remark" id="text_id" cols="30" rows="10" placeholder="请填写审核理由..."></textarea>
+            </div>
+            <input type="submit" value="提交"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <input type="reset" value="放弃审核" onclick="cancel()">
+        </form>
+    </div>
+    <script>
+       $("#subbox").submit(function () {
+           var url = 'manualpayconfirm_updateconfirm.shtml';
+           $.ajax({
+               type: 'post',
+               url: url,
+               data: new FormData($(this)[0]),
+               dataType: 'json',
+               processData: false,
+               contentType: false,
+               success: function (data) {
+                   if (data.code === 1 ) {
+                       parent.layer.alert(data.msg, function(){
+                           parent.location.reload();
+                           parent.layer.closeAll();
+                       });
+                   } else {
+                       switch (data.code) {
+                           case -1:
+                           case -2:
+                           case -3:
+                           case -4:
+                           case -5:
+                           case -6:
+                           case -7:
+                           case -8:
+                           case -9:
+                               parent.layer.alert(data.msg);
+                               break;
+                           default:
+                               parent.layer.alert('很抱歉，审核失败！');
+                       }
+                   }
+               }
+           });
+           return false;
+       });
+
+       function cancel() {
+           layer.confirm('所有未保存的数据都将消失，确定要关闭吗？',function () {
+               parent.layer.closeAll();
+           });
+       }
+
+    </script>
+</body>
+</html>

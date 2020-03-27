@@ -1,0 +1,221 @@
+{include file="pageheader.html"}
+<link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+<script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+<link href="css/plugins/chosen/chosen.css" rel="stylesheet">
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+<style>
+    .text-primary {
+        color: #337ab7;
+    }
+    .chosen-container-single .chosen-single{
+        background: #fff;
+        line-height: 32px;
+        border-radius: 4px;
+        border-color: #ccc;
+    }
+</style>
+<body class="gray-bg">
+<div class="ibox-content" id="box_add">
+    <form method="post" class="form-horizontal"  id="box_add_form" enctype='multipart/form-data'>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">
+                <input type="checkbox" value="value" class="select_all">全部层级
+            </label>
+        </div>
+        <div class="hr-line-dashed"></div>
+        <div class="form-group">
+            <div class="col-sm-offset-1 controls-wrap">
+                {foreach from=$layer_list item=item key=key}
+                    <label class="checkbox-inline">
+                        <input type="checkbox" value="{$item.layerid}" name="user_layerids[]" class="user_layer" {if $is_edit && in_array($key,$aInfo.user_layerids_array)}checked{/if}>{$item.name}
+                    </label>
+                {/foreach}
+            </div>
+        </div>
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">银行名称</label>
+            <div class="col-sm-10">
+                <select class="form-control m-b chosen-select" name="bankid">
+                    {foreach from=$aBankList item = value}
+                        <option value="{$value.bankid}" {if $is_edit && $value.bankid == $aInfo.bankid}selected{/if}>{$value.bankname}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">账号</label>
+
+            <div class="col-sm-10">
+                <input type="text" value="{$aInfo.accout_no}" class="form-control" name="accout_no">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">账号别名</label>
+
+            <div class="col-sm-10">
+                <input type="text" value="{$aInfo.nickname}" class="form-control" name="nickname">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="" class="col-sm-offset-1">会员端提示</label>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-offset-1">
+                <input type="checkbox" {if $aInfo.is_show_qr_img}checked{/if} value="1" name="is_show_qr_img">显示二维码
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-1 col-sm-offset-1">上传二维码</label>
+
+            <div class="col-sm-10 form-inline">
+                <input type="file" class="" name="img_path" id="file_upload" style="display: inline"><br>
+                <span class='text-primary'>图片不允许超过 2M 大小</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-offset-1">
+                <input type="checkbox" value="1" name="isnote" value="1" name="isnote" {if $aInfo.isnote}checked{/if}>显示附言码
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">收款人</label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="payee" value="{$aInfo.payee}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">温馨提示</label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="notice" value="{$aInfo.notice}">
+            </div>
+        </div>
+
+        <div class="form-group text-center">
+            <div>
+                <input type="hidden" name="id">
+                <button class="btn btn-primary" type="submit">保存</button>
+                <button class="btn btn-white" type="button" id="payaccount_cancel">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $(".chosen-select").chosen({no_results_text: "未找到",search_contains:true,width:"100%"});
+    !function($){
+        // 表单校验
+        var unique = function (value, element, param) {
+            var data = {};
+            data[param] = value;
+            var is_unique = false;
+            {if $is_edit}
+            data['id'] = {$aInfo.id};
+            {else}
+            data['id'] = 0;
+            {/if}
+            $.ajax({
+                type: 'POST',
+                url: 'payaccount_add.shtml?check_unique=1',
+                data: data,
+                dataType:'json',
+                async: false,
+                success: function (data){
+                    if ('error' in data) {
+                        if (data['error'] === 1) {
+                            is_unique = true;
+                        }
+                    } else {
+                        layer.alert(data);
+                    }
+                }
+            });
+            return is_unique;
+        };
+        jQuery.validate.setRule('unique', unique, 'unique');
+    }(window.jQuery);
+    // 层级全选
+    $(document).ready(function(){
+        // 关闭弹窗
+        $('#payaccount_cancel').click(function(){
+            parent.layer.closeAll();
+        });
+
+        // 全选checkbox
+        $('.select_all').change(function(){
+            if ($(this).is(":checked")) {
+                $('.user_layer').prop('checked', true);
+            } else {
+                $('.user_layer').removeAttr('checked');
+            }
+        });
+
+        // 表单提交
+        $('#box_add_form').validate({
+            rules : {
+                'user_layerids[]' : {
+                    required : true
+                },
+                'accout_no' : {
+                    required : true,
+                    unique : 'accout_no'
+                },
+                'nickname' : {
+                    required : true,
+                    unique : 'nickname'
+                },
+                'payee' : {
+                    required : true
+                }
+            },
+            messages: {
+                'user_layerids[]' : ['请至少选择一个层级'],
+                'accout_no' : '账号已存在！',
+                'nickname' : '账号别名已存在！'
+            },
+            success : function () {
+                {if $is_edit}
+                var url = 'payaccount_edit.shtml?id={$aInfo.id}';
+                {else}
+                var url = 'payaccount_add.shtml';
+                {/if}
+
+                $.ajax({
+                    type: 'post',
+                    url: url,
+                    data: new FormData($('#box_add_form')[0]),
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.error === undefined ) {
+                            parent.layer.alert('没有权限！请联系管理员');
+                        } else {
+                            if (data.error === 1) {
+                                parent.layer.alert(data.msg);
+                            } else {
+                                parent.layer.alert(data.msg, function(){
+                                    parent.location.reload();
+                                    parent.layer.closeAll();
+                                });
+                            }
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    });
+</script>
+</body>
+</html>

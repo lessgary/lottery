@@ -1,0 +1,303 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content">
+        <div class="row">
+            <div class="col-sm-13" >
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <span class="label label-success pull-right">日</span>
+                        <h5>新增会员</h5>
+                    </div>
+                    <div class="ibox-content" onClick='javascript:clickHref("用户列表","./user_mainlist.shtml?regstarttime=<?php echo date("Y-m-d 00:00:00");?>&regendtime=<?php echo date("Y-m-d",strtotime("+1 days"));?>")'>
+                        <h1 class="no-margins" >{$userinfo.total_new_user}</h1>
+                        <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                        </div>
+                        <!--<small>人数</small>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-13">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <span class="label label-success pull-right">日</span>
+                            <h5>当前活跃用户</h5>
+                        </div>
+                        <div class="ibox-content" onClick='javascript:clickHref("用户列表","./user_mainlist.shtml?isonline=1")'>
+                            <h1 class="no-margins">{$userinfo.total_onlinecount}</h1>
+                            <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                            </div>
+                            <!--<small>人数</small>-->
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-sm-13">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <span class="label label-success pull-right">日</span>
+                            <h5>有效会员</h5>
+                        </div>
+                        <div class="ibox-content" onClick='javascript:clickHref("有效会员列表","./user_validuser.shtml?starttime=<?php echo date("Y-m-d");?>&endtime=<?php echo date("Y-m-d");?>")'>
+                            <h1 class="no-margins">{$userinfo.total_valid_user}</h1>
+                            <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                            </div>
+                            <!--<small>人数</small>-->
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-sm-13">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <span class="label label-success pull-right">日</span>
+                            <h5>今日入款人数</h5>
+                        </div>
+                        <div class="ibox-content" onClick='javascript:clickHref("财务报表","./finance_index.shtml?sdate=<?php echo date("Y-m-d");?>&edate=<?php echo date("Y-m-d");?>")'>
+                            <h1 class="no-margins">{$userinfo.total_payment_user}</h1>
+                            <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                            </div>
+                            <!--<small>人数</small>-->
+                        </div>
+                    </div>
+                </div>
+                 <div class="col-sm-13">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <span class="label label-success pull-right">日</span>
+                            <h5>今日入款</h5>
+                        </div>
+                        <div class="ibox-content" onClick='javascript:clickHref("财务报表","./finance_index.shtml?sdate=<?php echo date("Y-m-d 00:00:00");?>&edate=<?php echo date("Y-m-d 00:00:00",strtotime("+1 days"));?>")'>
+                            <h1 class="no-margins">{$userinfo.total_in|escape:money:2}</h1>
+                            <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                            </div>
+                            <!--<small>总收入</small>-->
+                        </div>
+                    </div>
+                </div>
+            
+            <div class="col-sm-13">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <span class="label label-success pull-right">日</span>
+                        <h5>今日出款</h5>
+                    </div>
+                    <div class="ibox-content" onClick='javascript:clickHref("出款管理","./cash_withdrawlist.shtml?sTime=<?php echo date("Y-m-d 00:00:00");?>&eTime=<?php echo date("Y-m-d 00:00:00",strtotime("+1 days"));?>")'>
+                        <h1 class="no-margins">{$userinfo.total_out||escape:money:2}</h1>
+                        <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                        </div>
+                        <!--<small>出款金额</small>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-13">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <span class="label label-success pull-right">日</span>
+                        <h5>盈利</h5>
+                    </div>
+                    <div class="ibox-content" onClick='javascript:clickHref("运营总报表","./operation_profit.shtml")'>
+                        <h1 class="no-margins">{$userinfo.total_win|escape:money:2}</h1>
+                        <div class="stat-percent font-bold text-navy"><i class="fa fa-level-up"></i>
+                        </div>
+                        <!--<small>今日盈利</small>-->
+                    </div>
+                </div>
+            </div>
+            </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title col-sm-50%">
+                        <h5>存取款走势图表</h5>
+                        <div class="pull-right">
+                            <form action="">
+                                <select name="getNew" id="moneymap">
+                                    <option value="1">按日查询</option>
+                                    <option value="2">按月查询</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- 按日查询开始 -->
+                    <div class="ibox-content col-sm-50%" id="">
+                        <div class="echarts" id="echarts-line-money"></div>
+                    </div>
+                    <!-- 按日查询结束 -->
+                </div>
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title col-sm-50%">
+                        <h5>有效会员走势图表</h5>
+                        <div class="pull-right">
+                            <form action="">
+                                <select name="getNew" id="membermap">
+                                    <option value="1">按日查询</option>
+                                    <option value="2">按月查询</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 按日查询开始 -->
+                    <div class="ibox-content col-sm-50%" id="">
+                        <div class="echarts" id="echarts-line-member"></div>
+                    </div>
+                    <!-- 按日查询结束 -->
+                </div>
+            </div>
+                   <!--中国地图-->
+            <div class="col-sm-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>活跃用户来源</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div style="height:588px" class="echarts" id="echarts-map-china"></div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+		<!--end row-->
+    </div><!--end content -->
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="js/plugins/echarts/echarts-all.js"></script>
+    <script src="js/map.js"></script>
+<script>
+//点击首页的 新增会员 会打开新的 选项卡
+    function clickHref(titles,hrefs){
+        var wParent=window.parent;//获取父级的window框架
+        wParent.$("#cHref").text(titles);//修改选项卡标题,也是A标签的text
+        wParent.$("#cHref").attr('href',hrefs);//修改链接
+        wParent.$("#cHref").addClass('J_menuItem');
+        wParent.$("#cHref").click();//点击A标签 弹出新的选项卡
+    }
+    $(document).ready(function () {
+        $(".col-sm-13").each(function(){
+            $(this).css("cursor","pointer");
+        });
+        getMoneyMap();  //获取存入款走势图
+        getMemberMap(); //获取有效会员走势图
+        getChinaMap(); //中国地图
+        $("#moneymap").change(function(){
+           if($(this).val() == 1){
+                var type="day";
+                getMoneyMap(type); 
+           }else{
+                var type="month"; 
+                getMoneyMap(type); 
+           }
+        });
+        $("#membermap").change(function(){
+           if($(this).val() == 1){
+                var type="day";
+                getMemberMap(type); 
+           }else{
+                var type="month"; 
+                getMemberMap(type); 
+           }
+        });
+        
+        //出入款走势图
+        function getMoneyMap(type='day') {
+            $.ajax({
+                type: "POST",
+                async: true,
+                url: "pindex_getmapmoney.shtml",
+                data: {
+                    "month":type,
+                },
+                dataType: "json",
+                success: function (result) {
+                    var date_data = []; //
+                    var total_data = []; //总数据
+                    var total_money_in = [];  //存款
+                    var total_money_out = []; //取款
+                    var total_money_win = []; //盈利
+                    if(result) {
+                        for (var i in result) {
+                            if (type == "month") {
+                                date_data.push(i + "月");
+                            } else {
+                                date_data.push(i);
+                            }
+                            total_money_in.push(result[i]['total_money_in']);
+                            total_money_out.push(result[i]['total_money_out']);
+                            total_money_win.push(result[i]['total_money_win']);
+                        }
+                        total_data.push({"name": '存款', "data": total_money_in});
+                        total_data.push({"name": '取款', "data": total_money_out});
+                        total_data.push({"name": '盈利', "data": total_money_win});
+                        var element = document.getElementById("echarts-line-money");
+                        $.setMoneyMap(element, date_data, total_data);
+                    }
+                } //success
+            });
+        }
+        //有效会员走势图
+        function getMemberMap(type='day') {
+            $.ajax({
+                type: "POST",
+                async: true,
+                url: "pindex_getmapuser.shtml",
+                data: {
+                    "month":type,
+                },
+                dataType: "json",
+                success: function (result) {
+                    var date_data = []; //
+                    var total_data = []; //总数据
+                    var pay_user = [];  //每日有效会员
+                    var real_user = []; //每日新增会员
+                    var reg_user = []; //每日存款会员
+                    if(result) {
+                        for(var i in result) {
+                            if(type=="month"){
+                                date_data.push(i+"月");
+                            } else {
+                                date_data.push(i);
+                            }
+                            pay_user.push(result[i]['pay_user']);
+                            real_user.push(result[i]['real_user']);
+                            reg_user.push(result[i]['reg_user']);
+                        }
+                         total_data.push({"name":'每日有效会员',"data":real_user});
+                         total_data.push({"name":'每日新增会员',"data":reg_user});
+                         total_data.push({"name":'每日存款会员',"data":pay_user}); 
+                        //console.log(total_data);
+                        var element = document.getElementById("echarts-line-member");
+                        $.setMoneyMap(element,date_data,total_data);
+                    }
+                } //success
+            });
+        }
+        //中国地图
+        function getChinaMap() {
+            $.ajax({
+                type: "POST",
+                async: true,
+                url: "pindex_chinamap.shtml",
+                data: {"data":""},
+                dataType: "json",
+                success: function (result) {
+                    var total_data = []; //总数据
+                    if(result) {
+                        for(var i in result) {
+                             total_data.push({"name":result[i]['place'],"value":result[i]['usernum']});
+                        }
+                        var element = document.getElementById("echarts-line-china");
+                        $.setChinaMap(element,total_data);
+                    }
+                    setTimeout(getChinaMap,50000);
+                } //success
+            });
+        }
+    });
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/index_v3.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:18:49 GMT -->
+</html>

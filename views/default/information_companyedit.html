@@ -1,0 +1,160 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="plugins/kindeditor/themes/default/default.css"/>
+<script charset="utf-8" src="plugins/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="plugins/kindeditor/lang/zh_CN.js"></script>
+
+<body>
+<div class="container">
+    <div class="row">
+        <div class="ibox-content">
+            <form class="form-horizontal m-t"  onsubmit="return false"
+                  enctype="multipart/form-data" id="subbox">
+
+                 <div class="form-group">
+                    <label class="col-sm-2 control-label">显示状态：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="radio" value="1" name="status" {if $data.status==1}checked{/if} >
+                            启用 <span style="color: #ff2a2a"></span>
+                        </label>&nbsp;&nbsp;
+                        <label>
+                            <input type="radio" value="0" name="status"  {if $data.status==0}checked{/if}>
+                            停用 <span style="color: #ff2a2a"></span>
+                        </label>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-sm-2 control-label">显示方式：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="radio" value="0" name="showtype" class="notice_type" {if $data.showtype==0}checked{/if} >
+                            输入内容 <span style="color: #ff2a2a"></span>
+                        </label>
+                        <label>
+                            <input type="radio" value="1" name="showtype"  class="notice_type" {if $data.showtype==1}checked{/if}>
+                            使用外链 <span style="color: #ff2a2a"></span>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!--文本内容-->
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" style="display: none">内容：</label>
+                    <div class="col-sm-14">
+                        <textarea name="content" style="width:100%;height:250px;display: none">{$data.content}</textarea>
+                    </div>
+                </div>
+                <div class="form-group" style="display: none" id="image_id">
+                    <label class="col-sm-2 control-label" >外链:</label>&nbsp;&nbsp;
+                    <div class="col-sm-8 ">
+                    <input type="input" name="link" class="form-control" value="{$data.link}" id="img_id">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-3">
+                        <button class="btn btn-primary mgr15" id="formsubmit" type="submit">保存</button>
+                        <button class="btn btn-white mgr15" type="button" onclick="closeA()">取消</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // 创建编辑器
+    var editor;
+    var yy = $('input[name="showtype"]:checked').val();
+    if (yy == 0 ) {
+        editor = KindEditor.create('textarea[name="content"]', {
+            uploadJson : 'default_kindeditoruploadimage.shtml',
+            fileManagerJson : 'default_kindeditorimagemanager.shtml',
+            allowImageUpload: true,
+            allowFileUpload: false
+        });
+    }else{
+         $("#image_id").show();
+    }
+
+
+    $(".notice_type").click(function () {
+        var xx = $(this).val();
+        if (xx == 0) {
+            editor = KindEditor.create('textarea[name="content"]', {
+                uploadJson : 'default_kindeditoruploadimage.shtml',
+                fileManagerJson : 'default_kindeditorimagemanager.shtml',
+                allowImageUpload: true,
+                allowFileUpload: false
+            });
+            $("#image_id").hide();
+        } else if (editor) {
+            editor.remove();
+            $("#image_id").hide();
+            if (xx == 1) {
+                $("#image_id").show();
+            }
+        }else {
+            if (xx == 1) {
+                $("#image_id").show();
+//                addImg();
+            }
+        }
+    });
+
+//    关闭弹出层
+     function closeA() {
+             parent.layer.closeAll();
+     }
+    $().ready(function () {
+        // 异步提交表单
+        $("#subbox").submit(function () {
+            $.ajax({
+                type: 'POST',
+                url: '',
+                data: new FormData($(this)[0]),
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+//                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.alert(data.msg, function (index) {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        })
+                    } else {
+                        switch (data.code) {
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 6:
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 14:
+                            case 15:
+                            case 16:
+                                layer.alert(data.msg);
+                                break;
+                            default:
+                                layer.alert('修改失败！');
+                        }
+                    }
+                }
+            });
+            return false;
+        });
+       
+
+    });
+
+
+
+</script>
+</body>
+</html>

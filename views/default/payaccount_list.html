@@ -1,0 +1,244 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" method="post">
+        <button onclick="statusList(1)" class="btn  btn-primary mgr15" type="button">启用区</button>
+        <button onclick="statusList(2)" class="btn  btn-primary mgr15" type="button">停用区</button>
+        <a onclick="addlayer()" class="btn btn-primary mgr15">新增入款账号</a>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list" class="text-center"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("#file_upload").change(function () {
+            var $file = $(this);
+            var fileObj = $file[0];
+            var windowURL = window.URL || window.webkitURL;
+            var dataURL;
+            var $img = $("#preview");
+
+            if (fileObj && fileObj.files && fileObj.files[0]) {
+                dataURL = windowURL.createObjectURL(fileObj.files[0]);
+                $img.attr('src', dataURL);
+            } else {
+                dataURL = $file.val();
+                var imgObj = document.getElementById("preview");
+                imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+                imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            }
+            $img.show();
+        });
+
+        // 层级全选
+        $('.select_all').change(function(){
+            if ($(this).is(":checked")) {
+                $('.user_layer').prop('checked', true);
+            } else {
+                $('.user_layer').removeAttr('checked');
+            }
+        });
+
+        // 显示二维码
+        function qrCode(cellValue, options, rowObject) {
+            if (rowObject.img_path) {
+                return "<img src=\"" + rowObject.img_path +"\" height=\"100xp\">";
+            }
+            return '没有上传';
+        }
+
+        // 显示银行
+        function banker(cellValue, options, rowObject) {
+            var msg  = {{foreach from = $aBankList item = item key = key}{$item.bankid}:'{$item.bankname}',{/foreach}};
+            var html = '';
+            if (rowObject.bankid in msg) {
+                html = msg[rowObject.bankid];
+            }
+
+            return html;
+        }
+
+        // 显示层级
+        function userLayer(cellValue, options, rowObject){
+            var msg  = {{foreach from = $layer_list item = item key = key}{$key}:'{$item.name}',{/foreach}};
+            var html = '';
+
+            for (var i=0; i < rowObject.user_layerids_array.length; i++) {
+                if (rowObject.user_layerids_array[i] in msg) {
+                    html += "<div><span>" + msg[rowObject.user_layerids_array[i]] + "</span></div>";
+                }
+            }
+            return html;
+        }
+
+        // 自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var json = JSON.stringify(rowObject);
+            var html ="";
+            if (1 === parseInt(rowObject.status)) {
+                html += "<a title='停用'  onclick='changeStatus("+rowObject.id+")'>";
+                html += "<span>停用</span></a>&nbsp;";
+            } else {
+                html += "<a title='启用'  class='mgr15' onclick='changeStatus("+rowObject.id+")'>";
+                html += "<span>启用</span></a>&nbsp;";
+                html += "<a title='修改'  class='mgr15' onclick='edit("+json+")'>";
+                html += "<span>修改</span></a>&nbsp;";
+                html += "<a title='删除' onclick='dele("+rowObject.id+")' >";
+                html += "<span>删除</span></a>&nbsp;";
+            }
+
+            return html;
+        }
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list").jqGrid({
+            // 表格头
+            colNames:['序号', '添加时间', '层级', '银行名称', '银行账号', '账号别名', '收款人', '附言', '温馨提示', '二维码', '操作人', '操作'],
+            // 表格内容
+            colModel:[
+                {name:"id",index:"id",editable:false,sortable:false},
+                {name:"inserttime",index:"inserttime",align:'left', editable:false,sortable:false},
+                {name:"user_layerids_msg",index:"user_layerids_msg",editable:false,sortable:false,align:'left',formatter:userLayer},
+                {name:"bankid",index:"bankid",editable:false,sortable:false,align:'left',formatter:banker},
+                {name:"accout_no",index:"accout_no",align:'left', editable:false,sortable:false},
+                {name:"nickname",index:"nickname",align:'left',editable:false,sortable:false},
+                {name:"payee",index:"payee",align:'left',editable:false,sortable:false},
+                {name:"isnote",index:"isnote",align:'left',editable:false,sortable:false},
+                {name:"notice",index:"notice",align:'left',editable:false,sortable:false},
+                {name:"img_path",index:"img_path",editable:false,sortable:false,align:'left',formatter:qrCode},
+                {name:"adminname",index:"adminname",align:'left',editable:false,sortable:false},
+                {name:"operate",index:"operate",align:'left',editable:false,sortable:false,formatter:operate}/*格式化本列为超链接*/
+            ],
+            mtype: "post",
+            datatype: 'json',
+            height:'auto', //默认高度
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowList:[20,50,100,150,200,500], //每页展示的记录数
+            viewrecords:true,
+            rowNum:20,
+            pager:"#pager_list_2"
+        });
+
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list").setGridWidth(width);
+        });
+
+        //表单提交
+        $("#subbox").submit(function(){
+            var postData = {};
+            $.each($(this).serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+
+
+            return false;
+        });
+    });
+
+    // 状态区列表提交
+    function statusList(status) {
+        $("#table_list").jqGrid("setGridParam", {
+            page: 1,
+            mtype: "post",
+            datatype: 'json',
+            postData: {status:parseInt(status)}
+        }).trigger('reloadGrid');
+    }
+
+    // 删除资讯
+    function dele(id){
+        layer.confirm('确定删除吗？', function(index){
+            $.ajax({
+                type: 'POST',
+                url: 'payaccount_delete.shtml',
+                data: {
+                    'id' : id
+                },
+                success: function (data){
+                    if (data.error !== undefined) {
+                        layer.alert(data.msg, function(index){
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                },
+                dataType:'json'
+            });
+        });
+    }
+
+    // 添加支付账号
+    function addlayer(){
+        layer.open({
+            type: 2,
+            title: '添加支付账号',
+            shadeClose: true,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px', '750px'],
+            content: 'payaccount_add.shtml'
+        });
+    }
+
+    // 编辑弹窗
+    function edit(obj){
+        layer.open({
+            type: 2,
+            title: '修改支付账号',
+            shadeClose: true,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px', '750px'],
+            content: 'payaccount_edit.shtml?id=' + obj.id
+        });
+    }
+
+    // 关闭layer弹窗
+    function closeAll(){
+        reSet();
+        layer.closeAll();
+    }
+
+    // 修改状态
+    function changeStatus(id) {
+        layer.confirm('确定修改状态吗？', function(index){
+            $.ajax({
+                type: 'POST',
+                url: 'payaccount_edit.shtml?is_changeStatus=1&id=' + id,
+                data: {
+                    'id' : id
+                },
+                success: function (data){
+                    if (data.error !== undefined) {
+                        layer.alert(data.msg, function(index){
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                },
+                dataType:'json'
+            });
+        });
+    }
+</script>
+</body>
+
+</html>

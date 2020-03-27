@@ -1,0 +1,62 @@
+{include file="pageheader.html"}
+<head>
+<style type="text/css">
+ #table_list_2{
+     border:1px solid #e7eaec;  
+     width:100%;
+ }
+ #table_list_2 tr th{
+    text-align:center;
+    background-color: #f3f3f4;
+ } 
+  #table_list_2 tr {
+    text-align:center;
+    height:40px;
+ } 
+
+ </style>
+
+</head>
+<body class="white-bg">
+<div class="ibox-content">
+    <a class="btn  btn-primary pull-left " href="user_mainlist.shtml" ><< 返回上一页</a>
+</div>
+<form class="form-horizontal m-t" method="POST" action="user_accquota.shtml"  id="signupForm">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-content">
+                        <div class="jqGrid_wrapper">
+                            <table id="table_list_2" cellspacing="0"  border="1px"  >
+                                <tr  width="100%"> <th >返点等级</th> <th>{$user.username}拥有数量</th> <th>{$user.username}剩余数量</th> <th>修改剩余数量</th> <th>您的配额</th>  </tr>
+                                {foreach from=$point item=pointval}
+                                    <tr >
+                                        <td>{$pointval.val}</td> <td>{$pointval.total_quota}</td> <td>{$pointval.left_quota}</td> <td ><input type="text" name="quotaval[{$pointval.val}]"></td> 
+                                        <td>无限制</td>
+                                    </tr>
+                                {/foreach}
+                                <input type="hidden" name="userid" value="{$user.userid}">
+                                    <tr>
+                                        <td colspan="5"> <button class="btn btn-primary pull-center"  type="submit">提交</button> </td>
+                                    </tr>
+                            </table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+                                </form>
+    <script>
+        $(document).ready(function() {
+
+        });
+              
+        
+    </script>
+</body>
+
+
+</html>

@@ -1,0 +1,98 @@
+{include file="pageheader.html"}
+<body>
+<div class="container">
+    <div class="row">
+        <div class="ibox-content">
+            <form method="post" id="editForm" class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">跑马灯标题</label>
+
+                    <div class="col-sm-10">
+                        <input type="text" name="subject" value="{$aMarquee.subject}" class="form-control">
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">显示终端</label>
+                    <div class="col-sm-10">
+                        <select name="version">
+                            <option value ="0" {if $aMarquee.version==0}selected=selected{/if}>全部终端</option>
+                            <option value ="1" {if $aMarquee.version==1}selected=selected{/if}>移动端</option>
+                            <option value ="2" {if $aMarquee.version==2}selected=selected{/if}>pc端</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">排序</label>
+                    <div class="col-sm-10">
+                        <select class="form-control m-b" name="sorts">
+                            <option value="1" {if $aMarquee.sorts==1}selected=selected{/if}>1</option>
+                            <option value="2" {if $aMarquee.sorts==2}selected=selected{/if}>2</option>
+                            <option value="3" {if $aMarquee.sorts==3}selected=selected{/if}>3</option>
+                            <option value="4" {if $aMarquee.sorts==4}selected=selected{/if}>4</option>
+                            <option value="5" {if $aMarquee.sorts==5}selected=selected{/if}>5</option>
+                        </select>
+                        <span class="help-block m-b-none">(*不可重复，越小优先显示)</span>
+                    </div>
+                </div>
+                <div class="hr-line-dashed"></div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">跑马灯内容</label>
+                    <div class="col-sm-10">
+                        <div class="input-group m-b">
+                            <textarea id="content" name="content" rows="3" cols="100" type="text" placeholder="最多输入120个文字" class="form-control">{$aMarquee.content}</textarea>
+                        </div>
+                        <p class="form-control-static">剩余:<span id="count"></span>个字</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-4 col-sm-offset-2">
+                        <button class="btn btn-primary" id="editSubmit" type="submit">保存内容</button>
+                        <button class="btn btn-white" id="cancel" type="submit">取消</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    $("#content").keyup(function(){
+        if($("#content").val().length > 120){
+            $("#content").val( $("#content").val().substring(0,120) );
+        }
+        $("#count").text( 120 - $("#content").val().length );
+    });
+    $().ready(function() {
+        $("#count").text( 120 - $("#content").val().length );
+        $('#cancel').click(function () {
+            parent.layer.closeAll();
+        });
+        $("#editSubmit").click(function(){
+            var postData = {};
+            $.each($("#editForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                type: "POST",
+                url:"",
+                data:postData,
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    if(data.code == 0){
+                        layer.alert(data.msg,function () {
+                            parent.layer.closeAll();
+                        });
+                    }else{
+                        layer.alert(data.msg,function () {
+                            layer.closeAll();
+                        });
+                    }
+                }
+            });
+            return false;
+        });
+    })
+</script>
+</html>

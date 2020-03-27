@@ -1,0 +1,156 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <!--end回归-->
+    <div class="ibox-content">
+        <button class="btn  btn-primary pull-right " id="" onclick="window.location.reload()" style="margin-right: 20px">刷新</button>
+         &nbsp;&nbsp;
+         <!-- <a  onclick="addlayer()" class="btn  btn-primary pull-right " style="margin-right: 10px" >资料导出</a> -->
+         &nbsp;&nbsp;
+        <!--  <button class="btn  btn-primary pull-right " style="margin-right: 10px" type="submit">批量更新</button> -->
+          <a class="btn  btn-primary pull-left " href="/user_userlayer.shtml"><< 返回上一页</a>
+    </div>
+    <div id="serchDiv">
+        <form method="get" action="" id="subbox">
+            <input type="hidden" name="usernames" value="{$usernames}" />
+        </form>
+    </div>
+    
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-content">
+                        <div class="jqGrid_wrapper">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["ID","用户账号","注册时间","最后登录","存款次数" ,"存款总额","最大存款额度","提款次数","提款总额","账号余额","分层","锁定"],
+                //表格内容
+                colModel:[
+                    {name:"userid",index:"userid",editable:true,sorttype:"int",search:true,sortable:false},
+                    {name:"username",index:"username",editable:true,search:true,sortable:false},
+                    {name:"registertime",index:"registertime",editable:true,search:true,sortable:false},
+                    {name:"lasttime",index:"lasttime",editable:true,search:true,sortable:false},
+                    {name:"rechargetimes",index:"rechargetimes",align:"right",editable:true,sortable:false},
+                    {name:"loadmoney",index:"loadmoney",align:"right", editable:true,sortable:false},
+                    {name:"loadmax",index:"loadmax",align:"right",editable:true,sortable:false},
+                    {name:"withdrawaltimes",index:"withdrawaltimes",align:"right",editable:true,sortable:false},
+                    {name:"totalwithdrawal",index:"totalwithdrawal",align:"right",editable:true,sortable:false},
+                    {name:"channelbalance",index:"channelbalance",align:"right",editable:true,sortable:false},
+                    {name:"dislayer",index:"dislayer",align:'center',sortable:false,formatter:dislayer},/*格式化本列为超链接*/ 
+                    {name:"locklayer",index:"locklayer",sortable:false,align:'left',formatter:locklayer},/*格式化本列为超链接*/ 
+                ],
+                //data:mydata,
+                height:650, //默认高度
+                //multiselect: true,//复选框
+                rowNum : 0,
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowList:{$page_number}, //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //用户分层
+            function dislayer(cellValue, options, rowObject) {  
+                var html ="";  
+                    html += "<select  onchange='edituserlayer($(this),"+rowObject.userid+")' name='layerid'>"; 
+                    for (var k in rowObject.layerlist) {
+                        if(k == rowObject.layerid){
+                            html +="<option value='"+k+"' selected>"+rowObject.layerlist[k]+"</option>";
+                        }else{
+                            html +="<option value='"+k+"' >"+rowObject.layerlist[k]+"</option>";
+                        }
+                     } 
+                    html += "</select>";    
+                return html; 
+            }
+            //锁定分层
+            function locklayer(cellValue, options, rowObject) {  
+                 var html ="";  
+                    if(rowObject.islocklayer == 1) {
+                        html += "<input type='checkbox' checked onclick='lockuserlayer("+rowObject.userid+",0)' name='islocklayer'>"; 
+                    }else{
+                        html += "<input type='checkbox' onclick='lockuserlayer("+rowObject.userid+",1)' name='islocklayer'>"; 
+                    }
+                    return html;
+            }
+         
+      
+    }); //ready 结束
+        
+        //给单个用户分层
+        function edituserlayer(obj,userid) {
+            var layerid = obj.val();
+            var userid = userid
+            $.ajax({
+                    type: "POST",
+                    url:"user_edituserlayer.shtml",
+                    data:{"layerid":layerid,"userid":userid},
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                layer.closeAll()
+                            });
+                        }
+                    }
+                });
+        }
+        //锁定用户层级
+        function lockuserlayer(userid,islocklayer) {
+             $.ajax({
+                    type: "POST",
+                    url:"user_lockuserlayer.shtml",
+                    data:{"islocklayer":islocklayer,"userid":userid},
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                window.location.reload();//刷新
+                            });
+                        }
+                    }
+                });
+
+        }
+        </script>
+</body>
+
+
+</html>

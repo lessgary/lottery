@@ -1,0 +1,83 @@
+{include file="pageheader.html"}
+
+<body class="white-bg">
+    <!--分层-->
+    <div id ="layer"  class="modal-body">
+      <div class="row">
+        <form class="form-horizontal m-t" method="POST" action="" onsubmit="return false;" id="signupForm">
+                <div class="form-group">
+                    <label for="" class="col-sm-2 control-label">上级账号:</label>
+                    <div class="col-sm-8" style="padding-top:7px;">
+						<span class="mgr15">{$aParent.username|escape:html}</span>返点级别：{$aParent.maxpoint|escape:html}
+                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">当前账号:</label>
+                        <div class="col-sm-8" style="padding-top:7px;">
+							<span class="mgr15">{$aSelf.username|escape:html}</span>返点级别：{$aSelf.maxpoint|escape:html}
+                        </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">下级账号:</label>
+                        <div class="col-sm-8" style="padding-top:7px;">
+                         <span class="mgr15">{$aChild.username|escape:html}</span>返点级别：{$aChild.maxpoint|escape:html}
+                        </div>
+                </div>
+                <input type="hidden" value="{$userid}" name="userid">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">调整用户返点为:</label>
+                        <div class="col-sm-8">
+                         <select class="form-control" name="pointval">
+                          {foreach from=$aAllowPoint item=value key=k}
+                          <option value="{$value.val}">{$value.extendStr}</option>
+                          {/foreach}
+                         </select>
+                        </div>
+                </div>
+               
+                <div class="form-group">
+					<label class="col-sm-2"></label>
+                     <div class="col-sm-8">
+                        <button class="btn btn-primary" id="formsubmit" type="submit">提交</button>
+                     </div>
+                </div>
+          </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+      $(document).ready(function(){
+      //分层表单提交
+            $("#formsubmit").click(function(){
+                var postData = {};
+                $.each($("#signupForm").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                 $.ajax({
+                    url:"user_adjustpoint.shtml",
+                    type: "POST",
+                    data:postData, 
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                parent.location.reload();
+                                parent.layer.closeAll();
+                            });
+                        }
+                    }
+                });
+                 return false;
+            });
+            //隐藏分层div
+            $(".cancel").click(function(){
+              layer.alert();
+                layer.closeAll();
+            })
+      });
+    </script>
+    </body>
+    </html>
+

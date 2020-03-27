@@ -1,0 +1,345 @@
+{include file="pageheader.html"}
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+
+        <!--左侧导航开始-->
+        <nav class="navbar-default navbar-static-side" role="navigation">
+            <div class="nav-close"><i class="fa fa-times-circle"></i>
+            </div>
+            <div class="sidebar-collapse">
+			<a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#" style="z-index: 1;right: 0;position:absolute;"><i class="fa fa-bars"></i> </a>
+                <ul class="nav" id="side-menu">
+				
+                    <li class="nav-header" style="position:relative;">
+					    <div class="dropdown profile-element"> 
+                            <span style="float:left;color:#1ab394;font-weight:700;">商户后台管理系统</span><br>
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                               <span class="block"><span style="font-size:12px;">欢迎您，{$smarty.session.adminname}</span></span>
+                                                                </span>
+                            </a>
+                          
+                        </div>
+                        	<div class="logo-element zom">
+                    </div>					
+                    </li>
+                    {foreach from=$menus.0 item=menu key=k1}
+                    <li>
+                        <a href="#">
+                            <i class="fa  {$menu.icon}"></i>
+                            <span class="nav-label">{$menu.title|escape:html}</span>
+                            <span class="fa arrow"></span>
+                        </a>
+                        <ul class="nav nav-second-level">
+                            {foreach from=$menus.$k1 item=child key=k2}
+                                <li>
+                                    <a class="J_menuItem" href="./{$child.controller}_{$child.action}.shtml" data-index="{$k2}">{$child.title|escape:html}</a>
+                                </li>
+                            {/foreach}
+                        </ul>
+
+                    </li>
+                    {/foreach}
+                </ul>
+            </div>
+        </nav>
+        <!--左侧导航结束-->
+        <!--右侧部分开始-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+           <div class="row border-bottom" style="display:none">
+            </div>
+            <div class="row content-tabs">
+                <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-backward"></i>
+                </button>
+                <nav class="page-tabs J_menuTabs">
+                    <div class="page-tabs-content">
+                        <a href="javascript:;" class="active J_menuTab" data-id="index_v1.html">首页</a>
+                    </div>
+                </nav>
+                <button class="roll-nav roll-right J_tabRight"><i class="fa fa-forward"></i>
+                </button>
+                <a href="#" id="ShuaXin" class="roll-nav" style="left:86%">刷新</a>
+                <div class="btn-group roll-nav roll-right">
+                    <button class="dropdown J_tabClose" data-toggle="dropdown">操作<span class="caret"></span>
+                    </button>
+                    <ul role="menu" class="dropdown-menu dropdown-menu-right">
+                        <li class="J_tabShowActive"><a>定位当前选项卡</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="J_tabCloseAll"><a>关闭全部选项卡</a>
+                        </li>
+                        <li class="J_tabCloseOther"><a>关闭其他选项卡</a>
+                        </li>
+                    </ul>
+                </div>
+                <a href="default_exit.shtml" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i>退出</a>
+            </div>
+            <div class="row J_mainContent" id="content-main">
+                <iframe class="J_iframe" name="iframe0" id="iframe0" width="100%" height="100%" src="pindex_home.shtml" frameborder="0" data-id="index_v1.html" seamless></iframe>
+            </div>
+            <div class="footer">
+                <div class="pull-right">&copy; 2014-2017
+                </div>
+            </div>
+        </div>
+        <!--右侧部分结束-->
+        <!--右侧边栏开始-->
+        <div id="right-sidebar">
+            <div class="sidebar-container">
+
+                <ul class="nav nav-tabs navs-3">
+
+                    <li class="active">
+                        <a data-toggle="tab" href="#tab-1">
+                            <i class="fa fa-gear"></i> 主题
+                        </a>
+                    </li>
+                    <li class=""><a data-toggle="tab" href="#tab-2">
+                        通知
+                    </a>
+                    </li>
+                    <li><a data-toggle="tab" href="#tab-3">
+                        项目进度
+                    </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="tab-1" class="tab-pane active">
+                        <div class="sidebar-title">
+                            <h3> <i class="fa fa-comments-o"></i> 主题设置</h3>
+                            <small><i class="fa fa-tim"></i> 你可以从这里选择和预览主题的布局和样式，这些设置会被保存在本地，下次打开的时候会直接应用这些设置。</small>
+                        </div>
+                        <div class="skin-setttings">
+                            <div class="title">主题设置</div>
+                            <div class="setings-item">
+                                <span>收起左侧菜单</span>
+                                <div class="switch">
+                                    <div class="onoffswitch">
+                                        <input type="checkbox" name="collapsemenu" class="onoffswitch-checkbox" id="collapsemenu">
+                                        <label class="onoffswitch-label" for="collapsemenu">
+                                            <span class="onoffswitch-inner"></span>
+                                            <span class="onoffswitch-switch"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="setings-item">
+                                <span>固定顶部</span>
+
+                                <div class="switch">
+                                    <div class="onoffswitch">
+                                        <input type="checkbox" name="fixednavbar" class="onoffswitch-checkbox" id="fixednavbar">
+                                        <label class="onoffswitch-label" for="fixednavbar">
+                                            <span class="onoffswitch-inner"></span>
+                                            <span class="onoffswitch-switch"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="setings-item">
+                                <span>
+                        固定宽度
+                    </span>
+
+                                <div class="switch">
+                                    <div class="onoffswitch">
+                                        <input type="checkbox" name="boxedlayout" class="onoffswitch-checkbox" id="boxedlayout">
+                                        <label class="onoffswitch-label" for="boxedlayout">
+                                            <span class="onoffswitch-inner"></span>
+                                            <span class="onoffswitch-switch"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="title">皮肤选择</div>
+                            <div class="setings-item default-skin nb">
+                                <span class="skin-name ">
+                         <a href="#" class="s-skin-0">
+                             默认皮肤
+                         </a>
+                    </span>
+                            </div>
+                            <div class="setings-item blue-skin nb">
+                                <span class="skin-name ">
+                        <a href="#" class="s-skin-1">
+                            蓝色主题
+                        </a>
+                    </span>
+                            </div>
+                            <div class="setings-item yellow-skin nb">
+                                <span class="skin-name ">
+                        <a href="#" class="s-skin-3">
+                            黄色/紫色主题
+                        </a>
+                    </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-2" class="tab-pane">
+
+                        <div class="sidebar-title">
+                            <h3> <i class="fa fa-comments-o"></i> 最新通知</h3>
+                            <small><i class="fa fa-tim"></i> 您当前有10条未读信息</small>
+                        </div>
+
+                        <div>
+                            <div class="sidebar-message">
+                                <a href="#">
+                                    <div class="pull-left text-center">
+                                        <img alt="image" class="img-circle message-avatar" src="img/a3.jpg">
+
+                                        <div class="m-t-xs">
+                                            <i class="fa fa-star text-warning"></i>
+                                            <i class="fa fa-star text-warning"></i>
+                                            <i class="fa fa-star text-warning"></i>
+                                        </div>
+                                    </div>
+                                    <div class="media-body">
+                                        最近在补追此剧，特别喜欢这段表白。
+                                        <br>
+                                        <small class="text-muted">昨天 1:10</small>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="tab-3" class="tab-pane">
+
+                        <div class="sidebar-title">
+                            <h3> <i class="fa fa-cube"></i> 最新任务</h3>
+                            <small><i class="fa fa-tim"></i> 您当前有14个任务，10个已完成</small>
+                        </div>
+
+                        <ul class="sidebar-list">
+
+                            <li>
+                                <a href="#">
+                                    <div class="small pull-right m-t-xs">9小时以后</div>
+                                    <h4>获证开盘</h4> 编写目的编写本项目进度报告的目的在于更好的控制软件开发的时间,对团队成员的 开发进度作出一个合理的比对
+
+                                    <div class="small">已完成： 14%</div>
+                                    <div class="progress progress-mini">
+                                        <div style="width: 14%;" class="progress-bar progress-bar-info"></div>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--右侧边栏结束-->
+        <!--mini聊天窗口开始-->
+
+     <!--    <div id="small-chat">
+            <span class="badge badge-warning pull-right">5</span>
+            <a class="open-small-chat">
+                <i class="fa fa-comments"></i>
+
+            </a>
+        </div> -->
+    </div>
+    <div id="sound" > <audio src="/swf/showcake1.mp3" name=bgss id="bgwarning"></audio></div>
+    <div style="display: none"><a  class="J_menuItem" id="cHref"></a></div> <!--用于打开 新的选项卡-->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <!--<script src="js/plugins/layer/layer-3.03/layer.js"></script>-->
+    <script src="js/hplus.min.js?v=4.1.0"></script>
+    <script type="text/javascript" src="js/contabs.min.js"></script>
+    <script src="/js/plugins/pace/pace.min.js"></script>
+</body>
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/ by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:17:11 GMT -->
+<script type="text/javascript">
+        $(function(){
+            //点击刷新按钮的时候 来刷新 iframe框架
+            $("#ShuaXin").click(function(event){
+                event.preventDefault();
+                iframe0.window.location.reload();
+             });
+        });
+        var bg_sound = $("#bgwarning").get(0);
+        function layert_hint(j,url,content){
+        layer.open({
+              type: 1 ,
+              offset: 'rb', //具体配置参考：offset参数项
+              content: '<a class="J_menuItem" href="javascript:;" style="padding: 20px 50px;margin-top:30px;color:red">'+content+'</a>',
+              btn: '',
+              btnAlign: 'c', //按钮居中
+              shade: 0, //不显示遮罩
+               success: function(layero, index) {
+                $(".layui-layer-content").height("40px");
+                    layero.css("top",100-j*9+'%');
+                    setTimeout(function(){ layer.close(index)}, j*2000+20000);
+                    bg_sound.play();
+                    $(layero).find(".layui-layer-content").click(function(){
+                        $("a.J_menuItem[href$='" + url+ "']").click();
+                        layer.close(index);
+                    });
+                },
+        });
+    }
+    
+    function showcake() {
+        if(!parent.document.getElementById("content-main")) return false;
+            $.ajax({
+                type: "POST",
+                url: "pindex_showcake.shtml",
+                data: {
+                    "token":true,
+                },
+                dataType: "json",
+                success: function (result) {
+                   if(result.code==1) {
+                    var data = [];
+                         for (var k in result['data']) {
+                            if(result['data'][k]>0){
+                                data[k] = result['data'][k];
+                            }
+                         }
+                        var j=0;
+                        for (var i in data) {
+                            j++
+                            if(i == 'count_withdraw' && parseFloat(data[i]) > 0) {
+                                var url = "cash_withdrawlist.shtml";
+                               var content ="有一笔用户提款,请注意查收";
+                               layert_hint(j,url,content);
+                            }
+                            if(i=='count_fastpay' && parseFloat(data[i]) > 0 ) {
+                                var url = "fastpaymoney_list.shtml";
+                                var content="有一笔三方入款,请注意查收";
+                                layert_hint(j,url,content);
+                            }
+                            if(i=='count_companypay' && parseFloat(data[i]) > 0) {
+                                var url = "companymoney_list.shtml";
+                                var content="有一笔公司入款,请注意查收";
+                                layert_hint(j,url,content);
+                            }
+                            if(i=='count_risk' && parseFloat(data[i]) > 0) {
+                                var url = "lotteryrisk_list.shtml";
+                                var content="有一笔风控数据,请注意查看";
+                                layert_hint(j,url,content);
+                            }
+                            if(i=='count_tripartite' && parseFloat(data[i]) > 0) {
+                                var url = "tripartite_list.shtml";
+                                var content="有一个三方额度已达上限,请注意查看";
+                                layert_hint(j,url,content);
+                            }
+                        }
+                    }
+                    timer = setTimeout(showcake, 30*1000);
+                } //success
+            });
+        }
+        showcake();
+     
+       
+        
+</script>
+</html>

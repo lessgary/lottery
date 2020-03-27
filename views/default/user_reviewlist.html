@@ -1,0 +1,236 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <div id ="remark"  class="modal-body" style="display: none" >
+        <form class="form-horizontal m-t" method="POST" action="user_reviewlist.shtml" name="remark">
+            <span>备注信息:</span>
+            <textarea name="remark"  style="width: 100%;" rows="3" autofocus></textarea>
+            <input type="hidden" name="isconfirm" value="">
+            <input type="hidden" name="id" value="">
+            <input type="hidden" name="type" value="">
+            <button class="btn btn-primary" id="searchsubmit" type="submit">提交</button>&nbsp;&nbsp;
+            <button class="btn btn-primary cancel" type="submit">取消</button>
+        </form>
+    </div>
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" id="subbox">
+                <div class="form-group">
+                <label for="" class="">类型</label>
+                   <select class="form-control"  name="type"> 
+                   <option value="-1">全部</option>
+                   <option value="0">登录密码</option>
+                   <option value="1">资金密码</option>
+                   <option value="2">真实姓名</option>
+                   <option value="5">银行卡修改</option>
+                   <option value="6">修改上级</option>
+                  <!--  <option value="3">密保问题</option> -->
+                   </select>
+                 </div>
+                 
+                <div class="form-group">
+                <label for="" class="">状态</label>
+                   <select class="form-control" name="isconfirm"> 
+                   <option value="-1">全部</option>
+                   <option value="0">未处理</option>
+                   <option value="1">拒绝</option>
+                   <option value="2">通过</option>
+                   </select>
+                </div>
+                 <div class="form-group">
+                <label for="" class="">会员账号</label>
+                   <input type="text" placeholder="请输入用户名"  name="username" class="form-control">
+                </div>
+                 <div class="form-group">
+                <label for="" class="sr-only">查询类型</label>
+                   <select class="form-control" id="select_1" name="nametype"> 
+                   <option value="applyname">提交人</option>
+                   <option value="confirmname">审核人</option>
+                   </select>
+                </div>
+                <div class="form-group">
+                <label for="" class="sr-only">查询值</label>
+                   <input type="text" placeholder="请输入用户名"  id="value_1" name="applyname" class="form-control">
+                </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+                    开始时间:<input name="starttime" class="form-control layer-date" value="{$sdate}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                 </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+                    结束时间:<input name="endtime" class="form-control layer-date" value="{$edate}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                </div>
+            <button class="btn btn-primary " type="submit">提交</button>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["ID","会员账号","提交时间" ,"审核时间","IP","类型","修改详情","申请人","审核人","备注","状态"],
+                //表格内容
+                colModel:[
+                    {name:"id",index:"id",editable:true,sorttype:"int",search:true,sortable:false},
+                    {name:"username",index:"username",editable:true,sorttype:"int",search:true,sortable:false},
+                    {name:"inserttime",index:"inserttime",editable:true,sorttype:"int",search:true,sortable:false},
+                    {name:"updatetime",index:"updatetime",editable:true,sortable:false},
+                    {name:"apply_ip",index:"apply_ip",editable:true,sortable:false},
+                    {name:"type",index:"type",editable:true,formatter:'select', sortable:false,editoptions:{value:"0:登录密码;1:资金密码;2:真实姓名;3:密保问题;5:银行卡修改;6:上级修改"}},
+                    {name:"apply_info",index:"apply_info",width:350,editable:true,sortable:false},
+                    {name:"applyadmin",index:"applyadmin",editable:true,sorttype:"float",sortable:false},
+                    {name:"confirmadmin",index:"confirmadmin",editable:true,sorttype:"float",sortable:false},
+                    {name:"remark",index:"remark",editable:true,sorttype:"float",sortable:false},
+                    {name:"operate",index:"operate",editable:true,align:"center",sortable:false,formatter:operate},
+                ],
+                //data:mydata,
+                height:718, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:30,       //每页展示的记录数
+                rowList:[30,50,80], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                 beforeRequest: function() {
+                    var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                $("#table_list_2").jqGrid("setGridParam", {
+                    page: 1,
+
+                }).trigger('reloadGrid');
+
+                return false;
+            });
+
+
+            // 搜索用户名下拉框
+            $("#select_1").change(function(){
+                var id = 1; //$(this).attr('id');
+                $("#value_" + id).attr('name', $(this).val());
+            });
+            // 搜索金额下拉框
+            $(":input[id=select_2]").change(function(){
+               
+                $("#value_2" ).attr('name', 'min'+$(this).val());
+                $("#value_3" ).attr('name', 'max'+$(this).val());
+            });
+            //锁定分层
+            function operate(cellValue, options, rowObject) {  
+                 var html ="";  
+                    if(rowObject.isconfirm == 2) {
+                        html += "<span style='color:#1ab394'>已通过</span>&nbsp;&nbsp;";  
+                    }else if(rowObject.isconfirm == 1){
+                        html += "<span style='color:red'>已拒绝</span>&nbsp;&nbsp;";  
+                    }else{
+                        html += "<a class='' onclick='passReview("+rowObject.id+",2,"+rowObject.type+");'>";  
+                        html += "<span style='color:#1ab394'>通过</span></a>&nbsp;&nbsp;";  
+                        html += "<a class=''  onclick='refuseReview("+rowObject.id+",1);'>";  
+                        html += "<span style='color:red'>拒绝</span></a>&nbsp;&nbsp;";  
+                    }
+                    return html;
+            }
+
+        });//ready end !
+                      //审核通过
+        function passReview(id,isconfirm,type) {
+            var showPassPrompt = function() {
+                $("input[name=isconfirm]").val(isconfirm);
+                $("input[name=id]").val(id);
+                $("input[name=type]").val(type);
+                layer.prompt({title: '审核通过',formType: 2},function (val, index) {
+                    layer.close(index);
+                    $(":input[name=remark]").val(val); // 备注信息
+                    $.ajax({
+                        //几个参数需要注意一下
+                        type: "POST",//方法类型
+                        dataType: "json",//预期服务器返回的数据类型
+                        url: "user_passreview.shtml" ,//url
+                        data: $('form[name=remark]').serialize(),
+                        success: function (result) {
+                            layer.msg(result.msg,{time:1000},function () {
+                                $("#table_list_2").trigger("reloadGrid")
+                            });
+                        },
+                        error : function() {
+                            layer.msg("异常！");
+                        }
+                    });
+                });
+
+            }
+            if(type==2) {
+                layer.confirm('修改真实姓名会连动到用户银行卡姓名修改,确定要操作吗？', {
+                    btn: ['确定','取消'] //按钮
+                }, function(){
+                    layer.closeAll();
+                    showPassPrompt();
+                })
+            } else {
+                showPassPrompt();
+            }
+        }
+        //审核拒绝
+        function refuseReview(id,isconfirm) {
+            $("input[name=isconfirm]").val(isconfirm);
+            $("input[name=id]").val(id);
+            $("input[name=type]").val('');
+            layer.prompt({title: '审核拒绝',formType: 2},function (val, index) {
+                layer.close(index);
+                $(":input[name=remark]").val(val); // 备注信息
+                $.ajax({
+                    //几个参数需要注意一下
+                    type: "POST",//方法类型
+                    dataType: "json",//预期服务器返回的数据类型
+                    url: "user_refusereview.shtml" ,//url
+                    data: $('form[name=remark]').serialize(),
+                    success: function (result) {
+                        layer.msg(result.msg,{time:1000},function () {
+                            $("#table_list_2").trigger("reloadGrid")
+                        });
+                    },
+                    error : function() {
+                        layer.msg("异常！");
+                    }
+                });
+
+            });
+        }
+    </script>
+</body>
+
+
+</html>

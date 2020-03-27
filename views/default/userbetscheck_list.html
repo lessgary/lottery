@@ -1,0 +1,197 @@
+{include file="pageheader.html"}
+<style>
+    .ui-jqgrid-sortable
+    {
+        text-align:center;
+    }
+
+</style>
+<body class="gray-bg">
+    <div class="ibox-content border-bottom">
+
+    <form role="form"  class="form-inline" {if ($smarty.get.isSearch ==1)}style="display: none"{/if} id="subbox" >
+        <div class="form-group">
+            <label for="" class="">会员账号</label>
+               <input  type ="text" name="username" value="{$smarty.get.username}" class="form-control">
+               <input  type ="hidden" name="withdrawid" value="{$smarty.get.withdrawid}" class="form-control">
+               <input  type ="hidden" name="status" value="{$smarty.get.status}" class="form-control">
+               <input  type ="hidden" name="withdrawamount" value="{$smarty.get.withdrawamount}" class="form-control">
+        </div>
+        <button class="btn  btn-primary  " id="search_user"  type="submit">会员查询</button>
+    </form>
+
+   </br>
+    <div>
+        会员账号：<b style="color:red" id="username" ></b>&nbsp;&nbsp;&nbsp;
+        自上一次出款后，总有效投注额为：<b style="color:red" id="totalbets" ></b>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        优惠稽核需要扣除金额：<b style="color:red" id="ext_bets" ></b>&nbsp;&nbsp;&nbsp;
+        常态性稽核需扣除金额(行政费<span style="color: red" id="xzfee"></span>%): <b style="color:red" id="needbets_reduce" ></b>&nbsp;&nbsp;&nbsp; 
+        手续费:<span style="color: red" id="sxfee" >0.00  </span>
+        共需扣除： <b style="color:red" id="reduceamount" ></b>&nbsp;&nbsp;&nbsp;
+    </div>    
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["ID","存款日期","存款额" ,"优惠","实际有效投注","综合打码量","是否达到","常态打码量","放宽额度","是否达到","不需扣除费用","需要扣除金额","操作"],
+                //表格内容
+            colModel:[
+                {name:"id",index:"id",editable:true,sorttype:"int",search:true,sortable:false},
+                {name:"inserttime",index:"inserttime",editable:true,align:"center",width:200,search:true,sortable:false},
+                {name:"amount",index:"amount",align:"right",editable:true,sortable:false}, //存款额
+                {name:"ext_amount",index:"ext_amount",align:"right", editable:true,sortable:false},//额外金额 优惠
+                {name:"betsvalue",index:"act_bets",align:"right",editable:true,sortable:false},//彩票有效投注
+                {name:"ext_bets",index:"ext_bets",align:"right",editable:true,sortable:false},//投注流水达标线 综合打码量
+                {name:"exttrue",index:"exttrue",align:"center",editable:true,sortable:false}, //综合打码量是否达标
+                {name:"need_bets",index:"need_bets",align:"right",sortable:false},//充值投注流水达标线 常态打码量
+                {name:"reduce_bets",index:"reduce_bets",align:"right",editable:true,sortable:false}, //放宽额度
+                {name:"diposittrue",index:"diposittrue",editable:true,align:"center",sortable:false}, //放宽额度通过
+                {name:"reducetrue",index:"reducetrue",editable:true,align:"center",sorttype:"float",sortable:false}, //不需扣除费用
+                {name:"reduceamount",index:"reduceamount",editable:true,align:"right",sorttype:"float",sortable:false}, //需要扣除金额
+                {name:"operate",index:"operate",align:'center',formatter:operate,sortable:false},/*格式化本列为超链接*/ 
+            ],
+            //data:mydata,
+            height:600, //默认高度
+            mtype: "post", //提交方式
+            datatype:{if ($smarty.get.isSearch ==1)}"json"{else}"local"{/if},   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:100,       //每页展示的记录数
+            url:"userbetscheck_list.shtml",
+            rowList:[10,20,30], //每页展示的记录数
+           // pager:"#pager_list_2",
+           //viewrecords:true,
+            beforeRequest: function() {
+                    var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+            },
+             loadComplete: function (data) {
+                //console.log(data);
+                    if(data.total == 0 ){
+                        return false;
+                    }
+                    if(data.total == 0 || data.length==0) {
+                        $("#username").text("");
+                        $("#ext_bets").text(0);
+                        $("#needbets_reduce").text(0);
+                        $("#reduceamount").text(0);
+                        $("#totalbets").text(0);
+                        $("#username").text("{$smarty.get.username}");
+                        layer.msg("未查到相关稽核数据");
+                        return false;
+                    }else{
+                        if(data['extend']['kcfee']>0){
+                            var total_reduce = parseFloat(data[0]['total_reduce'])+parseFloat(data['extend']['kcfee']);
+                            var sxfee = data['extend']['kcfee'];
+                        }else{
+                            var total_reduce = data[0]['total_reduce'];
+                            var sxfee = data['extend']['sxfee'];
+                        }
+                        $("#username").text(data[0]['username']);
+                        $("#ext_bets").text(data[0]['total_ext_reduce']);
+                        $("#needbets_reduce").text(data[0]['total_needbets_reduce']);
+                        $("#reduceamount").text(total_reduce);
+                        $("#totalbets").text(data[0]['totalbets']);
+                        $("#xzfee").text(data['extend']['xzFee']); 
+                        $("#sxfee").text(sxfee);
+                        return false;
+                    }
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //尾部导航栏
+       // $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+
+        $("#table_list_2").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders:[
+                //{startColumnName:'betsvalue', numberOfColumns:1, titleText: '实际有效投注'},
+                {startColumnName:'ext_bets', numberOfColumns:2, titleText: '优惠稽核'},
+                {startColumnName:'need_bets', numberOfColumns:4, titleText: '常态稽核'},
+            ] 
+        })
+
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list_2").jqGrid("setGridParam", {page: 1, datatype: "json"}).trigger('reloadGrid');
+            return false;
+        });
+
+
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+
+            $("#value_1").attr('name', $(this).val());
+        });
+
+        //自定义操作表格
+        function operate(cellValue, options, rowObject) {  
+            var html ="";  
+                html += "<a title='清除打码量'  onclick='flushbets("+rowObject.id+","+rowObject.ext_bets+","+rowObject.need_bets+")'>";  
+                html += "<span style='color:#1ab394'>清除打码量</span></a>&nbsp;";    
+            return html; 
+        }
+        
+    }); //ready 结束
+        //清除打码量
+        function flushbets(id,ext_bets,need_bets) {
+            if(ext_bets == 0 && need_bets == 0){
+                layer.msg("用户打码量已为0");
+                return false;
+            }
+            layer.confirm('确定操作吗？',{
+                btn:['确定','取消']
+            },function() {
+                 $.ajax({
+                    type: "POST",
+                    url:"userbetscheck_flushbets.shtml",
+                    data:{id:id}, 
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.msg(data.msg);
+                        }else{
+                            layer.msg(data.msg,{icon:6},function(index){
+                                $("#subbox").submit();
+                                layer.close(index);
+                            });
+                        }
+                    }
+                });
+            })
+            return false;
+        }
+
+        </script>
+</body>
+
+
+</html>

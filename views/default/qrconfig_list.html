@@ -1,0 +1,219 @@
+{include file="pageheader.html"}
+<link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+<link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+<link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+<script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+<style type="text/css">
+    th, td {
+        text-align: center;
+    }
+
+    input {
+        padding-bottom: 5px;
+    }
+
+    ul li {
+        list-style-type: none;
+    }
+
+    li {
+        padding-bottom: 5px;
+    }
+
+    ul {
+        -webkit-padding-start: 20px;
+    }
+    .text-primary {
+        color: #337ab7;
+    }
+</style>
+
+<script src="js/plugins/layer/layer-3.03/layer.js"></script>
+
+<body class="gray-bg">
+<form action="" method="post">
+    <div class="wrapper wrapper-content">
+        <div class="jqGrid_wrapper">
+            <div class="ui-jqgrid " id="gbox_table_list" dir="ltr">
+                <div class="jqgrid-overlay ui-overlay" id="lui_table_list"></div>
+                <div class="ui-jqgrid-view table-responsive" role="grid" id="gview_table_list">
+                    <div class="ui-jqgrid-hdiv">
+                        <div>
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered bgcol-white"
+                                   role="presentation"
+                                   aria-labelledby="gbox_table_list">
+                                <thead>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>序号</th>
+                                    <th>名称</th>
+                                    <th>图片预览</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                {foreach from = $list item = value key = key}
+                                <tr>
+                                    <td><?php echo $this->_var['key'] +1;?></td>
+                                    <td class="name">{$value.name}</td>
+                                    <td>
+                                        {if $value.path}
+                                        <div id="preview_{$value.qrid}" style="display: none;">
+                                            <img width="300px"
+                                                 src="{$value.path}">
+                                        </div>
+                                        <a href="javascript:void(0) "
+                                           onclick="showPicture('preview_{$value.qrid}')">预览</a>
+                                        {else}
+                                        <a href="javascript:void(0) " onclick="msAlert('还没有图片哦，赶紧上传吧')">预览</a>
+                                        {/if}
+                                    </td>
+                                    <td><a href="javascript:void (0)"
+                                           onclick="edit({$value.qrid},'{$value.name}','{$value.link}','{$value.link_type}')">修改</a></td>
+                                </tr>
+                                {/foreach}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div id="local_preview" style="display: none">
+    <img id="preview" width="300px">
+</div>
+<div style="display: none;" id="open">
+    <form id="box_edit_form" action="qrconfig_edit.shtml" method="post" enctype='multipart/form-data'>
+        <ul class="layer-photos-demo">
+            <li>
+                <h2 class="name" id="qrname">名称：测试</h2>
+            </li>
+            <li>
+                <input id="file_upload" type="file" name="upload"/>
+                <span class='text-primary'>图片不允许超过 2M 大小</span>
+            </li>
+            <li>
+                <a href="javascript:void(0)" onclick="showPicture('local_preview')">上传预览</a>
+            </li>
+            <li style="display: none">
+                <label class="checkbox-inline" style="padding-left: 0">
+                    <input type="radio" value="0" name="link_type">内链
+                </label>
+                <label class="checkbox-inline">
+                    <input type="radio" value="1" name="link_type" checked>外链
+                </label>
+            </li>
+            <li>
+                链接地址：
+                <input type="text" id="link" name="link" class="form-control" style="width : 95%">
+            </li>
+            <li>
+                <div style="text-align: center">
+                    <input type="hidden" name="qrid" id="qrid" value="">
+                    <input style="margin-right: 30px" class="btn btn-sm btn-primary" type="submit" value="保存">
+                    <input class="btn btn-sm btn-primary" type="button" value="取消" onclick="closeWindow()">
+                </div>
+            </li>
+        </ul>
+    </form>
+</div>
+
+<script>
+    // 弹窗
+    function msAlert(msg) {
+        layer.alert(msg);
+    }
+
+    // 预览图片弹出层
+    function showPicture(id) {
+        var real_id = '#' + id;
+        if (!$(real_id).find('img').is('[src]')) {
+            layer.msg('请先选择图片文件', {
+                icon: 2,
+                time: 1000 //2秒关闭（如果不配置，默认是3秒）
+            });
+            return false;
+        }
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: '300px',
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: $(real_id)
+        });
+    }
+
+    // 修改按钮弹出层
+    function edit(id, name, link, link_type) {
+        layer.open({
+            type: 1,
+            title: '修改',
+            area: '320px',
+            content: $('#open')
+        });
+        // 填充数据
+        $('#qrname').html('名称：' + name);
+        $('#qrid').val(id);
+        $('#link').val(link);
+        $('#link').trigger('change');
+    }
+
+    // 关闭全部弹窗
+    function closeWindow() {
+        layer.closeAll();
+    }
+
+    // 本地图片预览
+    $(function () {
+        $("input[type=radio]").change(function(){
+            $('#link').trigger('change');
+        });
+        // 自定义url校验规则
+        !function ($) {
+            // 表单校验
+            var myurl = function (value, element, param) {
+                var link_type = $("input[type=radio]:checked").val();
+                value = $.trim(value);
+                if ('' === value) {
+                    return true;
+                }
+                if ('1' === link_type) {
+                    var rule = /^(http:\/\/|ftp:\/\/|https:\/\/|\/\/|itms-services:\/\/\?action=download-manifest&(amp;)*url=https:\/\/)([\w-]+\.)+[\w-]+\.\w*?/i;
+                } else {
+                    var rule = /^(\/)([\w-]+_)+[\w-]+\.\w*?/i;
+                }
+                return rule.test(value);
+            };
+            jQuery.validate.setRule('myurl', myurl, '请填写url协议，如：http://,https://,ftp://');
+        }(window.jQuery);
+
+        // 表单校验
+        $('#box_edit_form').validate({
+            rules: {
+                'link': {
+                    myurl: true
+                }
+            }
+        });
+        $("#file_upload").change(function () {
+            var $file = $(this);
+            var fileObj = $file[0];
+            var windowURL = window.URL || window.webkitURL;
+            var dataURL;
+            var $img = $("#preview");
+
+            if (fileObj && fileObj.files && fileObj.files[0]) {
+                dataURL = windowURL.createObjectURL(fileObj.files[0]);
+                $img.attr('src', dataURL);
+            } else {
+                dataURL = $file.val();
+                var imgObj = document.getElementById("preview");
+                imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+                imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            }
+        });
+    });
+</script>
+</body>
+</html>

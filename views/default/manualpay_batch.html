@@ -1,0 +1,260 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <div>
+        <a href="manualpay_save.shtml" class="btn btn-primary mgr15">人工存入</a>
+        <a href="manualpay_out.shtml" class="btn btn-primary mgr15">人工提款</a>
+        <a href="manualpay_batch.shtml" class="btn btn-primary mgr15">批量存入</a>
+        <a href="manualpay_excelupload.shtml" class="btn btn-primary mgr15">Excel 批量存入</a>
+    </div>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <br>
+    <div>
+        <!--提交表单 触发审核-->
+        <form action="manualpay_confirm.shtml" id="form" method="POST" name="myform">
+            <table class="table table-bordered table1-hover bgcol-white">
+                <tr>
+                    <th colspan="2" style="text-align: center">
+                        批量存款
+                        <input type="hidden" name="optype" value="0">
+                    </th>
+                </tr>
+                <tr>
+                    <td style="width:260px">
+                        选择存入：
+                    </td>
+                    <td>
+                        <input checked="checked" id="chkb1" name="seleceM" type="radio" value="1">
+                        <label for="chkb1">
+                            输入会员账号
+                        </label>
+                        <input id="chkb2" name="seleceM" type="radio" value="2">
+                        <label for="chkb2">
+                            选择层级存入
+                        </label>
+                        <input name="order_type" type="hidden" value="1">
+                    </td>
+                </tr>
+                <tr id="member_tr">
+                    <td>
+                        填入会员：(*多个会员名称间用逗号隔开)
+                    </td>
+                    <td>
+                        <label for="tx">
+                        <textarea cols="30" name="member" rows="10" id="tx"></textarea>
+                        </label><span style="color: #ff2a2a">*必填</span>
+                    </td>
+                </tr>
+                <tr id="level_tr">
+                    <td>
+                        层级：
+                    </td>
+                    <td>
+                        <select name="layerid">
+                            {foreach from=$layername item=name key=id }
+                            <option value="{$id}">
+                                {$name}
+                            </option>
+                            {/foreach}
+                        </select><span style="color: #ff2a2a">*必选</span>
+                    </td>
+                </tr>
+                <!--同步-->
+                <tr>
+                    <td><label for="order_type_id">存入项目：</label></td>
+                    <td>
+                        <select name="order_type" id="order_type_id">
+                            <option value="1">存款存入</option>{* 充值理赔 *}
+                            <option value="0">普通存入</option> {* 普通理赔 *}
+                            <option value="3">活动优惠</option>
+                        </select>
+                        <span style="color: #ff2a2a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*必选(对有充值行为的用户请选择存款存入)</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        存入金额：
+                    </td>
+                    <td>
+                        <input name="amount" id="amount_id" placeholder="请填写金额，只能填写数字..." type="text">
+                        <span id="amount_style" style="">*选填</span>
+                    </td>
+                </tr>
+                <tr id="ext_amount_id">
+                    <td>
+                        存款优惠：
+                    </td>
+                    <td>
+                        <input name="ext_amount" type="text">
+                        *选填
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        综合打码量稽核：
+                    </td>
+                    <td>
+                        <input name="ext_bets" type="text">
+                        请选择倍数（选填）：
+                        <label>
+                            <input type="radio" value=3 name="times">&nbsp;&nbsp;
+                            3倍&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <label>
+                            <input type="radio" value=5 name="times">&nbsp;&nbsp;
+                            5倍&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <label>
+                            <input type="radio" value=0 name="times">&nbsp;&nbsp;
+                            免流水&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                    </td>
+                </tr>
+               
+                <tr>
+                    <td>常态性稽核：</td>
+                    <td>
+                        <input name="audit_bets" type="text" value="0">
+                        请选择倍数：
+                        <label>
+                            <select name="audit_multi_select">
+                                <option>0</option>
+                                <option selected="selected">1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6</option>
+                                <option>7</option>
+                                <option>8</option>
+                                <option>9</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>
+                        备注：
+                    </td>
+                    <td>
+                        <input name="apply_remark" required="required" type="text">
+                        <span style="color:red">*必填</span>
+                        <!--提交者备注-->
+                    </td>
+                </tr>
+                <!--同步-->
+                <tr>
+                    <td colspan="2">
+                        <input class="btn btn-primary" type="button" id="subbtn"  value="确定">
+                        <input class="btn btn-warning mgl15" type="reset" value="取消">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    </br>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#chkb1").click(function () {
+            $("#member_tr").show();
+            $("#level_tr").hide();
+        });
+
+        $("#level_tr").hide();
+        $("#chkb2").click(function () {
+            $("#level_tr").show();
+            $("#member_tr").hide();
+        });
+
+    });
+
+    // 倍数选择
+    $("input[name=times]").change(function () {
+        var amount = parseFloat($("input[name=amount]").val()) > 0 ? parseFloat($("input[name=amount]").val()) : 0;
+        var eamount = parseFloat($("input[name=ext_amount]").val()) > 0 ? parseFloat($("input[name=ext_amount]").val()) : 0;
+        var times = $(this).val();
+        var sum = (parseInt(amount) + parseInt(eamount)) * times;
+        $("input[name=ext_bets]").val(sum);
+    });
+      // 人工存入选择状态
+        $("#order_type_id").change(function () {
+            var typeNum = $(this).val();
+            if (typeNum==1){
+                $("input[name=amount]").val(0);
+                $("input[name=ext_amount]").val(0);
+                $("input[name=ext_bets]").val(0);
+//                $("input[name=times]").val(0);
+                $("#ext_amount_id").show();
+                $("#amount_style").css("color","#676a6c");
+                $("#amount_style").text("*选填");
+            }else {
+                $("input[name=amount]").val(0);
+                $("input[name=ext_amount]").val(0);
+                $("input[name=ext_bets]").val(0);
+                $("#amount_style").css("color","red");
+                $("#amount_style").text("*必填");
+//                $("input[name=times]").val(0);
+                $("#ext_amount_id").hide();
+            }
+        });
+    // 存入金额
+    $("input[name=amount]").change(function () {
+        var eamount = $("input[name=ext_amount]").val();
+        var amount = $(this).val();
+        if (amount == "") {
+            amount = 0;
+        }
+        if (eamount > 0) {
+            var sum = parseInt(amount) + parseInt(eamount);
+            $("input[name=ext_bets]").val(sum);
+            $("input[name=audit_bets]").val(sum);
+        } else {
+            $("input[name=ext_bets]").val(amount);
+            $("input[name=audit_bets]").val(amount);
+        }
+    });
+
+    // 优惠金额
+    $("input[name=ext_amount]").change(function () {
+        var amount = $("input[name=amount]").val();
+        var eamount = $(this).val();
+        if (eamount == "") {
+            eamount = 0;
+        }
+        if (amount > 0) {
+            var sum = parseInt(amount) + parseInt(eamount);
+            $("input[name=ext_bets]").val(sum);
+        } else {
+            $("input[name=ext_bets]").val(eamount);
+        }
+    });
+    $("#subbtn").click(function(event){
+        var url = $('#form').attr('action');
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: url ,//url
+            data: $('#form').serialize(),
+            success: function (result) {
+                if (result.code == 1){
+                    layer.msg(result.msg,{time:1000},function () {
+                        window.location.reload();
+                    });
+                }else {
+                    layer.msg(result.msg);
+                }
+            }
+        });
+    });
+
+    $('select[name=audit_multi_select]').on('change', function () {
+        var amount = parseFloat($('#amount_id').val());
+        var audit = $(this).val() * (amount ? amount : 0);
+        $('input[name=audit_bets]').val(audit);
+    });
+</script>
+</body>
+</html>

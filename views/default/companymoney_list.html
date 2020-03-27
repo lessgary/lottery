@@ -1,0 +1,556 @@
+{include file="pageheader.html"}
+
+<style type="text/css">
+    .float-left{
+        float:left;
+        width:204px;
+    }
+    .float-left > div{
+        padding-left:20px;
+    }
+    .form-control {
+        height: auto !important;
+    }
+    input[type=checkbox], input[type=radio] {
+       margin-top: 17px !important;
+        margin-right: 0px !important;
+        margin-bottom: 17px !important;
+        margin-left: 4px !important;
+    }
+</style>
+
+<script src="js/clipboard.min.js"></script>
+<body class="gray-bg">
+<!--确认收款-->
+ <div id ="dispatch_layer"  class="modal-body" style="display: none">
+    <div class="row">
+      <form class="form-horizontal m-t" method="POST" action="" onsubmit="return false;" id="signupForm">
+            <div class="form-group">
+                <label for="" class="col-sm-3 control-label">入款金额:</label>
+                <div class="col-sm-8 ">
+                  <input type="input"  value="" onchange="change_amount($(this).val())" class="form-control" name="apply_amount" >
+                   </div>
+            </div>
+
+            <div class="form-group">
+                <label for="" class="col-sm-3 control-label">优惠金额:</label>
+                <div class="col-sm-8 ">
+                  <input type="input"  value="" class="form-control" name="favor_amount" >
+                  <input type="hidden"  value="" class="form-control" name="id" >
+                   </div>
+            </div>
+            <div class="form-group">
+                 <div class="col-sm-8 col-sm-offset-3">
+                    <button class="btn btn-primary" id="formsubmit" type="submit">提交</button>&nbsp;&nbsp;
+                    <button class="btn btn-primary cancel" onclick="layer.closeAll()" type="submit">取消</button>
+                 </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!--end 确认收款-->
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div>
+            <div class="form-group">
+                <label>申请时间</label>
+                <input name="starttime" class="form-control layer-date" value="{if isset($smarty.get.sdate)}{$smarty.get.sdate}{else}{$sdate}{/if}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+            <div class="form-group">
+                ~
+                <input name="endtime" class="form-control layer-date" value="{if isset($smarty.get.edate)}{$smarty.get.edate}{else}{$edate}{/if}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+            <div class="form-group">
+                <label>确认时间</label>
+                <input name="sfinishtime" class="form-control layer-date" value="" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+            <div class="form-group">
+                ~
+                <input name="efinishtime" class="form-control layer-date" value="" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+             <div class="form-group mgr15">
+                <label>金额</label>
+                <input type="text" class="form-control" name="min">
+                ~
+                <input type="text" class="form-control" name="max">
+            </div>
+        </div>
+        <div style="margin-top: 10px; margin-bottom: 10px;">
+            <div class="form-group mgr15">
+                <label>刷新</label>
+                <select class="form-control" id="timer">
+                    <option value="-1">不刷新</option>
+                    <option value="30000">30s</option>
+                    <option value="60000">60s</option>
+                    <option value="120000">120s</option>
+                    <option value="180000">180s</option>
+                </select>
+            </div>
+            <div class="form-group mgr15">
+                <label>状态</label>
+                <select class="form-control" name="status">
+                    <option value="-1">全部</option>
+                    <option value="2">已确认</option>
+                    <option value="1">已取消</option>
+                    <option value="0">未处理</option>
+                </select>
+            </div>
+
+            <div class="form-group mgr15">
+                <label>入款账号</label>
+                <div class="form-group">
+                    <div class="btn  btn-primary user_layer_click">选择入款账号</div>
+                    <div class="user_layer_list" style="padding: 0 20px;display: none;">
+                        <div class="check_all">
+                            <span><input type="checkbox" class="select_all">全部</span>
+                        </div>
+
+                        <tr class="float-left">
+                            {foreach from = $acc_list item=item key=key}
+                            {if 0 != ($key+1)%2}
+                            <td><input class="user_layer" type="checkbox" name="company_payacc_id[]" value="{$item.id}" data-name="{$item.nickname}">{$item.nickname}</td>
+                            {/if}
+                            {/foreach}
+                        </tr>
+                        <tr class="float-left">
+                            {foreach from = $acc_list item=item key=key}
+                            {if 0 == ($key+1)%2}
+                            <td><input class="user_layer" type="checkbox" name="company_payacc_id[]" value="{$item.id}" data-name="{$item.nickname}">{$item.nickname}</td>
+                            {/if}
+                            {/foreach}
+                        </tr>
+                    </div>
+                    <label for=""></label>
+                </div>
+            </div>
+           
+
+            <div class="form-group">
+                <select class="form-control" name="search_type">
+                    <option value="1">会员账号</option>
+                    <option value="2">存款人</option>
+                    <option value="3">附言码</option>
+                    <option value="4">订单号</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" name="key_word">
+            </div>
+            <button class="fm-button btn btn-primary fm-button-icon-right ui-search" type="submit" value="query"> 查询</button>
+             </br><p></p>
+            <!--<label>层级：</label>-->
+            <!--{foreach from=$aLayerList item=item key=k}-->
+            <!--<div class="form-group">-->
+                <!--<input name="layerid[]" type="checkbox" value="{$item.layerid}" class="form-control">-->
+                <!--<label>{$item.name}</label>-->
+            <!--</div>-->
+            <!--{/foreach}-->
+        <br/>
+            <label>入款账号显示：</label>
+            <div class="form-group show_layer_select">
+                <label for="" style="color:#1ab394">全部</label>
+            </div>
+        </div>
+        <div>
+            <label>总笔数：</label>（<span class="text-danger" id="_count">0</span>）　　　<label>申请金额：</label> （<span class="text-danger" id="_sum">0.00</span>） <label>实际入款金额：</label>（<span class="text-danger" id="_realamount">0</span>）<label>入款优惠：</label>（<span class="text-danger" id="_favoramount">0</span>）
+            <button class="fm-button btn btn-primary fm-button-icon-right ui-search pull-right" type="submit" value="export" name="export">导出</button>
+        </div>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list"></table><!--初始化表格必须-->
+                        <div id="page_list"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var timer = '';
+    $.is_lock = false;
+    $(document).ready(function(){
+        // 定时刷新
+        var reflesh_time = $('#timer').val();
+
+        if (-1 != reflesh_time) {
+            clearInterval(timer);
+            timer = setInterval('myrefresh()', reflesh_time);
+        }
+        $('#timer').change(function(){
+            var reflesh_time = $('#timer').val();
+            if (timer !== '') {
+                clearInterval(timer);
+            }
+
+            if (-1 != reflesh_time) {
+                timer = setInterval('myrefresh()', reflesh_time);
+            }
+        });
+
+        // 层级全选
+        $('.select_all').change(function(){
+            if ($(this).is(":checked")) {
+                $('.user_layer').prop('checked', true);
+            } else {
+                $('.user_layer').removeAttr('checked');
+            }
+        });
+        $('.user_layer_click').click(function(){
+            layer.open({
+                title: '公司入款账号选择',
+                type: 1,
+                skin: 'layui-layer-rim', //加上边框
+                area: ['420px', '240px'], //宽高
+                shadeClose: true,
+                content: $('.user_layer_list'),
+                end: function(){
+                    var html = '';
+                    var selectAll = true;
+                    $('.user_layer').each(function(index, item){
+                        if ($(this).is(':checked')) {
+                            html += '<label for="" >' + $(this).data('name') + '</label><span>&nbsp;</span>';
+                        } else {
+                            selectAll = selectAll ? false : false;
+                        }
+                    });
+
+                    if (!html || selectAll) {
+                        $('.show_layer_select').children().remove();
+
+                        $('.show_layer_select').append($('<label for="" >全部</label>'));
+                    } else {
+                        $('.show_layer_select').children().remove();
+
+                        $('.show_layer_select').append($(html));
+                    }
+                }
+            });
+        });
+        $.jgrid.defaults.styleUI="Bootstrap";
+        // 显示会员入款信息
+        function showApplyInfo(cellValue, options, rowObject) {
+            return '<div>存款人:' + rowObject.apply_realname +'</div><div>方式：' + rowObject.bankname + '</div>';
+        }
+        // 显示存入银行账号
+        function showBankInfo(cellValue, options, rowObject) {
+            return '<div>账户别名：' + rowObject.nickname + '</div><div>账号：' + rowObject.accout_no + '</div><div>银行：' + rowObject.bankname + '</div>';
+        }
+        // 显示操作
+        function operate(cellValue, options, rowObject) {
+            var html = '';
+            if (0 == rowObject.status) {
+                html += "<a title='确定' onclick='confirm_money(" + rowObject.id + ", "+rowObject.apply_amount+","+rowObject.favor_amount+")'>";
+                html += "<span style='color:#1ab394'>确定</span></a>&nbsp;";
+                html += "<a title='取消' onclick='reject_money(" + rowObject.id + ")'>";
+                html += "<span style='color:#1ab394'>取消</span></a>&nbsp;";
+            } else if(1 == rowObject.status) {
+                html += "<a title='撤销' onclick='rollback_money(" + rowObject.id + ")'>";
+                html += "<span >撤销</span></a>&nbsp;";
+            } 
+            return html;
+        }
+        // 显示状态
+        function showStatus(cellValue, options, rowObject) {
+            var html = '';
+            if (2 == rowObject.status) {
+                html += "<span style='color:red'>已存入</span></a>&nbsp;";
+            } else if(0 == rowObject.status){
+                html += "<span >未处理</span>&nbsp;";
+            }else {
+                html += "<span >已取消</span>&nbsp;";
+            }
+            return html;
+        }
+
+        // 显示复制
+        function showCopy(cellValue, options, rowObject){
+            var html = '';
+            var space = '    ';
+            html += "<a class='copy_' data-clipboard-text='" + rowObject.layer_name + space + rowObject.inserttime + space + rowObject.username + space + rowObject.apply_realname + space +
+                rowObject.notes + space + rowObject.apply_amount + space + rowObject.favor_amount + space + rowObject.proxy_adminname + space + "'>";
+            html += "<span>复制</span></a>";
+            return html;
+        }
+
+        // 显示入款时间
+        function showTime(cellValue, options, rowObject){
+            return '<div>申请时间：' + rowObject.inserttime + '</div><div>确认时间：' + rowObject.finishtime + '</div>';
+        }
+        $("#table_list").jqGrid({
+            //表格头
+            colNames:['订单号','会员账号', '存款人姓名', '申请金额','入款优惠','附言码','存入银行账号','状态','操作','操作人','拒绝备注','入款时间'],
+            //表格内容
+            colModel:[
+                {name: "company_order_no", index: "company_order_no", editable: false, sortable: false,width:'125'},
+                {name: "username", index: "username", editable: false, sortable: false,width:'65', formatter: jumpUserInfo},
+                {name: "apply_realname", index: "apply_realname", editable: false, sortable: false,width:'65'},
+                {name: "apply_amount", index: "apply_amount", editable: false, sortable: false,width:'80'},
+                {name: "favor_amount", index: "favor_amount", editable: false, sortable: false,width:'80'},
+                {name: "notes", index: "notes", editable: false, sortable: false,width:'55'},
+                {name: "bank_info", index: "bank_info", editable: false, sortable: false,formatter:showBankInfo},
+                {name: "status", index: "status", editable: false, sortable: false,width:'55',formatter:showStatus},
+                {name: "status_msg", index: "status_msg", editable: false, sortable: false,align:'left',formatter:operate,width:'60'},
+                {name: "proxy_adminname", index: "proxy_adminname", editable: false, sortable: false,width:'55'},
+                {name: "reject_remark", index: "reject_remark", editable: false, sortable: false,width:'55'},
+                {name: "time", index: "time", editable: false, sortable: false, formatter:showTime},
+                // {name: "copy", index: "copy", editable: false, sortable: false, formatter:showCopy, align:'left',width:'75'}
+            ],
+            //data:mydata,
+            height:'auto', //默认高度
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowList:{$page_number}, //每页展示的记录数
+            rowNum: 500,
+            viewrecords:true,
+            datatype: 'json',
+            pager:"#page_list",
+            mtype: 'post',
+            beforeRequest: function(){
+                var postData = {};
+                var preg = /\[\]/;
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    if (preg.test(n.name)) {
+                        var name = n.name.replace(preg, '');
+                        if (name in postData) {
+                            postData[name] += ',' + n.value;
+                        } else {
+                            postData[name] = n.value;
+                        }
+                    } else {
+                        postData[n.name] = n.value;
+                    }
+                });
+                if (typeof postData.layerid == 'undefined') {
+                    postData.layerid = '';
+                }
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            },
+            gridComplete: function(){
+                var clipboard = new Clipboard('.copy_');
+
+                clipboard.on('success', function(e) {
+                    layer.msg('已复制至剪贴板');
+                });
+            },
+            loadComplete: function (xhr){
+                if ('extend' in xhr) {
+                    $('#_count').html(xhr.extend.count);
+                    $('#_sum').html(xhr.extend.sum);
+                    $('#_realamount').html(xhr.extend.sum_real_amount);
+                    $('#_favoramount').html(xhr.extend.sum_favor_amount);
+                }
+            }
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            var action = $(this).find("button[type=submit]:focus").val();
+            // 导出
+            if ('export' == action) {
+                $(this).attr('action', 'companymoney_export.shtml');
+                return true;
+            } else {
+                $(this).attr('action', '');
+            }
+            $("#table_list").jqGrid("setGridParam", {
+                mtype: "post",
+                datatype: 'json'
+            }).trigger('reloadGrid');
+            return false;
+        });
+    });
+
+    // function confirm_form(id, apply_amount, favor_amount) {
+        // $("input[name=apply_amount]").val(apply_amount);
+        // $("input[name=favor_amount]").val(favor_amount);
+        // $("input[name=id]").val(id);
+            // layer.open({
+            //   type: 1,
+            //   title: false,
+            //   closeBtn: 0,
+            //   offset:'100px',
+            //   shadeClose: false,
+            //   content: '确认入款？'
+              // content: $('#dispatch_layer')
+            // });
+    // }
+    // $("#formsubmit").click(function(){
+    //     var apply_amount = $("input[name=apply_amount]").val();
+    //     var favor_amount = $("input[name=favor_amount]").val();
+    //     var id = $("input[name=id]").val();
+    //
+    //     confirm_money(id, 1,apply_amount,favor_amount);
+    //
+    // });
+
+    //修改入款金额
+    function change_amount(apply_amount) {
+        var id = $("input[name=id]").val();
+         $.ajax({
+            type: 'POST',
+            url: 'companymoney_changeamount.shtml',
+            dataType: 'json',
+            data: {id:id,apply_amount:apply_amount},
+            success: function (data) {
+                if(data.code == 1) {
+                   $("input[name=favor_amount]").val(data.favor_amount);
+                } else {
+                    layer.alert(data.msg);
+                }
+            },
+            error :function(error){
+               window.location.href="companymoney_changeamount.shtml";
+            }
+        });
+    }
+
+    //确定入款
+    function confirm_money(id, apply_amount, favor_amount) {
+        if ($.is_lock) {
+            layer.alert('请勿重复提交');
+            return false;
+        }
+        $.is_lock = true;
+        (function($, layer){
+            layer.config({
+                end : function() {
+                    $.is_lock =  false;
+                }
+            });
+
+            layer.confirm(
+                '确定钱到账了吗？',
+                {
+                    icon: 3,
+                    title:'提示'
+                },
+                function () {
+                    // 确认要打款
+                    $.ajax({
+                        type: 'POST',
+                        url: 'companymoney_confirm.shtml',
+                        dataType: 'json',
+                        data: {
+                            id: id,
+                            apply_amount:apply_amount,
+                            favor_amount:favor_amount,
+                            is_confirm: 0
+                        },
+                        success: function (data) {
+                            if (data.error !== undefined) {
+                                layer.msg(data.msg,{time:1000},function () {
+                                    if (data.error == 0) {
+                                        myrefresh();
+                                    }
+                                })
+                            } else {
+                                layer.msg('没有修改权限！');
+                            }
+                        }
+                    });
+                },
+
+                function () {
+                    $.is_lock =  false;
+                    layer.closeAll();
+                }
+            );
+        })($, layer);
+    }
+
+
+    //拒绝入款
+    function reject_money (id) {
+        layer.prompt(
+            {
+                title:'请输入审批不通过的原因(将展示给用户)',
+                formType:2
+            },
+            function (val) {
+                $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: 'companymoney_confirm.shtml',
+                data : {
+                    id:id,
+                    is_confirm: 1,
+                    reject_remark:val
+                },
+                success: function (data) {
+                    if (data.error !== undefined) {
+                        layer.msg(data.msg,{time:1000}, function(){
+                            if (data.error == 0) {
+                                myrefresh();
+                                layer.closeAll();
+                            }
+                        });
+                    } else {
+                        layer.msg('没有修改权限！');
+                    }
+                }
+            });
+        });
+    }
+
+    // 撤销取消
+    function rollback_money(id) {
+        (function($, layer){
+            layer.confirm(
+                '确定撤销已取消订单吗？',
+                {
+                    icon: 3,
+                    title:'提示'
+                },
+                function () {
+                    $.ajax({
+                        type: 'GET',
+                        url: 'companymoney_confirm.shtml?id=' + id,
+                        dataType: 'json',
+                        success: function (data) {
+                            if (data.error !== undefined) {
+                                layer.msg(data.msg,{time:1000}, function(){
+                                    if (data.error == 0) {
+                                        myrefresh();
+                                    }
+                                });
+                            } else {
+                                layer.msg('没有修改权限！');
+                            }
+                        }
+                    });
+                }
+            );
+        })($, layer);
+    }
+    
+    function myrefresh()
+    {
+        $("#subbox").submit();
+    }
+
+    function jumpUserInfo(cellValue, options, rowObject) {
+        return '<span style="cursor:pointer;color: red" onclick="clickHref(\'' + rowObject.username + '\')">' + rowObject.username + '</span>'
+    }
+
+    function clickHref(name){
+        var titles  = '用户列表';
+        var hrefs  = './user_mainlist.shtml?jump_name=' + name;
+        var wParent=window.parent;
+        wParent.$("#cHref").text(titles);
+        wParent.$("#cHref").attr('href',hrefs);
+        wParent.$("#cHref").addClass('J_menuItem');
+        wParent.$("#cHref").click();
+    }
+</script>
+</body>
+
+
+</html>

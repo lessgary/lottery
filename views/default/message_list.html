@@ -1,0 +1,190 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label for="select_1" class="">消息类型：</label>
+            <select name="mt" class="form-control" id="select_1">
+                <option value="" {if $s.mt=='-1'}SELECTED{/if}>全部</option>
+                {$s.mtoptions}
+            </select>
+        </div>
+        <!--<div class="form-group mgl15">-->
+            <!--<label for="suser" class="">发送用户名：</label>-->
+            <!--<input type="text" placeholder="请输入用户名" id="suser" name="sendername" class="form-control">-->
+        <!--</div>-->
+        <div class="form-group mgl15">
+            <label for="ruser" class="">接收用户名：</label>
+            <input type="text" placeholder="请输入用户名" id="ruser" name="receivename" class="form-control">
+        </div>
+        <div class="form-group mgl15">
+            <label for="" class="">读取状态：</label>
+            <select class="form-control" name="isread">
+                <option value="0" {if $s.isread=='0'}SELECTED{/if}>未读</option>
+                <option value="1" {if $s.isread=='1'}SELECTED{/if}>已阅读</option>
+            </select>
+            <!--ken 已修改-->
+            </select>
+        </div>
+        <div class="form-group mgl15">
+            <label for="ifisdel" class="">删除状态：</label>
+            <select class="form-control" name="isdel" id="ifisdel">
+                <option value="-1" {if $s.isdel=='-1'}SELECTED{/if}>不限</option>
+                <option value="0" {if $s.isdel=='0'}SELECTED{/if}>未删</option>
+                <option value="1" {if $s.isdel=='1'}SELECTED{/if}>已删除</option>
+                <!--ken 已修改-->
+            </select>
+        </div>
+        </br></br>
+        <div class="form-group">
+            <label for="" class="">消息标题：</label>
+            <input type="text" placeholder="请输入消息标题" name="subject" value="{$s.subject|escape:html}"
+                   class="form-control">
+            <!--ken 已修改-->
+        </div>
+        <div class="form-group mgl15">
+            <label class="">开始时间：</label>
+            <input id="sdate" name="sdate" class="form-control layer-date"
+                   placeholder="请选择日期..." onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group mgl15">
+            <label class="">结束时间：</label>
+            <input id="edate" name="edate" class="form-control layer-date"
+                   placeholder="请选择日期..." onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <!--ken 已修改-->
+        <a href="message_add.shtml" class="btn btn-warning pull-right">新增消息</a>
+        <button class="btn btn-primary pull-right mgr15"type="submit">点击查询</button>
+        <!--ken 已修改-->
+    </form>
+
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--显示短信内容 ken 2017-->
+<!--显示短信内容 ken 2017-->
+<script>
+    $(document).ready(function () {
+        $.jgrid.defaults.styleUI = "Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames: ["ID", "状态", "是否已删", "标题", "消息类型", "发送组", "接收用户", "发送时间", "操作"],
+            //表格内容
+            colModel: [
+                {name: "entry", index: "entry", editable: true, width: "30px", search: true},
+                {name: "isread", index: "isread", editable: true, width: "60px",formatter:'select',editoptions:{value:"1:未读;2:已读"}},
+                {name: "isdel", index: "isdel", editable: true, width: "60px",formatter:'select',editoptions:{value:"1:未删除;2:已删除"}},
+                {name: "subject", index: "subject", editable: true},
+                {name: "mt", index: "mt", width: "70px", editable: true},
+                {name: "sendergroup", index: "sendergroup", align: "right", width: "60px",formatter:'select',editoptions:{value:"0:用户组;1:管理员组"} },
+                {name: "receivename", index: "receivename", align: "right", width: "60px", editable: true},
+                {name: "sendtime", index: "sendtime", align: "right", editable: true},
+                {name: "operate", index: "operate", align: 'left', width: "80px", formatter: showlink}/*格式化本列为超链接*/
+            ],
+            //data:mydata,
+            height: 450, //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth: true,    //表格自适应宽度
+            shrinkToFit: true,   //自适应列宽
+            rowNum: 10,       //每页展示的记录数
+            rowList: [10, 20, 30], //每页展示的记录数
+            sortname: 'entry',//默认排序
+            //multiselect : true,//多选
+            pager: "#pager_list_2",
+            viewrecords:true,
+            beforeRequest: function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+
+        $("#table_list_2").setSelection(4, true);
+        //尾部导航栏
+        $("#table_list_2").jqGrid("navGrid", "#pager_list_2", {
+            edit: false,
+            add: false,
+            del: false,
+            search: false,
+        }, {height: 200, reloadAfterSubmit: true});
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function () {
+            var postData = {};
+            $.each($(this).serializeArray(), function (i, n) {
+                postData[n.name] = n.value;
+            });
+            $("#table_list_2").jqGrid("setGridParam", {page: 1}).trigger('reloadGrid');
+            return false;
+        });
+    });
+
+    //自定义操作表格
+    function showlink(cellValue, options, rowObject) {
+        var html = "";
+        html += "<a title='查看' onclick='addlayer(" + rowObject.entry + ")' >";
+        html += "<span style='color:#1ab394'>查看</span></a>&nbsp;&nbsp;";
+        html += "&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;";
+        /*删除事件 ken 2017*/
+        if (rowObject.isdel == 1) {
+            html += "<a title='删除' onclick='delmsg(" + rowObject.entry + ")' >";
+            html += "<i class='fa fa-remove'>删除</i></a>&nbsp;&nbsp;";
+        }
+        if (rowObject.isdel == 2) {
+            html += "<span>已删除</span></a>&nbsp;&nbsp;";
+        }
+        /*ken 2017 触发事件*/
+        return html;
+    }
+
+    // 删除信息 ken 2017
+    function delmsg(entry) {
+        layer.confirm('确定操作吗？', {
+            btn: ['确定', '取消']
+        }, function () {
+            window.location.href = "message_del.shtml?msgid=" + entry;
+        });
+        return false;
+    }
+
+    // 添加层级 站内信详细内容
+    function addlayer(x){ //获取id
+        $.get('message_view.shtml?entry='+x,function () {
+            layer.open({
+                type: 2,
+                title: false,
+                shadeClose: true,
+                closeBtn: 0,
+                maxmin: false, //开启最大化最小化按钮
+                area: ['900px', '400px'],
+                content:'message_view.shtml?entry='+x
+            });
+        });
+
+    }
+</script>
+</body>
+</html>

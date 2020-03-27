@@ -1,0 +1,63 @@
+{include file="pageheader.html"}<!--review by ken 2017-->
+<body>
+<div class="ibox-content">
+    <h3>公告详情</h3>
+</div>
+<div class="container">
+<div class="list-div" id="listDiv">
+    <table class="table table-bordered" id='list-table'>
+        <tr>
+            <td class="narrow-label">排序值:</td>
+            <td>{$notice.sorts}</td>
+        </tr>
+        <tr>
+            <td class="narrow-label">公告标题:</td>
+            <td>{$notice.subject|escape:html}</td>
+        </tr>
+        <tr>
+            <td class="narrow-label">发布人:</td>
+            <td>{$notice.sendername|escape:html}</td>
+        </tr>
+        <tr>
+            <td class="narrow-label">接收层级：</td>
+            {if $notice.layernames}
+            <td>{$notice.layernames}</td>
+            {else}
+            <td>所有用户</td>
+            {/if}
+        </tr>
+        <tr>
+            <td class="narrow-label">内容:</td>
+            {if $notice.type == 1}
+            <td style="word-wrap:break-word">{$notice.content}</td>
+            {/if}
+            {if $notice.type == 2}
+            <td>
+                <div id="banner">
+                    <ul>
+
+                    </ul>
+                    <div id="banner_list">
+                        <a href="#" target="_blank"><img src="{$imgpath}" title="{$notice.subject}" /></a>
+                    </div>
+                </div>
+            </td>
+            {/if}
+        </tr>
+    </table>
+    {$close|print}
+    <form onsubmit="false">
+        <input name="close" type="hidden" value="{$close}">
+    </form>
+</div>
+</div>
+<script>
+    var close = $("input[name=close]").val();
+    if (close == 1) {
+        layer.alert("公告ID或者其他错误",function () {
+            parent.layer.closeAll();
+        });
+    }
+</script>
+</body>
+</html>

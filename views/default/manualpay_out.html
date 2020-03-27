@@ -1,0 +1,213 @@
+{include file="pageheader.html"}
+<link href="css/plugins/chosen/chosen.css" rel="stylesheet">
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+<body  class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <div>
+        <a href="manualpay_save.shtml" class="btn btn-primary mgr15">人工存入</a>
+        <a href="manualpay_out.shtml" class="btn btn-primary mgr15">人工提款</a>
+        <a href="manualpay_batch.shtml" class="btn btn-primary mgr15">批量存入</a>
+        <a href="manualpay_excelupload.shtml" class="btn btn-primary mgr15">Excel 批量存入</a>
+    </div>
+</div>
+<br>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div>
+        <!--根据用户名查找用户-->
+        <form id="get_userinfo">
+            <select class="form-control m-b chosen-select" name="username" id="companyid">
+                <option value="">请搜索选择</option>
+            </select>
+        </form>
+    </div>
+    <br>
+    <div>
+        <!--提交表单 触发审核-->
+        <form action="manualpay_confirm.shtml" method="POST" id="form">
+            <table class="table table-bordered table1-hover bgcol-white">
+                <tr>
+                    <th colspan="2" style="text-align: center">人工取款</th>
+                </tr>
+                <tr>
+                    <td style="width:260px">账号：</td>
+                    <td><input type="text" name="username" readonly="readonly" style="border:0;box-shadow:none"></td>
+                    <!--<td>{$userpro.username}</td>-->
+                    <input type="hidden" name="single" value="single">
+                    <input type="hidden" name="userid">
+                    <!--<input type="hidden" name="username" value="{$userpro.username}">-->
+                    <input type="hidden" name="optype" value="1">{* 减款 *}
+                </tr>
+                <tr>
+                    <td>姓名：</td>
+                    <!--<td>{$userpro.nickname}</td>-->
+                    <td><input type="text" name="nickname" readonly="readonly" style="border:0;box-shadow:none"></td>
+                </tr>
+                <tr>
+                    <td>可用余额：</td>
+                    <!--<td>{$userpro.channelbalance}</td>-->
+                    <td><input type="text" name="channelbalance" readonly="readonly" style="border:0;box-shadow:none"></td>
+                </tr>
+                <tr>
+                    <td>提出金额：</td>
+                    <td>
+                        <input name="amount" type="text" required="required"><span style="color: #ff2a2a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*必填(只能输入数字)</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>提出项目：</td>
+                    <td>
+                        <select name="order_type" id="">
+                            <option value="4">人工取款</option>
+                            <option value="5">手动申请出款</option>
+                            <option value="6">公司入款误存</option>
+                            <option value="7">优惠扣除</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>银行卡号：</td>
+                    <td>
+                        <select name="bankNumber" id="bankNumber"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>银行：</td>
+                    <!--<td>{$userpro.channelbalance}</td>-->
+                    <td><input type="text" name="bankName" readonly="readonly" style="border:0;box-shadow:none"></td>
+                </tr>
+                <tr>
+                    <td>开户行：</td>
+                    <!--<td>{$userpro.channelbalance}</td>-->
+                    <td><input type="text" name="branch" readonly="readonly" style="border:0;box-shadow:none"></td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td>
+                        <input name="apply_remark" type="text" required="required" style="width:100%"><span style="color: #ff2a2a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*必填</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>会员备注：</td>
+                    <td>
+                        <input type="text" name="identity" readonly="readonly">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="确定" class="btn btn-primary">
+                        <input type="reset" value="取消" class="btn btn-warning mgl15">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<script>
+    $(".chosen-select").chosen({no_results_text: "未找到",search_contains:true,width:"15%"});
+    $('.chosen-search>input').attr('oninput',"this.value=this.value.replace(/[\u4e00-\u9fa5]/g,'');")
+    $('.chosen-search>input').on('compositionstart',function(){
+        flag = false;
+    });
+    var timeout = 0;
+    var flag = true;
+    var username;
+    $('.chosen-search>input').bind("input propertychange",function () {
+        username = $('.chosen-search>input').val();
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+            $('.chosen-search>input').on('compositionstart',function(){
+                flag = false;
+            });
+            $('.chosen-search>input').on('compositionend',function(){
+                flag = true;
+            });
+            if (flag){
+                $.ajax({
+                    url:'manualpay_save.shtml',
+                    type:'POST',
+                    dataType:'json',
+                    data:{
+                        getuser:'save',
+                        username:username,
+                        fuzzy:1,
+                    },
+                    success: function (data){
+                        var  html = '<option value=""></option>';
+                        if (data.code === 1) {
+                            $.each(data.msg,function (key,val) {
+                                html += '<option value="' + val.username + '">'+ val.username +'</option>'
+                            })
+                        } else {
+                            html = '<option value="">未找到</option>'
+                        }
+                        $(".chosen-select").html(html)
+                        $(".chosen-select").trigger("chosen:updated");
+                        $('.chosen-search>input').val(username);
+                    }
+                });
+            }
+        },300);
+
+    });
+
+
+    $(".chosen-select").change(function () {
+        var username =  $(this).val();
+        var optionstring="";
+        $("#bankNumber").empty();
+        $.ajax({
+            url: 'manualpay_out.shtml',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                getuser: 'out',
+                username: username
+            },
+            success: function (data) {
+                if (data.code === 1) {
+                    $("input[name='username']").val(data.username);
+                    $("input[name='nickname']").val(data.nickname);
+                    $("input[name='channelbalance']").val(data.channelbalance);
+                    $("input[name='identity']").val(data.identity);
+                    $("input[name='userid']").val(data.userid);
+                    $.each(data.userBankInfo,function(key,value){  //循环遍历后台传过来的json数据
+                        optionstring += "<option bankName=\"" + value.bankname + "\" branch=\"" + value.branch + "\" value=\"" + value.cardno + "\" >" + value.cardno + "</option>";
+                    });
+                    $("#bankNumber").html("<option value=''>不选择</option> "+optionstring); //获得要赋值的select的id，进行赋值
+                    layer.msg(data.msg)
+                } else {
+                    layer.alert('查询没有结果！');
+                }
+            }
+        });
+        return false;
+    });
+    
+    $("#bankNumber").change(function () {
+        $("input[name='branch']").val($(this).find(':selected').attr('branch'));
+        $("input[name='bankName']").val($(this).find(':selected').attr('bankName'));
+    });
+
+    $("#form").submit(function(event){
+        event.preventDefault();
+        var url = $('#form').attr('action');
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: url ,//url
+            data: $('#form').serialize(),
+            success: function (result) {
+                if (result.code == 1){
+                    layer.msg(result.msg,{time:1000},function () {
+                        window.location.reload();
+                    });
+                }else {
+                    layer.msg(result.msg);
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

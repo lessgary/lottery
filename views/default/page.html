@@ -1,0 +1,15 @@
+  <div id="turn-page">
+	总计 <span id="totalRecords">{$record_count}</span>
+	个记录, 分为 <span id="totalPages">{$page_count}</span>
+	页, 当前第 <span id="pageCurrent">{$filter.page}</span>
+	页, 每页 <input type='text' size='3' id='pageSize' value="{$filter.page_size}" onkeypress="return listTable.changePageSize(event)" />
+	<span id="page-link">
+	  {literal}<a href="javascript:listTable.gotoPageFirst()">{/literal}第一页</a>
+	  {literal}<a href="javascript:listTable.gotoPagePrev()">{/literal}上一页</a>
+	  {literal}<a href="javascript:listTable.gotoPageNext()">{/literal}下一页</a>
+	  {literal}<a href="javascript:listTable.gotoPageLast()">{/literal}最末页</a>
+	  <select id="gotoPage" onchange="listTable.gotoPage(this.value)">
+		{create_pages count=$page_count page=$filter.page}
+	  </select>
+	</span>
+  </div>

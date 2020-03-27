@@ -1,0 +1,156 @@
+{include file="pageheader.html"}
+<style>
+    body {
+        height: auto;
+    }
+
+    #main {
+        width: 313px;
+        margin: auto;
+    }
+
+    #main .b_row {
+        margin-top: 20px;
+        line-height: 14px;
+    }
+
+    #main .b_row input {
+        width: 50%;
+        display: inline-block;
+    }
+
+    #main .b_row a {
+        vertical-align: baseline;
+    }
+    #main .b_row input{
+        width: 100%;
+    }
+</style>
+<link href="css/plugins/chosen/chosen.css" rel="stylesheet">
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+
+<body>
+<div id="main">
+    <form action="" class="form-inline" onsubmit="return false;">
+        <div class="b_row">
+            <span><b>当前上级账号：</b>{$parent.username}&nbsp;</span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <span>返点级别：{$parent.maxpoint}</span>
+        </div>
+        <div class="b_row form-group">
+            <span><b>修改上级账号:</b>&nbsp;</span>
+            <!--<input type="text" class="form-control" id="search_input" placeholder="请输入代理账号">-->
+            <select class=" chosen-select" name="companyid" id="companyid">
+                <option value="0">请输入选择</option>
+            </select>
+            <!--<a href="javascript:void(0)" class="btn btn-primary" id="search">搜索</a>-->
+        </div>
+
+    </form>
+</div>
+<div class="b_row" style="margin: 290px 0px 0px 130px">
+    <a href="javascript:void(0);" class="btn btn-primary  mgr15" id="submit">提交</a>
+    <a href="javascript:void(0)" class="btn btn-primary close-all">取消</a>
+</div>
+</body>
+<script>
+    $(function () {
+        $("#companyid").chosen({no_results_text: "未找到",search_contains:true,width:"60%"});
+        $('.chosen-search>input').attr('oninput',"this.value=this.value.replace(/[\u4e00-\u9fa5]/g,'');")
+        var timeout = 0;
+        var flag =  true;
+        var val ;
+        $(".chosen-search>input").on('compositionstart',function(){
+            flag = false;
+        });
+        $(".chosen-search>input").bind("input propertychange",function () {
+            var va = $(this).val()
+            let keyword = va;
+            // if ('' == $.trim(keyword)) {
+            //     layer.alert('请输入代理账号');
+            //     return;
+            // }
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                $(this).on('compositionstart',function(){
+                    flag = false;
+                });
+                $(this).on('compositionend',function(){
+                    flag = true;
+                });
+                console.log(flag);
+                if (flag){
+                    var va1 = $(".chosen-search>input").val()
+                    $.ajax({
+                        url: 'user_changparent.shtml',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {key_word: keyword, is_search: 2},
+                        success: function (response) {
+                            var sHtml ='' ;
+                            if (response.error == 0){
+                                $.each(response.data,function (key,val) {
+                                    sHtml +=  '<option value="'+ val.userid +'">'+ val.username +'</option>'
+                                });
+                                $.isCachProxy = true;
+                            }else {
+                                sHtml +=  '<option value="0">未找到</option>';
+                                $.isCachProxy = false;
+                            }
+                            $("#companyid").html(sHtml)
+                            $("#companyid").trigger("chosen:updated");
+                            $(".chosen-search>input").val(va1)
+
+                        },
+                    });
+                }
+            },300);
+
+        })
+
+        var w_search = '搜索',
+            w_lock = '解除锁定';
+        $('.close-all').click(function () {
+            parent.layer.closeAll();
+        });
+        $.isSearching = false;
+        $.isCachProxy = false;
+        $.isSubmitting = false;
+        $('#submit').click(function(){
+            if (!$.isCachProxy) {
+                layer.msg('请先通过搜索来确定新的上级代理',{time:1000});
+                return;
+            }
+
+            let userid = '{$smarty.get.userid}';
+            let parentid = '{$smarty.get.parentid}';
+            let parent_name = '{$parent.username}';
+            $.ajax({
+                url: 'user_changparent.shtml',
+                type: 'POST',
+                dataType: 'json',
+                data: {userid:userid, parentid:parentid,parent_name:parent_name,newuerid:$("#companyid").val()},
+                success: function (response) {
+                    if ('msg' in response) {
+                        layer.msg(response.msg,{time:1000},function () {
+                            parent.layer.closeAll();
+                        });
+                    } else {
+                        layer.msg('系统繁忙，稍后再试！');
+                    }
+                },
+                beforeSend: function () {
+                    if ($.isSubmitting) {
+                        layer.alert('服务器正在拼命加载！');
+                        return false;
+                    }
+                    $.isSubmitting = true;
+                },
+                complete: function () {
+                    $.isSubmitting = false;
+                }
+            });
+        });
+    });
+</script>
+</html>

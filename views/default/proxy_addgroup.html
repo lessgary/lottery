@@ -1,0 +1,89 @@
+{include file="pageheader.html"}
+<body class="">
+        <div class="row">
+            <div class="col-sm-6" style="width: 100%">
+                        <form class="form-horizontal m-t" method="POST" action="user_addlayer.shtml"  id="signupForm">
+                        {if !$groupinfo.groupid }
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">所属组别：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control"  name="groupid"> 
+                                        {$proxygroup}
+                                   </select>
+                                </div>
+                            </div>
+                            {else}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">所属组别：</label>
+                                <div class="col-sm-8">
+                                   <input type="text" value="{$groupinfo.groupname}" disabled="true" >
+                                </div>
+                            </div>
+                            <input type="hidden" value="{$groupinfo.groupid}" name="groupid">
+                            {/if}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">组别名称：</label>
+                                <div class="col-sm-8">
+                                    <input  name="groupname" class="form-control" type="text" aria-required="true" aria-invalid="false" class="valid">
+                                </div>
+                            </div>
+                            <!-- <div class="form-group">
+                                <label class="col-sm-3 control-label">组别排序：</label>
+                                <div class="col-sm-8">
+                                    <input  name="sort" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div> -->
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">组别描述：</label>
+                                <div class="col-sm-8">
+                                    <input  name="description" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+                            <div class="form-group">
+							<label class="col-sm-2"></label>
+                                <div class="col-sm-8">
+                                    <button class="btn btn-primary" id="formsubmit" type="submit">增加商户组</button>
+                                </div>
+                            </div>
+
+                        </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="js/plugins/validate/messages_zh.min.js"></script>
+    <script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script type="text/javascript">
+    $().ready(function() {
+        $("#formsubmit").click(function(){
+            var postData = {};
+            $.each($("#signupForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+             $.ajax({
+                type: "POST",
+                url:"",
+                data:postData, 
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    if(data.code == 0){
+                        layer.alert(data.msg);
+                    }else{
+                        layer.alert(data.msg,function(){
+                            parent.location.reload();
+                        });
+                    }
+                }
+            });
+             return false;
+        });
+       
+    })
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

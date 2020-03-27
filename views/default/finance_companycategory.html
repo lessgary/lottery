@@ -1,0 +1,74 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["序号","银行","账号别名" ,"用户名","金额"],
+            //表格内容
+            colModel:[
+                {name:"order",index:"order",sorttype:"int",align:'center',sortable: false},
+                {name:"bankname",index:"bankname",align:"center",sorttype:"string",sortable: false},
+                {name:"nickname",index:"nickname",align:"center",sorttype:"string"},
+                {name:"payee",index:"payee",align:"center",sorttype:"string"},
+                {name:"apply_amount",index:"apply_amount",align:'right',sorttype:"float",formatter:getPaymentList}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:-1,       //每页展示的记录数,-1表示关闭分页
+            sortable:true,//开启排序
+            viewrecords:true,
+            beforeRequest: function() {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1
+            }).trigger('reloadGrid');
+            return false;
+        });
+        function getPaymentList(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a class  href='finance_companypaymentinfo.shtml?inserdate={$smarty.get.inserdate}&company_payacc_id="+rowObject.company_payacc_id+"&category={$smarty.get.category}' >";
+            html += "<span >"+rowObject.apply_amount+"</span></a>&nbsp;&nbsp;";
+            return html;
+        }
+    });
+</script>
+</body>
+</html>

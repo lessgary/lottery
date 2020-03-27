@@ -1,0 +1,89 @@
+{include file="pageheader.html"}
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+    .page-box {
+        width: 900px;
+        margin: auto;
+        margin-top: 50px;
+        height: auto;
+        border: 1px solid #B3B3B3;
+        border-bottom: 0 solid #B3B3B3;
+    }
+    .top-bar-one {
+        height: 35px;
+        width: 900px;
+        border-bottom: 1px solid #B3B3B3;
+    }
+    .top-bar-one>div {
+        display: inline-block;
+        height: inherit;
+        width: 345px;
+        text-align: center;
+        line-height: 35px;
+        font-size: 12px;
+    }
+    .right-border {
+        border-right: 1px solid #B3B3B3;
+    }
+
+    .top-bar-two {
+        width: inherit;
+        height: 50px;
+        border-bottom: 1px solid #B3B3B3;
+
+    }
+    .top-bar-two>.top-bar-two-item {
+        display: inline-block;
+        height: inherit;
+        width: 132px;
+        font-size: 12px;
+        text-align: center;
+        line-height: 50px;
+        float: left;
+        border-right: 1px solid #B3B3B3;
+    }
+    .red-bg {
+        background-color: #EBA09D;
+    }
+    .top-bar-two-item-1 {
+        width: 140px !important;
+    }
+    .top-bar-two-item-2 {
+        width: 146px !important;
+    }
+    .top-bar-two-item-3 {
+        width: 117px !important;
+    }
+    .no-right-border {
+        border-right: 0 !important;
+    }
+    .no-float {
+        width: 0;
+        height: 0;
+        clear: both;
+    }
+</style>
+<body>
+<table class="table table-striped table-hover">
+    <thead>
+        <td>商户别名</td>
+        <td>金额</td>
+    </thead>
+    {foreach from=$aFastpayPayment.0 item=res key=k}
+    <tr>
+        <td>{$res.nickname}</td>
+        <td><a style="color: red" href='finance_fastpaycategory.shtml?inserdate={$smarty.get.inserdate}&company_fastpayacc_id={$res.company_fastpayacc_id}&nickname={$res.nickname}'>{$res.apply_amount}</a></td>
+    </tr>
+    {foreach from=$aFastpayPayment.$res.company_fastpayacc_id item=ress key=kk}
+    <tr>
+        <td>{$ress.nickname}</td>
+        <td><a style="color: red" href='finance_fastpaycategory.shtml?inserdate={$smarty.get.inserdate}&company_fastpayacc_id={$ress.company_fastpayacc_id}&nickname={$ress.nickname}'>{$ress.apply_amount}({$ress.usercount})人</a></td>
+    </tr>
+    {/foreach}
+    {/foreach}
+</table>
+</body>
+</html>

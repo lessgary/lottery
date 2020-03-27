@@ -1,0 +1,79 @@
+{include file="pageheader.html"}
+<div class="list-div" id="listDiv">
+    <form method="POST" name="listForm" action="./notice_{$form_action}.shtml" onsubmit="return validate()">
+        <table cellspacing='1' cellpadding='3' id='list-table'>
+            <tr>
+                <td class="narrow-label">页签名称:</td>
+                <td><input type="text" name="tagname" size="40" value="{$s.tagname|escape:html}"></td>
+            </tr>
+
+            <tr>
+                <td class="narrow-label">排序值:</td>
+                <td><input type="text" name="sorts" size="6" value="{$s.sorts|default:100|escape:html}"></td>
+            </tr>
+            <tr>
+                <td class="narrow-label">状态: </td>
+                <td><select name="isdel">
+                        <option value="0" {if $s.isdel=='0'}SELECTED{/if} style="color:#690">正常</option>
+                        <option value="1" {if $s.isdel=='1'}SELECTED{/if} style="color:#F00">已删</option></select></td>
+            </tr>
+            {if $form_action==update}
+            <tr>
+                <td class="narrow-label">状态</td>
+                <td><select name="isdel">
+                        <option value="0" {if $s.isdel != 1}SELECTED="selected"{/if}>正常</option>
+                        <option value="1" {if $s.isdel == 1}SELECTED="selected"{/if}>已删除</option>
+                    </select></td>
+            </tr>
+            {/if}
+            {if $form_action==commentsave}
+            <tr>
+                <td class="narrow-label">所属平台</td>
+                <td>
+                    <select id="channelid" name="channelid">
+                        <option value="0" title="选择平台">选择平台</option>
+                        {foreach from=$channelList item=channel key=c}
+                        <option value="{$channel.id}" title="{$channel.ename}">{$channel.channel}</option>
+                        {/foreach}
+                    </select>
+                    <br/><span id="noticeChannel" style="display:none">选择总代所属的平台。</span>
+                </td>
+            </tr>
+            {/if}
+            <tr>
+                <td class="narrow-label">允许阅读的用户组: </td>
+                <td>
+                    <label for="t1"><input type="checkbox" {if $s.readergroup==0 || $s.readergroup&1}CHECKED{/if} ID="t1" name="readergroup[]" value="1">总代和总代管理员</label>&nbsp;&nbsp;&nbsp;<label for="t2"><input type="checkbox" {if $s.readergroup==0 || $s.readergroup&2 }CHECKED{/if} ID="t2" name="readergroup[]" value="2">一代</label>
+                    &nbsp;&nbsp;&nbsp;<label for="t3"><input type="checkbox" {if $s.readergroup==0 || $s.readergroup&4 }CHECKED{/if} ID="t3" name="readergroup[]" value="4">普代</label>
+                    &nbsp;&nbsp;&nbsp;<label for="t4"><input type="checkbox" {if $s.readergroup==0 || $s.readergroup&8 }CHECKED{/if} ID="t4" name="readergroup[]" value="8">用户</label>
+                </td>
+            </tr>
+            <tr><td class="narrow-label">页签内容:</td><td></td></tr>
+            <tr><td colspan=2>{$FCKeditor_1}</td></tr>
+            <tr><td colspan=2>&nbsp;&nbsp;<input type="submit" value=" 提交 " class="button">
+                    <input type="hidden" name='helpsid' value="{$s.id}"><br/><br/></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+
+{insert_scripts files="./js/validator.js"}
+{literal}
+<script language="JavaScript">
+<!--
+    /**
+     * 检查表单输入的内容
+     */
+    function validate()
+    {
+        var validator = new Validator('listForm');
+        validator.required('tagname', "页签标题不能为空!");
+        //validator.required('FCKeditor1', "公告内容不能为空!");
+        return validator.passed();
+    }
+//-->
+</script>
+{/literal}
+
+{include file="pagefooter.html"}

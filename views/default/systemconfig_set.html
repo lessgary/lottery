@@ -1,0 +1,169 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="./css/systemconfig_set.css">
+<link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+<script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+<body class="gray-bg">
+<form action="" method="post" class="sui-validate">
+    <div class="wrapper wrapper-content">
+        <div class="jqGrid_wrapper">
+            <div class="ui-jqgrid " id="gbox_table_list" dir="ltr" style="width: 100%">
+                <div class="jqgrid-overlay ui-overlay" id="lui_table_list"></div>
+                <div class="ui-jqgrid-view table-responsive" role="grid" id="gview_table_list">
+                    <div class="ui-jqgrid-hdiv">
+                        <div>
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered bgcol-white"  role="presentation"
+                                   aria-labelledby="gbox_table_list">
+                                <thead>
+                                    <tr class="ui-jqgrid-labels" role="row">
+                                        <th>分类</th>
+                                        <th>名称</th>
+                                        <th>设置</th>
+                                        <th>参数描述</th>
+                                    </tr>
+                                </thead>
+                                {foreach from = $aConfig item = config}
+                                    <tr>
+                                        <!-- 顶级配置 -->
+                                        <td class="center" rowspan="<?php echo count($this->_var['config']['son']);?>">{$config.title}</td>
+                                        <!-- 子集配置第一条 start -->
+                                        <?php $this->_var['tmp'] = array_shift($this->_var['config']['son'])?>
+                                        <td>{$tmp.title}</td>
+                                        <td>
+                                            {if 'input' == $tmp.forminputtype}
+                                                <input type="text" name="config_{$tmp.configid}" data-rules="{if preg_match('/_proxy$/i',$son_config.configkey)}required|proxy_check{/if}" value="{if $tmp.configvalue!==''&&!is_null($tmp.configvalue)}{$tmp.configvalue}{else}{$tmp.defaultvalue}{/if}">
+                                            {elseif strstr($tmp.forminputtype,'check') && strstr($tmp.forminputtype,trim('|'))}
+                                                <?php
+                                                    $temp_ = explode('|', $this->_var['tmp']['forminputtype']);
+                                                    $this->_var['select_option'] = explode(',', end($temp_));
+                                                    $this->_var['check_option'] =  empty($this->_var['tmp']['configvalue']) ? explode('|',$this->_var['tmp']['defaultvalue']) : explode('|',$this->_var['tmp']['configvalue']);
+                                                ?>
+                                                {foreach from = $select_option item = v}
+                                                    {if in_array($v, $check_option)}
+                                                        <input type="checkbox" name="config_{$tmp.configid}[]" value="{$v}" checked>{$aOptions.$v}
+                                                    {else}
+                                                        <input type="checkbox" name="config_{$tmp.configid}[]" value="{$v}">{$aOptions.$v}
+                                                    {/if}
+                                                {/foreach}
+                                            {elseif strstr($tmp.forminputtype,'radio') && strstr($tmp.forminputtype,trim('|'))}
+                                                <?php
+                                                    $temp_ = explode('|', $this->_var['tmp']['forminputtype']);
+                                                    $this->_var['select_option'] = explode(',', end($temp_));
+                                                    $this->_var['check_option'] =  empty($this->_var['tmp']['configvalue']) ? $this->_var['tmp']['defaultvalue'] : $this->_var['tmp']['configvalue'];
+                                                ?>
+                                                {foreach from = $select_option item = v}
+                                                    <input type="radio" name="config_{$tmp.configid}[]" value="{$v}" {if $v == $check_option}checked="checked"{/if}>{$aOptions.$v}
+                                                {/foreach}
+                                            {elseif strstr($tmp.forminputtype,'select') && strstr($tmp.forminputtype,trim('|'))}
+                                                <?php
+                                                    $temp_ = explode('|', $this->_var['tmp']['forminputtype']);
+                                                    $this->_var['select_option'] = explode(',', end($temp_));
+                                                    $this->_var['select_value']= empty($this->_var['tmp']['configvalue']) ? $this->_var['tmp']['defaultvalue']:$this->_var['tmp']['configvalue']
+                                                ?>
+                                                <select name="config_{$tmp.configid}">
+                                                    {foreach from = $select_option item = v}
+                                                        {if $v == $select_value}
+                                                            <option value="{$v}" selected>{$v}</option>
+                                                        {else}
+                                                            <option value="{$v}">{$v}</option>
+                                                        {/if}
+                                                    {/foreach}
+                                                </select>
+                                            {/if}
+                                        </td>
+                                        <td>{$tmp.description}</td>
+                                        <!-- 名称第一条 end -->
+                                    </tr>
+
+                                    <!-- 其他子集配置循环 start  -->
+                                    {foreach from = $config.son item = son_config}
+                                        <tr>
+                                            <td>{$son_config.title}</td>
+                                            <td>
+                                                {if 'input' == $son_config.forminputtype}
+                                                    <input type="text" name="config_{$son_config.configid}" data-rules="{if preg_match('/_proxy$/i',$son_config.configkey)}required|proxy_check{/if}" value="{if $son_config.configvalue!==''&&!is_null($son_config.configvalue)}{$son_config.configvalue}{else}{$son_config.defaultvalue}{/if}">
+                                                {elseif strstr($son_config.forminputtype,'check') && strstr($son_config.forminputtype,trim('|'))}
+                                                    <?php
+                                                        $temp_ = explode('|', $this->_var['son_config']['forminputtype']);
+                                                        $this->_var['select_option'] = explode(',', end($temp_));
+                                                        $this->_var['check_option'] = empty($this->_var['son_config']['configvalue']) ? explode('|',$this->_var['son_config']['defaultvalue']) : explode('|',$this->_var['son_config']['configvalue']);
+                                                    ?>
+                                                    {foreach from = $select_option item = v}
+                                                        {if in_array($v, $check_option)}
+                                                            <input type="checkbox" value="{$v}" name="config_{$son_config.configid}[]" checked>{$aOptions.$v}
+                                                        {else}
+                                                            <input type="checkbox" value="{$v}" name="config_{$son_config.configid}[]">{$aOptions.$v}
+                                                        {/if}
+                                                    {/foreach}
+                                                {elseif strstr($son_config.forminputtype,'radio') && strstr($son_config.forminputtype,trim('|'))}
+                                                    <?php
+                                                        $temp_ = explode('|', $this->_var['son_config']['forminputtype']);
+                                                        $this->_var['select_option'] = explode(',', end($temp_));
+                                                        $this->_var['check_option'] =  empty($this->_var['son_config']['configvalue']) ? $this->_var['son_config']['defaultvalue'] : $this->_var['son_config']['configvalue'];
+                                                    ?>
+                                                    {foreach from = $select_option item = v}
+                                                        <input type="radio" name="config_{$son_config.configid}[]" value="{$v}" {if $v == $check_option}checked="checked"{/if}>{$aOptions.$v}
+                                                    {/foreach}
+                                                {elseif strstr($son_config.forminputtype,'select') && strstr($son_config.forminputtype,trim('|'))}
+                                                    <?php
+                                                        $temp_ = explode('|', $this->_var['son_config']['forminputtype']);
+                                                        $this->_var['select_option'] = explode(',', end($temp_));
+                                                        $this->_var['select_value']= empty($this->_var['son_config']['configvalue']) ? $this->_var['son_config']['defaultvalue']:$this->_var['son_config']['configvalue']
+                                                    ?>
+                                                    <select name="config_{$son_config.configid}" id="">
+                                                        {foreach from = $select_option item = v}
+                                                            {if $v == $select_value}
+                                                                <option value="{$v}" selected>{$v}</option>
+                                                            {else}
+                                                                <option value="{$v}">{$v}</option>
+                                                            {/if}
+                                                        {/foreach}
+                                                    </select>
+                                                {/if}
+                                            </td>
+                                            <td>{$son_config.description}</td>
+                                        </tr>
+                                    {/foreach}
+                                    <!-- 子集配置循环 end  -->
+                                {/foreach}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+		    <div class="center mgtb25">
+        <button class="btn btn-sm btn-primary" type="submit">保存</button>
+    </div>
+    </div>
+</form>
+<script>
+    // add by Ben 2017-07-25 异步校验代理是否一级代理
+    !function($){
+        var proxy_check = function (value, element, param) {
+            var data = {name:value};
+            var result = false;
+            $.ajax({
+                type: 'POST',
+                url: 'systemconfig_set.shtml?',
+                data: data,
+                dataType:'json',
+                async: false,
+                success: function (data){
+                    if ('error' in data) {
+                        if (data['error'] === 0) {
+                            result = true;
+                        }
+                    } else {
+                        layer.alert(data);
+                    }
+                }
+            });
+            return result;
+        };
+        jQuery.validate.setRule('proxy_check', proxy_check, function($input) {
+            return  '必须是有效的一级代理';
+        });
+    }(window.jQuery);
+</script>
+</body>
+</html>

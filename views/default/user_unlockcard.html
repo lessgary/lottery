@@ -1,0 +1,120 @@
+{include file="pageheader.html"}
+<style>
+    #bank_table td {
+        white-space: nowrap;
+        padding: 0 3px;
+        text-align: center;
+    }
+    #list-table {
+        margin : 0 auto;
+    }
+</style>
+<body class="white-bg">
+    <!--分层-->
+    <div id ="layer"  class="modal-body">
+      <div class="row"  >
+        <table cellspacing='1' cellpadding='3'  border="1" style="border: solid #BBDDE5"  id='list-table'>
+        <tr><td class="narrow-label" width=150 height="40">用户账号</td><td>{$uname|escape:html}</td></tr>
+        <tr >
+            <td class="narrow-label"><font color="#FF0000"><strong>第一步：</strong></font><br />第一步绑定银行卡信息</td>
+            <td>
+                <table border=0 cellspacing='0' cellpadding='0' STYLE='width:790px;' id="bank_table">
+                    <tr>
+                        <td>ID</td>
+                        <td>状态</td>
+                        <td>银行名称</td>
+                        <td>所属省市</td>
+                        <td>卡号</td>
+                        <td>姓名</td>
+                        <td>绑定时间</td>
+                        <td>最后使用</td>
+                    </tr>
+                    {foreach from=$aBankCardInfos item=b key=k}
+                    <tr>
+                        <td>{$b.entry}</td>
+                        <td>{if $b.isdel==0}<font color=#669900>正常{else}<font color=red>已删{/if}</font></td>
+                        <td>{$b.bankname}</td>
+                        <td>{$b.provincename} {$b.cityname}</td>
+                        <td>{$b.cardno}</td> 
+                        <td>{$b.realname}</td> 
+                        <td>{$b.addtime}</td>
+                        <td>{$b.lastusetime}
+                    </tr>
+                    {/foreach}
+                </table>
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td class="narrow-label"><font color="#FF0000"><strong>第二步：</strong></font><br />账户余额</td>
+            <td>&nbsp;&nbsp;&nbsp;<font color="#0066FF">{$ufmoney|escape:money}</font></td>
+
+        </tr>
+        <tr>
+            <td class="narrow-label"><font color="#FF0000"><strong>第三步：</strong></font><br />近期登录信息</td>
+            <td>
+                {foreach from=$ls item=uls key=k10}
+                <font color=#669900>{$uls.area}</font> &nbsp;&nbsp;&nbsp;使用次数:<font color=red>{$uls.counts}</font> &nbsp;&nbsp;&nbsp;百分比: <font color=red>{$uls.percent}%</font><br/>
+                {/foreach}
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td class="narrow-label"><font color="#FF0000"><strong>第四步：</strong></font><br />最近充值所使用的银行卡信息</td>
+            <td>
+                <table border=0 cellspacing='0' cellpadding='0' STYLE='width:790px;'> 
+                    <tr>
+                        <td width=50 align="center">充值银行</td>
+                        <td width=60>银行卡</td>
+                        <td width=100>充值金额</td>
+                        <td width=120>充值时间</td>
+                    </tr>
+
+                    {foreach from=$aSaveBank item=list key=k}
+                    <tr>
+                        <td align="center">{if $list.apiname=='ccb'}<font color='#669900'>建行
+                            {elseif $list.apiname=='icbc'}<font color='#990066'>工行
+                            {elseif $list.apiname=='cft'}<font color='#006699'>财付通
+                            {elseif $list.apiname=='95599'}<font color='#009966'>农行
+                            {else}<font color='#ff0000'>未知{/if}</font></td>
+                        <td>{$list.payer_name|escape:html} &nbsp;&nbsp;<font color=#a0a0a0>卡号:[ {$list.payer_cardnum|escape:html} ]</font></td>
+                        <td>{$list.payer_amount|escape:money}</td>
+                        <td>{$list.payer_time|escape:html}</td>
+                    </tr>
+                    {/foreach}
+                </table>
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><br/><input onclick="javascript:goUnlock();" class="btn btn-sm btn-primary " value="解锁银行卡" type="button"><br/><br/>
+            </td>
+        </tr>
+    </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function goUnlock(){
+                 $.ajax({
+                    url:"user_lockcard.shtml",
+                    type: "POST",
+                    data:{'status':0,'userid':{$uid}}, 
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                parent.location.reload();
+                            });
+                        }
+                    }
+                });
+        }
+           
+         
+    </script>
+    </body>
+    </html>
+

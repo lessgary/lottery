@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="A simple jQuery image cropping plugin.">
+    <meta name="keywords" content="HTML, CSS, JS, JavaScript, jQuery plugin, image cropping, image crop, image move, image zoom, image rotate, image scale, front-end, frontend, web development">
+    <meta name="author" content="Fengyuan Chen">
+    <title>Cropper</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/css/tether.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.css">
+    <style>
+        /* Basic */
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .browserupgrade {
+            margin: 0;
+            padding: .5rem 1rem;
+            background-color: #fcfcfc;
+            text-align: center;
+        }
+
+        .btn {
+            padding-left: .75rem;
+            padding-right: .75rem;
+        }
+
+        label.btn {
+            margin-bottom: 0;
+        }
+
+        .d-flex > .btn {
+            flex-grow: 1;
+        }
+
+
+        /* Jumbotron */
+
+        .docs-jumbotron .version {
+            font-size: .875rem;
+            color: #fff;
+            filter: alpha(opacity=50);
+            opacity: 0.5;
+        }
+
+        @media (min-width: 992px) {
+            .docs-jumbotron h1,
+            .docs-jumbotron p {
+                margin-right: 380px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .docs-carbonads {
+                position: absolute;
+                right: 0;
+                bottom: -1.25rem;
+            }
+        }
+
+
+        /* Content */
+
+        .img-container,
+        .img-preview {
+            background-color: #f7f7f7;
+            width: 100%;
+            text-align: center;
+        }
+
+        .img-container {
+            min-height: 200px;
+            max-height: 469px;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .img-container {
+                min-height: 469px;
+            }
+        }
+
+        .img-container > img {
+            max-width: 100%;
+        }
+
+        .docs-preview {
+            margin-right: -1rem;
+        }
+
+        .img-preview {
+            float: left;
+            margin-right: .5rem;
+            margin-bottom: .5rem;
+            overflow: hidden;
+        }
+
+        .img-preview > img {
+            max-width: 100%;
+        }
+
+        .preview-lg {
+            width: 100%;
+            height: 9rem;
+        }
+
+        .preview-md {
+            width: 8rem;
+            height: 4.5rem;
+        }
+
+        .preview-sm {
+            width: 4rem;
+            height: 2.25rem;
+        }
+
+        .preview-xs {
+            width: 2rem;
+            height: 1.125rem;
+            margin-right: 0;
+        }
+
+        .docs-data > .input-group {
+            margin-bottom: .5rem;
+        }
+
+        .docs-data > .input-group > label {
+            min-width: 5rem;
+        }
+
+        .docs-data > .input-group > span {
+            min-width: 3rem;
+        }
+
+        .docs-buttons > .btn,
+        .docs-buttons > .btn-group,
+        .docs-buttons > .form-control {
+            margin-right: .25rem;
+            margin-bottom: .5rem;
+        }
+
+        .docs-toggles > .btn,
+        .docs-toggles > .btn-group,
+        .docs-toggles > .dropdown {
+            margin-bottom: .5rem;
+        }
+
+        .docs-tooltip {
+            display: block;
+            margin: -.5rem -.75rem;
+            padding: .5rem .75rem;
+        }
+
+        .docs-tooltip > .icon {
+            margin: 0 -.25rem;
+            vertical-align: top;
+        }
+
+        .tooltip-inner {
+            white-space: normal;
+        }
+
+        .btn-upload .tooltip-inner,
+        .btn-toggle .tooltip-inner {
+            white-space: nowrap;
+        }
+
+        .btn-toggle > .docs-tooltip {
+            margin: -.5rem;
+            padding: .5rem;
+        }
+
+        @media (max-width: 400px) {
+            .btn-group-crop {
+                margin-right: -1rem!important;
+            }
+
+            .btn-group-crop > .btn {
+                padding-left: .5rem;
+                padding-right: .5rem;
+            }
+
+            .btn-group-crop .docs-tooltip {
+                margin-left: -.5rem;
+                margin-right: -.5rem;
+                padding-left: .5rem;
+                padding-right: .5rem;
+            }
+        }
+
+        .docs-options .dropdown-menu {
+            width: 100%;
+        }
+
+        .docs-options .dropdown-menu > li {
+            font-size: .875rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .docs-options .dropdown-menu > li:hover {
+            background-color: #f7f7f7;
+        }
+
+        .docs-options .dropdown-menu > li > label {
+            display: block;
+        }
+
+        .docs-cropped .modal-body {
+            text-align: center;
+        }
+
+        .docs-cropped .modal-body > img,
+        .docs-cropped .modal-body > canvas {
+            max-width: 100%;
+        }
+    </style>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- Content -->
+<div class="container" style="margin-top: 50px">
+    <div class="row">
+        <div class="col-md-9">
+            <!-- <h3>Demo:</h3> -->
+            <div class="img-container">
+                <img id="image" src="images/transparent.png" alt="Picture">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <!-- <h3>Preview:</h3> -->
+            <div class="docs-preview clearfix" style="padding-top: 100%">
+                <div class="img-preview preview-lg"></div>
+                <div class="img-preview preview-md"></div>
+                <div class="img-preview preview-sm"></div>
+                <div class="img-preview preview-xs"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-9 docs-buttons" style="text-align:center">
+            <div class="btn-group">
+                <label class="btn btn-primary btn-upload" for="inputImage" title="Upload image file">
+                    <input type="file" class="sr-only" id="inputImage" name="file" accept=".jpg,.jpeg,.png,.gif,.bmp,.tiff">
+                    <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="" data-original-title="Import image with Blob URLs">
+                        <span class="fa fa-upload"></span>
+                    </span>
+                </label>
+                <button type="button" class="btn btn-primary" data-method="reset" title="Reset">
+                    <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="" data-original-title="$().cropper(&quot;reset&quot;)">
+                      <span class="fa fa-refresh"></span>
+                    </span>
+                </button>
+            </div>
+
+            <div class="btn-group btn-group-crop">
+                <button type="button" class="btn btn-primary" data-method="getCroppedCanvas" data-option=
+                        "{if 'icon' === $imageType}{ &quot;width&quot;: 30, &quot;height&quot;: 30 }{elseif 'logo' === $imageType}{ &quot;width&quot;: 230, &quot;height&quot;: 100 }{else}{ &quot;width&quot;: 300, &quot;height&quot;: 100 }{/if}">
+                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="生成">
+                  生成{if 'logo' === $imageType}logo{elseif 'icon' === $imageType}icon{else}slogo{/if}
+                </span>
+                </button>
+            </div>
+
+            <div id="getCroppedCanvasModal" style="display: none">
+                <div id="modal-body" style="text-align: center"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary myclose" data-dismiss="modal">取消</button>
+                    <a class="btn btn-secondary" id="download" href="javascript:void(0);" data-dismiss="modal">上传</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Scripts -->
+<!--<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>-->
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+<script src="js/plugins/layer/layer-3.03/layer.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.min.js"></script>
+<script>
+    var icon = {$icon},
+        logo = {$logo},
+        mlogo = {$mlogo},
+        slogo = {$slogo};
+    $(function () {
+        'use strict';
+
+        var console = window.console || { log: function () {} };
+        var URL = window.URL || window.webkitURL;
+        var $image = $('#image');
+        var $download = $('#download');
+        var $dataX = $('#dataX');
+        var $dataY = $('#dataY');
+        var $dataHeight = $('#dataHeight');
+        var $dataWidth = $('#dataWidth');
+        var $dataRotate = $('#dataRotate');
+        var $dataScaleX = $('#dataScaleX');
+        var $dataScaleY = $('#dataScaleY');
+        var imageType = '{$imageType}';
+        $download.click(function(){
+            if ('icon' === imageType) {
+                var option = icon;
+            } else if ('logo' === imageType) {
+                var option = logo;
+            } else {
+                var option = slogo;
+            }
+            $image.cropper('getCroppedCanvas', option).toBlob(function (blob) {
+                if ('logo' === imageType) {
+                    option = mlogo;
+                    $image.cropper('getCroppedCanvas', option).toBlob(function (blob2) {
+                        var formData = new FormData();
+                        formData.append('croppedImage', blob);
+                        formData.append('croppedImage2', blob2);
+                        formData.append('image_type', '{$imageType}');
+                        $.ajax({
+                            type: 'post',
+                            url: 'systemconfig_upload.shtml',
+                            data: formData,
+                            dataType: 'json',
+                            processData: false,
+                            contentType: false,
+                            success: function (data) {
+                                if (data.error === undefined ) {
+                                    parent.layer.alert('没有权限！请联系管理员');
+                                } else {
+                                    if (data.error === 1) {
+                                        parent.layer.alert(data.msg);
+                                    } else {
+                                        parent.layer.alert(data.msg, function(){
+                                            parent.location.reload();
+                                            parent.layer.closeAll();
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                    });
+                } else {
+                    var formData = new FormData();
+                    formData.append('croppedImage', blob);
+                    formData.append('image_type', '{$imageType}');
+                    $.ajax({
+                        type: 'post',
+                        url: 'systemconfig_upload.shtml',
+                        data: formData,
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        success: function (data) {
+                            if (data.error === undefined ) {
+                                parent.layer.alert('没有权限！请联系管理员');
+                            } else {
+                                if (data.error === 1) {
+                                    parent.layer.alert(data.msg);
+                                } else {
+                                    parent.layer.alert(data.msg, function(){
+                                        parent.location.reload();
+                                        parent.layer.closeAll();
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        $('.myclose').click(function(){
+            layer.closeAll();
+        });
+        if ('icon' === imageType) {
+            var aspectRatio = icon.aspectRatio;
+        } else if ('logo' === imageType) {
+            var aspectRatio = logo.aspectRatio;
+        } else {
+            var aspectRatio = slogo.aspectRatio;
+            console.log(aspectRatio);
+        }
+        var options = {
+            aspectRatio:aspectRatio,
+            preview: '.img-preview',
+            dragMode: 'move',
+            crop: function (e) {
+                $dataX.val(Math.round(e.x));
+                $dataY.val(Math.round(e.y));
+                $dataHeight.val(Math.round(e.height));
+                $dataWidth.val(Math.round(e.width));
+                $dataRotate.val(e.rotate);
+                $dataScaleX.val(e.scaleX);
+                $dataScaleY.val(e.scaleY);
+            }
+        };
+        var originalImageURL = $image.attr('src');
+        var uploadedImageType = 'image/icon';
+        var uploadedImageURL;
+
+        $image.cropper(options);
+
+        // Buttons 检查是否支持特性
+        if (!$.isFunction(document.createElement('canvas').getContext)) {
+            $('button[data-method="getCroppedCanvas"]').prop('disabled', true);
+        }
+
+        if (typeof document.createElement('cropper').style.transition === 'undefined') {
+            $('button[data-method="rotate"]').prop('disabled', true);
+            $('button[data-method="scale"]').prop('disabled', true);
+        }
+
+        // Methods
+        $('.docs-buttons').on('click', '[data-method]', function () {
+            var $this = $(this);
+            var data = $this.data();
+            var $target;
+            var result;
+            var result2;
+
+            if ($this.prop('disabled') || $this.hasClass('disabled')) {
+                return;
+            }
+
+            if ($image.data('cropper') && data.method) {
+                data = $.extend({}, data); // Clone a new one
+
+                if (typeof data.target !== 'undefined') {
+                    $target = $(data.target);
+
+                    if (typeof data.option === 'undefined') {
+                        try {
+                            data.option = JSON.parse($target.val());
+                        } catch (e) {
+                            console.log(e.message);
+                        }
+                    }
+                }
+
+                switch (data.method) {
+                    case 'rotate':
+                        $image.cropper('clear');
+                        break;
+
+                    case 'getCroppedCanvas':
+                        if (uploadedImageType === 'image/icon') {
+                            if (!data.option) {
+                                data.option = {};
+                            }
+
+                            data.option.fillColor = '#fff';
+                        }
+
+                        break;
+                }
+
+                result = $image.cropper(data.method, data.option, data.secondOption);
+                if ('logo' === imageType) {
+                    var data2 = $.extend({}, data);
+                    data.option.width = mlogo.width;
+                    data.option.height = mlogo.height;
+                    result2 = $image.cropper(data.method, data.option, data.secondOption);
+                    data.option.width = logo.width;
+                    data.option.height = logo.height;
+                }
+                switch (data.method) {
+                    case 'rotate':
+                        $image.cropper('crop');
+                        break;
+
+                    case 'scaleX':
+                    case 'scaleY':
+                        $(this).data('option', -data.option);
+                        break;
+
+                    case 'getCroppedCanvas':
+                        if (result) {
+                            var src = $image.attr('src');
+                            if ('images/transparent.png' === src) {
+                                layer.alert('请选择图片');
+                                break;
+                            }
+                            $('#modal-body').html(result);
+                            if (result2) {
+                                $('#modal-body').append(result2);
+                            }
+                            layer.open({
+                                type: 1,
+                                title: '预览',
+                                area: '450px',
+                                content: $('#getCroppedCanvasModal')
+                            });
+                        }
+
+                        break;
+
+                    case 'destroy':
+                        if (uploadedImageURL) {
+                            URL.revokeObjectURL(uploadedImageURL);
+                            uploadedImageURL = '';
+                            $image.attr('src', originalImageURL);
+                        }
+
+                        break;
+                }
+
+                if ($.isPlainObject(result) && $target) {
+                    try {
+                        $target.val(JSON.stringify(result));
+                    } catch (e) {
+                        console.log(e.message);
+                    }
+                }
+
+            }
+        });
+
+
+        // Keyboard
+        $(document.body).on('keydown', function (e) {
+
+            if (!$image.data('cropper') || this.scrollTop > 300) {
+                return;
+            }
+
+            switch (e.which) {
+                case 37:
+                    e.preventDefault();
+                    $image.cropper('move', -1, 0);
+                    break;
+
+                case 38:
+                    e.preventDefault();
+                    $image.cropper('move', 0, -1);
+                    break;
+
+                case 39:
+                    e.preventDefault();
+                    $image.cropper('move', 1, 0);
+                    break;
+
+                case 40:
+                    e.preventDefault();
+                    $image.cropper('move', 0, 1);
+                    break;
+            }
+
+        });
+
+
+        // Import image
+        var $inputImage = $('#inputImage');
+
+        if (URL) {
+            $inputImage.change(function () {
+                var files = this.files;
+                var file;
+
+                if (!$image.data('cropper')) {
+                    return;
+                }
+
+                if (files && files.length) {
+                    file = files[0];
+
+                    if (/^image\/\w+$/.test(file.type)) {
+                        uploadedImageType = file.type;
+
+                        if (uploadedImageURL) {
+                            URL.revokeObjectURL(uploadedImageURL);
+                        }
+
+                        uploadedImageURL = URL.createObjectURL(file);
+                        $image.cropper('destroy').attr('src', uploadedImageURL).cropper(options);
+                        $inputImage.val('');
+                    } else {
+                        window.alert('Please choose an image file.');
+                    }
+                }
+            });
+        } else {
+            $inputImage.prop('disabled', true).parent().addClass('disabled');
+        }
+
+    });
+</script>
+</body>
+</html>

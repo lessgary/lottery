@@ -1,0 +1,76 @@
+{include file="pageheader.html"}
+
+<div class="list-div">
+  <div style="background:#FFF; padding: 20px 50px;margin-top:200px;">
+    <table align="center" width="400">
+      <tr>
+        <td width="50" valign="top">
+          {if $msg_type==0}
+          <img src="./images/successd.gif" width="32" height="32" border="0" alt="information" />
+          {elseif $msg_type == 1}
+          <img src="./images/warning.gif" width="32" height="32" border="0" alt="warning" />
+          {else}
+          <img src="./images/confirm.gif" width="32" height="32" border="0" alt="confirm" />
+          {/if}
+        </td>
+        <td style="font-size: 16px; font-weight: bold;" >
+{if $msg_type==0}
+<font color=#669900>{$msg_detail|escape:html}</font>
+{elseif $msg_type == 1}
+<font color=#ff0000>{$msg_detail|escape:html}</font>
+{else}
+{$msg_detail|escape:html}
+{/if}
+</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          {$auto_redirection}
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>
+          <ul style="margin-top:15px;padding:0" class="msg-link">
+            {foreach from=$links item=link key=k}
+            <li style="list-style:none;float:left" class="mgr15"><a href="{$link.href}" class="btn btn-primary">{$link.text|escape:html}</a></li>
+            {/foreach}
+          </ul>
+
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+<script language="JavaScript">
+<!--
+var seconds = document.getElementById('spanSeconds').innerHTML;
+var defaultUrl = "{$default_url}";
+var timeInterval = null;
+
+{literal}
+onload = function()
+{
+ timeInterval = window.setInterval(redirection, 1000);
+    document.getElementById('spanSeconds').innerHTML = seconds;
+}
+
+function redirection()
+{
+  seconds--;
+
+  if (seconds <= 0)
+  {
+   clearInterval(timeInterval);
+      window.location.href= defaultUrl;
+  }
+  else
+  {
+      document.getElementById('spanSeconds').innerHTML = seconds;
+  }
+}
+//-->
+</script>
+{/literal}
+{include file="pagefooter.html"}

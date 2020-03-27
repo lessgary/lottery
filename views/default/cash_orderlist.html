@@ -1,0 +1,262 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <label>时间：</label>
+        <div class="form-group">
+            <input name="sTime" id="sTime" class="form-control layer-date" value="{$startDate}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        ~
+        <div class="form-group">
+            <input name="eTime" id="eTime" class="form-control layer-date" value="{$endDate}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <button type = "button" id = "currentDate" name = "currentDate" class = "btn btn-outline btn-primary">今天</button>
+        <button type = "button" id = "sevenDay" name = "sevenDay" class = "btn btn-outline btn-primary">七天</button>
+        <div class="form-group">
+            <select class="form-control" id="select_1" name="searchType">
+                <option value="username">会员账号</option>
+                <option value="orderNum">订单号</option>
+                <option value="clientIp">IP地址</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" id="value_1" name="username" class="form-control">
+        </div>
+        <div class="form-group">
+            <input name="isSubordinate" type="checkbox" value="1" class="form-control">
+            <label>是否包含下级</label>
+        </div>
+        <div class="form-group">
+            <a data-toggle="modal" class="btn btn-primary" href="form_basic.html#modal-form">查询类别（部分）</a>
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="sort" id="sort">
+                <option value="DESC">逆序</option>
+                <option value="ASC">顺序</option>
+            </select>
+        </div>
+        <!--<div class="hr-line-dashed"></div>-->
+		<p></p>
+        <label>显示金额：</label>
+        <div class="form-group">
+            <input type="text" name="minmoney" class="form-control">
+        </div>
+        <span>至</span>
+        <div class="form-group">
+            <input type="text" name="maxmoney" class="form-control">
+        </div>
+        <div id="modal-form" class="modal fade" aria-hidden="true">
+            <div class="modal-dialog" style="width: 900px">
+                <div class="modal-content">
+                    <div class="modal-body">
+                            <h3 class="m-t-none m-b">账变类型选择</h3>
+                            <table border="1" class="ui-jqgrid-htable ui-common-table table table-bordered bgcol-white">
+                                <tr>
+                                    <td style="width: 60px"><input type="checkbox" id="group_all" class="all">全选</td>
+                                    <td><input type="checkbox" id="group_deposit" class="deposit">入款</td>
+                                    <td><input type="checkbox" id="group_withdraw" class="withdraw">出款</td>
+                                    <td><input type="checkbox" id="group_offer" class="offer">优惠/其他</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" id="group_pay" class="pay">存提</td>
+                                    <td>
+                                        <input type="checkbox" name="otid[]" value="1" class="all deposit pay">账户充值
+                                        <input type="checkbox" name="otid[]" value="21" class="all deposit pay">人工存入
+                                        <br/>
+                                        <input type="checkbox" name="otid[]" value="34" class="all deposit pay">转账转入
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="otid[]" value="2" class="all withdraw pay">出款申请
+                                        <input type="checkbox" name="otid[]" value="4" class="all withdraw pay">成功出款
+                                        <input type="checkbox" name="otid[]" value="3" class="all withdraw pay">取消出款
+                                        <br/>
+                                        <input type="checkbox" name="otid[]" value="33" class="all withdraw pay">转账转出
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="otid[]" value="32" class="all offer">活动礼金
+                                        <input type="checkbox" name="otid[]" value="20" class="all offer">特殊金额整理
+                                        <input type="checkbox" name="otid[]" value="22" class="all offer">系统扣减
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp</td>
+                                    <td><input type="checkbox" id="group_bet" class="bet">下注</td>
+                                    <td><input type="checkbox" id="group_bill" class="bill">结算</td>
+                                    <td><input type="checkbox" id="group_others" class="others">其他</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" id="group_game" class="game">游戏</td>
+                                    <td>
+                                        <input type="checkbox" name="otid[]" value="7" class="all bet game">投注扣款
+                                        <input type="checkbox" name="otid[]" value="9" class="all bet game">追号扣款
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="otid[]" value="11" class="all bill game">游戏返点
+                                        <input type="checkbox" name="otid[]" value="10" class="all bill game">追号返款
+                                        <input type="checkbox" name="otid[]" value="8" class="all bill game">真实扣款
+                                        <input type="checkbox" name="otid[]" value="12" class="all bill game">奖金派送
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" name="otid[]" value="15" class="all others game">撤销返点
+                                        <input type="checkbox" name="otid[]" value="16" class="all others game">撤销派奖
+                                        <input type="checkbox" name="otid[]" value="13" class="all others game">撤单返款
+                                        <input type="checkbox" name="otid[]" value="14" class="all others game">撤销手续费
+                                    </td>
+                                </tr>
+                            </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<input type="hidden" id="otid" name="otid" value="">-->
+        <button class = "fm-button btn btn-primary fm-button-icon-right ui-search" type = "submit">搜索</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $("input[id^=group_]").change(function(){
+            $("." + $(this).attr("class")).prop("checked", $(this).prop("checked"));
+        });
+        $("input[name='otid[]']:checked").map(function () {
+            return this.value;
+        }).get();
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["订单号","时间","会员账号" ,"类型","平台","收入","支出","可用金额","IP地址","备注","操作人"],
+            //表格内容
+            colModel:[
+                {name:"orderno",index:"orderno",sortable:false,align:"center",formatter: searchUserName,sorttype:"string"},
+                {name:"times",index:"times",sortable:false,align:"center",sorttype:"date"},
+                {name:"username",index:"username",sortable:false,align:"center",sorttype:"string"},
+                {name:"title",index:"title",sortable:false,align:"center",sorttype:"string"},
+                {name:"terrace",index:"terrace",sortable:false,align:"center",sorttype:"string"},
+                {name:"riseAmount",index:"riseAmount",sortable:false,align:"right",sorttype:"float"},
+                {name:"decreaseAmount",index:"decreaseAmount",sortable:false,align:"right",sorttype:"float"},
+                {name:"availablebalance",index:"availablebalance",sortable:false,align:"right",sorttype:"float"},
+                {name:"clientip",index:"clientip",sortable:false,align:"center",sorttype:"string"},
+                {name:"remark",index:"remark",sortable:false,align:"center",sorttype:"string"},
+                {name:"adminname",index:"adminname",sortable:false,align:"center"}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "local",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:30,       //每页展示的记录数
+            rowList:[30,50,100,200], //每页展示的记录数
+            footerrow: true , // 分页上添加一行，用于显示统计信息
+            pager:"#pager_list_2",viewrecords:true,
+            beforeRequest:function () {
+                var postData = {};
+                var preg = /\[\]/;
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    if (preg.test(n.name)){
+                        var name = n .name.replace(preg,'');
+                        if (name in postData) {
+                            postData[name] += ',' + n.value;
+                        }else {
+                            postData[name] = n.value;
+                        }
+                    }else {
+                        postData[n.name] = n.value;
+                    }
+                });
+                $("#table_list_2").jqGrid("setGridParam", {
+                    postData: postData,
+                    loadComplete: function (data) {
+                        var $this = $(this),
+                        titleField = 'orderno', //头对应字段位置
+                        valueField1 = 'riseAmount', //收入
+                        valueField2 = 'decreaseAmount', //支出
+                        footerData = {},
+                        sumOfValueField1 = $this.jqGrid("getCol", valueField1, false, "sum"), //小计
+                        sumOfValueField2 = $this.jqGrid("getCol", valueField2, false, "sum"); //小计
+                        footerData[titleField] = "小计:";
+                        footerData[valueField1] = sumOfValueField1.toFixed(4);
+                        footerData[valueField2] = sumOfValueField2.toFixed(4);
+                        $this.jqGrid("footerData", "set", footerData); //生成总计行
+                    }
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1,
+                datatype: 'json'
+            }).trigger('reloadGrid');
+            return false;
+        });
+        function searchUserName(cellValue, options, rowObject) {
+            var html ="";
+            if (rowObject.cnname == null){
+                html += "<span style='color:#1ab394'>"+rowObject.orderno+"</span>";
+            }else {
+                html += "<a title=\"投注详情\"  onclick=\"detailLayer('"+rowObject.projectid+"','"+rowObject.cnname+"')\">";
+                html += "<span style='color:#1ab394'>"+rowObject.orderno+"</span></a>";
+            }
+            return html;
+        }
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+    });
+
+    //投注详情
+    function detailLayer(projectid,cnname){
+        if (cnname === "null"){
+            return false;
+        }
+        layer.open({
+            type: 2,
+            title: '投注详情',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['800px', '550px'],
+            content: ['pgame_playdetail.shtml?id='+projectid, 'no'],
+        });
+    }
+    //今天按钮事件
+    $("#currentDate").off().on("click", function () {
+        $("#sTime").val("{$startDate}");
+        $("#eTime").val("{$endDate}");
+    });
+    //七天按钮事件
+    $("#sevenDay").off().on("click", function () {
+        $("#sTime").val("{$sevenDate}");
+        $("#eTime").val("{$endDate}");
+    });
+</script>
+</body>
+
+
+</html>

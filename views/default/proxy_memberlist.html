@@ -1,0 +1,173 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline display-ib" id="subbox">
+                <div class="form-group">
+                <label for="" class="rs-only"></label>
+                   <select class="form-control" id="select_1" name="groupid"> 
+                    <option value="-1" selected="selected">全部</option>
+                   {$proxygroup}
+                   </select>
+                 </div>
+
+                &nbsp;&nbsp;&nbsp;&nbsp;<div class="form-group">
+                <label for="" class="">账号: </label>
+                   <input type="text" placeholder="请输入账号名称" id="value_1" name="adminname" class="form-control">
+                 </div><button class="btn  btn-primary mgl15 "type="submit">成员查询</button>
+        </form>
+
+
+       <!--  <button class="btn btn-sm btn-primary pull-right " id="dispatch_layer" style="margin-right: 20px">操作密码</button> -->
+       <a href=""  class="btn  btn-primary pull-right " style="margin-right: 20px" >刷新</a>
+         &nbsp;&nbsp;
+         <a href="#" onclick='addmember();' class="btn  btn-primary pull-right " style="margin-right: 20px" >新增成员</a>
+         &nbsp;&nbsp;
+    </div>
+
+    
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="">
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["ID","账号","昵称" ,"使用语言","是否锁定","所属组","操作"],
+                //表格内容
+                colModel:[
+                    {name:"proxyadminid",index:"proxyadminid",editable:true,sorttype:"int",search:true},
+                    {name:"adminname",index:"adminname",align:"left",editable:true,search:true},
+                    {name:"adminnick",index:"adminnick",align:"left",editable:true},
+                    {name:"adminlang",index:"adminlang",align:"left", editable:true,formatter:'select',editoptions:{value:"utf8_zhcn:简体中文;utf8_enus:English(美国)"}},
+                    {name:"islocked",index:"islocked",align:"left",editable:true,formatter:'select',editoptions:{value:"0:启用;1:锁定"}},
+                    /*{name:"onlinestatus",index:"onlinestatus",align:"left",editable:true,formatter:'select',editoptions:{value:"0:在线;1:离线"}},*/
+                    {name:"groupname",index:"groupname",align:"left",editable:true},
+                    {name:"operate",index:"operate",align:'left',formatter:operate},/*格式化本列为超链接*/ 
+                ],
+                //data:mydata,
+                height:"auto", //默认高度
+                mtype: "get", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:30,       //每页展示的记录数
+                rowList:[30,50,80], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:false});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+
+            //表单提交
+            $("#subbox").submit(function(){
+                var postData = {};
+                $.each($(this).serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $("#table_list_2").jqGrid("setGridParam", {
+                    page: 1,
+                    mtype: "post",
+                    datatype: 'json',
+                    postData: postData
+                }).trigger('reloadGrid');
+
+                return false;
+            });
+            //自定义操作表格
+            function operate(cellValue, options, rowObject) {  
+                var html ="";  
+                    html += "<a title='' onclick='editMember("+rowObject.proxyadminid+")' >";  
+                    html += "<span >修改</span></a>&nbsp;&nbsp;";   
+
+                    html += "<a title='' href='proxy_userpermission.shtml?groupid="+rowObject.groupid+"&proxyadminid="+rowObject.proxyadminid+"' >";  
+                    html += "<span >独立权限分配</span></a>&nbsp;&nbsp;";   
+                    if(rowObject.isLvTop == false) {
+                        if(rowObject.islocked == 0) {
+                            html += "<a title=''onclick='lockmember("+rowObject.proxyadminid+",1)'  >";  
+                            html += "<span >锁定</span></a>&nbsp;&nbsp;";  
+                            } else {
+                                html += "<a title=''onclick='lockmember("+rowObject.proxyadminid+",0)'  >";  
+                                html += "<span style='color:#ed5565'>解锁</span></a>&nbsp;&nbsp;"; 
+                            } 
+                            html += "<a title=''onclick='delmember("+rowObject.proxyadminid+")'  >";  
+                            html += "<span >删除</span></a>&nbsp;";    
+                        }
+                return html; 
+            } 
+            //冻结用户
+        
+
+    }); //ready 结束
+
+        //增加成员
+        function addmember(){
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '增加成员',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['proxy_addmember.shtml', 'no'],
+                   
+            });
+        }
+        function editMember(proxyadminid){
+            layer.open({
+                  type: 2,
+                  title: '编辑成员',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['proxy_editmember.shtml?proxyadminid='+proxyadminid, 'no'],
+                  
+            });
+        }
+        //删除商户管理员
+        function delmember(proxyadminid){
+            layer.confirm('确定删除吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="proxy_delmember.shtml?proxyadminid="+proxyadminid;
+
+            })
+            return false;
+        }
+        //锁定/解锁商户管理员
+        function lockmember(proxyadminid,islocked){
+            layer.confirm('确定锁定吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="proxy_lockmember.shtml?proxyadminid="+proxyadminid+"&islocked="+islocked;
+
+            })
+            return false;
+        }
+        </script>
+</body>
+
+
+</html>

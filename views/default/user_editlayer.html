@@ -1,0 +1,116 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+        <div class="row">
+            <div class="col-sm-6" style="width: 100%">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" method="POST" action="user_addlayer.shtml"  id="signupForm">
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">层级名称：</label>
+                                <div class="col-sm-8">
+                                    <input  value="{$userlayer.name}" id="layername" name="layername" class="form-control" type="text">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">存款次数：</label>
+                                <div class="col-sm-8">
+                                    <input id="recharge_num" value="{$userlayer.rechargetimes}" name="recharge_num" class="form-control" type="text" aria-required="true" aria-invalid="false" class="valid">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">存款总额：</label>
+                                <div class="col-sm-8">
+                                    <input id="recharge_money" value="{$userlayer.loadmoney}" name="recharge_money" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">单笔最大存款额：</label>
+                                <div class="col-sm-8">
+                                    <input id="max_recharge_money" value="{$userlayer.loadmax}" name="max_recharge_money" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">提款次数：</label>
+                                <div class="col-sm-8">
+                                    <input id="withdrawal_num" value="{$userlayer.withdrawaltimes}" name="withdrawal_num" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">提款总额：</label>
+                                <div class="col-sm-8">
+                                    <input id="withdrawal_money" value="{$userlayer.totalwithdrawal}" name="withdrawal_money" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%;">备注：</label>
+                                <div class="col-sm-8">
+                                    <input id="remark" name="remark" value="{$userlayer.remark}" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                </div>
+                            </div>
+                           
+                            <div class="form-group">
+								<label class="col-sm-2" style="width: 20%;"></label>
+                                <div class="col-sm-8 ">
+                                    <button class="btn btn-primary" id="formsubmit" type="submit">提交</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="js/plugins/validate/messages_zh.min.js"></script>
+    <script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script type="text/javascript">
+    $().ready(function() {
+        $("#formsubmit").click(function(){
+            var postData = {};
+            $.each($("#signupForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            for(var k in postData){
+                if(k=="remark") continue;
+                if(postData[k].indexOf(" ") != -1){
+                    layer.alert("填写的数据中不允许存在空格");
+                    return false;
+                }
+                if(postData[k] == ""){
+                    layer.alert("请将信息填写完整");
+                    return false;
+                }
+            }
+             $.ajax({
+                type: "POST",
+                url:"",
+                data:postData, 
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    if(data.code == 0){
+                        layer.alert(data.msg);
+                    }else{
+                        layer.alert(data.msg,function(){
+                               parent.location.reload();
+                            });
+                    }
+                }
+            });
+             return false;
+        });
+       
+    })
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

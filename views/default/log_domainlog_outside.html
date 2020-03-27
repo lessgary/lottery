@@ -1,0 +1,103 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div class="form-group">
+            <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+            日期:
+            <input name="starttime" class="form-control layer-date" value="{if isset($smarty.get.sdate)}{$smarty.get.sdate}{else}{$sdate}{/if}" placeholder="YYYY-MM-DD" onclick="laydate({istime: true, format: 'YYYY-MM-DD'})">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+            ~
+            <input name="endtime" class="form-control layer-date" value="{if isset($smarty.get.edate)}{$smarty.get.edate}{else}{$edate}{/if}" placeholder="YYYY-MM-DD" onclick="laydate({istime: true, format: 'YYYY-MM-DD'})">
+        </div>
+        <input type="hidden" name="is_outside" value="1">
+        <button class="fm-button btn btn-primary fm-button-icon-right ui-search" type="submit">查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list"></table><!--初始化表格必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        function operate (cellValue, options, rowObject) {
+            var html ="",
+                sdate = $.trim($('input[name=starttime]').val()),
+                edate = $.trim($('input[name=endtime]').val()),
+                href = "log_domainlog.shtml?is_inside=1&domainname=" + rowObject.domainname + "&sdate=" + sdate + "&edate=" + edate;
+            html += "<a title='查看详情' href='javascript:void 0'  class='mgr15 jump_to_inside' data-href='" + href + "'";
+            html += "<span>查看详情</span></a>&nbsp;";
+            return html;
+        }
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list").jqGrid({
+            //表格头
+            colNames:['域名', '总访问人数', '总访问量', '操作'],
+            //表格内容
+            colModel:[
+                {name: "domainname", index: "domainname", editable: false, sortable: false},
+                {name: "ip", index: "ip", editable: false, sortable: false},
+                {name: "pv", index: "pv", editable: false, sortable: false},
+                {name: "operate", index: "operate", editable: false, sortable: false, formatter:operate}
+            ],
+            //data:mydata,
+            height:450, //默认高度
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            viewrecords:true,
+            mtype: "post",
+            datatype: 'json',
+            beforeRequest: function(){
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list").jqGrid("setGridParam", {
+                page:1,
+                mtype: "post",
+                datatype: 'json'
+            }).trigger('reloadGrid');
+
+            return false;
+        });
+    }).on('click', '.jump_to_inside', function(){
+        var url = $(this).attr('data-href');
+        layer.open({
+            type: 2,
+            title: '查看详情',
+            shadeClose: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px', '750px'],
+            content: url
+        });
+    });
+</script>
+</body>
+
+
+</html>

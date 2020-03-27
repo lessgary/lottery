@@ -1,0 +1,95 @@
+{include file="pageheader.html"}
+<link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+<link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+<link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+<script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+<style type="text/css">
+    th, td {
+        text-align: center;
+    }
+
+    input {
+        padding-bottom: 5px;
+    }
+
+    ul li {
+        list-style-type: none;
+    }
+
+    li {
+        padding-bottom: 5px;
+    }
+
+    ul {
+        -webkit-padding-start: 20px;
+    }
+    .text-primary {
+        color: #337ab7;
+    }
+</style>
+
+<script src="js/plugins/layer/layer-3.03/layer.js"></script>
+
+<body class="gray-bg">
+<form action="" method="post">
+    <div class="wrapper wrapper-content">
+        <div class="jqGrid_wrapper">
+            <div class="ui-jqgrid " id="gbox_table_list" dir="ltr">
+                <div class="jqgrid-overlay ui-overlay" id="lui_table_list"></div>
+                <div class="ui-jqgrid-view table-responsive" role="grid" id="gview_table_list">
+                    <div class="ui-jqgrid-hdiv">
+                        <div>
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered bgcol-white"
+                                   role="presentation"
+                                   aria-labelledby="gbox_table_list">
+                                <thead>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>名称</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td>公司简介</td>
+                                    <td class="name">{if $data.status==0}停用{else}启用{/if}</td>
+
+                                    <td><a href="javascript:void (0)" onclick="editdes(1)">修改</a></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // 弹窗
+    function msAlert(msg) {
+        layer.alert(msg);
+    }
+
+ /*编辑公司简介*/
+    function editdes(id) { //获取id
+        layer.open({
+            type: 2,
+            title: '公司简介',
+            shadeClose: false,
+            closeBtn: 1,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px', '550px'],
+            content: 'information_companyedit.shtml?id=' + id
+        });
+    }
+
+
+    // 关闭全部弹窗
+    function closeWindow() {
+        layer.closeAll();
+    }
+
+    
+</script>
+</body>
+</html>

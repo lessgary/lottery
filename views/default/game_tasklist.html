@@ -1,0 +1,182 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        游戏名称:
+        <select class="form-control" name="lotteryid" id="lotteryid">
+            <option value="0">游戏</option>
+            {foreach from=$lottery item=alottery key=k}
+            <option value="{$k}">{$alottery}</option>
+            {/foreach}
+        </select>
+        <span id="game_info">
+            游戏玩法:
+            <select class="form-control" name='methodid' id='methodid'>
+                <option value='0' selected="selected">玩法</option>
+            </select>
+        </span>
+        <div class="form-group">
+            开始时间:
+            <input name="tStartTime" class="form-control layer-date" value="{if isset($smarty.get.sTime)}{$smarty.get.sTime}{else}{$sTime}{/if}" placeholder="YYYY-MM-DD" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            结束时间:
+            <input name="tEndTime" class="form-control layer-date" value="{if isset($smarty.get.eTime)}{$smarty.get.eTime}{else}{$eTime}{/if}" placeholder="YYYY-MM-DD" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="sort" id="sort">
+                <option value="ASC">逆序</option>
+                <option value="DESC">顺序</option>
+            </select>
+        </div>
+        <!--<div class="hr-line-dashed"></div>-->
+
+        <div class="form-group">
+            <select class="form-control" name="taskstatus">
+                <option value="-1">所有追号</option>
+                <option value="0">追号进行</option>
+                <option value="1">追号取消</option>
+                <option value="2">追号完毕</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <select class="form-control" id="select_1" name="searchType">
+                <option value="username">用户名</option>
+                <option value="periods">注单</option>
+                <option value="issueid">期数</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" id="value_1" name="username" class="form-control">
+        </div>
+        <button class = "btn btn-primary" type = "submit">查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["区注单编号","账号","投注时间" ,"彩种","玩法","期号","追号期数","完成期数","取消期数","追号内容","追号总金额","完成金额","取消金额","追中即停","追号状态"],
+            //表格内容
+            colModel:[
+                {name:"encodetaskid",index:"encodetaskid",sorttype:"string",formatter: searchUserName},
+                {name:"username",index:"username",align:"center",sorttype:"string"},
+                {name:"begintime",index:"begintime",align:"center",sorttype:"date"},
+                {name:"cnname",index:"cnname",align:"center",sorttype:"string"},
+                {name:"methodname",index:"methodname",align:"center",sorttype:"string"},
+                {name:"beginissue",index:"beginissue",width:200,align:"center",sorttype:"int"},
+                {name:"issuecount",index:"issuecount",align:"center",sorttype:"int"},
+                {name:"finishedcount",index:"finishedcount",align:"center",sorttype:"int"},
+                {name:"cancelcount",index:"cancelcount",align:"center",sorttype:"int"},
+                {name:"codes",index:"codes",align:"center",sorttype:"string"},
+                {name:"taskprice",index:"taskprice",align:"right",sorttype:"float"},
+                {name:"finishprice",index:"finishprice",align:"right",sorttype:"float"},
+                {name:"cancelprice",index:"cancelprice",align:"right",sorttype:"float"},
+                {name:"stoponwin",index:"status",align:"center",sorttype:"string",formatter:'select',editoptions:{value:"1:是"}},
+                {name:"status",index:"stoponwin",align:"center",sorttype:"string",formatter:'select',editoptions:{value:"0:进行中;1:取消;2:已完成"}}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "local",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:25,       //每页展示的记录数
+            rowList:[50,100,200,500], //每页展示的记录数
+            pager:"#pager_list_2",viewrecords:true,
+            beforeRequest: function() {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1,
+                datatype: 'json'
+            }).trigger('reloadGrid');
+            return false;
+        });
+        function searchUserName(cellValue, options, rowObject) {
+//            console.info([cellValue, options, rowObject]);
+            var html ="";
+            if(rowObject.encodetaskid != ""){
+                console.log(rowObject.encodetaskid);
+                html += "<a title=\"追单详情\"  onclick=\"detailLayer('"+rowObject.encodetaskid+"')\">";
+                html += "<span style='color:#1ab394'>"+rowObject.encodetaskid+"</span></a>";
+            }
+            return html;
+        }
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+    });
+    //追单详情
+    function detailLayer(encodetaskid){
+        layer.open({
+            type: 2,
+            title: '追单详情',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['810px', '500px'],
+            style: {
+              overflow: 'hidden'
+            },
+            content: ['pgame_taskdetail.shtml?id='+encodetaskid, 'no'],
+        });
+    }
+
+    jQuery("#lotteryid").change(function(){
+        $.get( "./_apis/service.php?method=methods_issue", function( data ) {
+            var data_arr = data.split('@');
+            var data_method = JSON.parse(data_arr[0]);
+            var obj_method = $("#methodid")[0];
+            i =  $("#lotteryid").val();
+            $("#methodid").empty();
+            addItem( obj_method,'玩法',0 );
+            if(i>0)
+            {
+                $.each(data_method[i],function(j,k){
+                    addItem( obj_method,k.methodname,k.methodid );
+                });
+            }
+        });
+    });
+</script>
+</body>
+
+
+</html>

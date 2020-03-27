@@ -1,0 +1,345 @@
+{include file="pageheader.html"}
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        text-overflow : ellipsis;
+    }
+</style>
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label class="">日期</label>
+            <input id="sdate" name="sdate" class="form-control layer-date" value="{$ytday}"
+                   placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group ">
+            <label>~ </label>
+            <input id="edate" name="edate" class="form-control layer-date" value="{$today}"
+                   placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+         <div class="form-group">
+            <label>金额：</label>
+            <input name="start_money" type="text" class="form-control">~
+            <input name="end_money" type="text" class="form-control">
+        </div></br>
+        <p></p>
+        <div class="form-group">
+            <label for="input_type_id">类型：</label>
+            <select name="order_type" id="input_type_id" class="form-control">
+                <!--0存入, 1存款, 3活动, 4扣款-->
+                <!--,5 手工申请,6公司入款误存,7优惠扣减',-->
+                <option value="">全部类型</option>
+                <option value="1">普通存入</option>
+                <option value="2">存款存入</option>
+                <option value="3">活动优惠</option>
+                <option value="4">人工取款</option>
+                <option value="5">手动申请出款</option>
+                <option value="6">公司入款误存</option>
+                <option value="7">优惠扣除</option>
+            </select>
+        </div>
+        <div class="form-group mgl15">
+            <label for="review_id">审核状态：</label>
+            <select name="isconfirm" id="review_id" class="form-control">
+                <option value="">全部</option>
+                <option value="3">未处理</option>
+                <option value="1">已通过</option>
+                <option value="2">已拒绝</option>
+            </select>
+        </div>
+        <div class="form-group mgl15">
+            <label for="admin_id">管理员类型：</label>
+            <select name="admin_type" class="form-control" id="admin_id">
+                <option value="member" selected="selected">会员账号</option>
+                <option value="commiter">提交人</option>
+                <option value="operator">操作人</option>
+            </select>
+            <input type="text" name="admin_type_value" placeholder="请输入账号..." class="form-control">
+        </div>
+        
+       
+        <button class="btn  btn-primary mgl15" type="submit">查询</button>
+        <button type="button" class="btn btn-primary" onclick="getSelecteds()">批量操作</button>
+        <br>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function getSelecteds() {
+        var ids = $("#table_list_2").jqGrid("getGridParam", "selarrrow");
+        if (!ids) {
+            return;
+        }
+        //遍历访问这个集合
+        var sid = [];
+        $(ids).each(function (index, id) {
+            //由id获得对应数据行
+            var row = $("#table_list_2").jqGrid('getRowData', id);
+            if (row.finishtime == '') {
+                sid.push(id) //数组赋值
+            }
+        });
+        if (sid.length == 0) {
+            //如果全部都是已经审核状态的话
+            layer.alert('请选择未审核的数据', function (index) {
+                layer.closeAll('dialog');
+            });
+            return;
+        }
+        var ids = $("#table_list_2").jqGrid("getGridParam", "selarrrow");
+        console.log(ids);
+        if (ids) {
+            layer.confirm('请选择进行批量操作', {
+                btn: ['批量通过', '批量拒绝'] //按钮
+            }, function () {
+                BatchAudit(sid, 1)
+            }, function () {
+                BatchAudit(sid, 2)
+            });
+        }
+    }
+
+    function BatchAudit(sid, states) {
+        var title;
+        if (states == 1) {
+            title = '请输入审批通过的原因'
+        } else {
+            title = '请输入审批不通过的原因'
+        }
+        layer.prompt({title: title, formType: 2}, function (val, index) {
+            sid.describe = val;//拼接审核理由
+            var json = {
+                "ids": sid,
+                "states": states,
+                "confirm_remark": val
+            };
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: 'manualpayconfirm_batchtoexamine.shtml',
+                data: json,
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.alert(data.msg, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert(data.msg, function () {
+                            location.reload();
+                        });
+
+
+                    }
+                }
+            });
+        });
+
+    }
+
+
+    $(document).ready(function () {
+        $.jgrid.defaults.styleUI = "Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames: ["会员账号", "入款金额", "出款金额","优惠金额", "出/入款", "出款银行卡卡号", "综合打码量", "常态稽核", "申请时间", "确认时间", "提交人","提交备注", "存入类型", "审核人", "审核备注","审核状态"],
+            //表格内容
+            colModel: [
+                {name: "usernames", editable: true},
+                {name: "intmoney", editable: true},
+                {name: "outmoney", editable: true},
+                {name: "ext_amount",editable: true},
+                {name: "optype", formatter: 'select',editoptions: {value: "0:入款;1:出款"}},
+                {name: "bank_number", editable: true},
+                {name: "ext_bets", align: "right", editable: true},
+                {name: "audit_bets", align: "right",editable: true},
+                {name: "inserttime", align: "right", editable: true},
+                {name: "finishtime", align: "right", editable: true},
+                {name: "adminname", align: "right", editable: true},
+                {name: "apply_remark", align: "right", editable: true},
+                {name: "order_type", align: "right",formatter: 'select',editoptions:
+                {value: "0:普通存入;1:存款存入;3:活动优惠;4:人工取款;5:手动申请出款;6:公司入款误存;7:优惠扣除;8:批量存入;"}},
+                {name: "confirmadmin", align: "right", editable: true},
+                {name: "confirm_remark", align: "right", editable: true},
+                {name: "operate", align: 'left',formatter: showlink}/*格式化本列为超链接*/
+            ],
+            //data:mydata,
+            height: 650, //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth: true,    //表格自适应宽度
+            shrinkToFit: true,   //自适应列宽
+            rowNum: 50,       //每页展示的记录数
+            rowList: {$pageNumber}, //每页展示的记录数
+            rowNum: 500,
+            sortname: 'inserttime',//默认排序
+            sortorder: 'desc',//倒序
+            multiselect: true,//复选框
+            pager: "#pager_list_2",
+            viewrecords: true,
+            beforeRequest: function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            },
+            beforeSelectRow: function (rowid, e) {
+                //不让他点列的时候选中复选框
+                var $myGrid = $(this),
+                    i = $.jgrid.getCellIndex($(e.target).closest('td')[0]),
+                    cm = $myGrid.jqGrid('getGridParam', 'colModel');
+                return (cm[i].name === 'cb');
+            }
+        });
+
+        $("#table_list_2").setSelection(4, true);
+        //尾部导航栏
+        $("#table_list_2").jqGrid("navGrid", "#pager_list_2", {
+            edit: false,
+            add: false,
+            del: false,
+            search: false
+        }, {height: 200, reloadAfterSubmit: true});
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function () {
+            $("#table_list_2").jqGrid("setGridParam", {page: 1}).trigger('reloadGrid');
+            return false;
+        });
+    });
+
+    //自定义操作表格
+    function showlink(cellValue, options, rowObject) {
+        var json = JSON.stringify(rowObject);
+        var html = "";
+        if (rowObject.isconfirm == 0 ) {
+        html += "<a title='通过' onclick='doPass(" + json + ")' >";
+        html += "<span>通过</span></a>&nbsp;&nbsp;|&nbsp;&nbsp;";
+        html += "<a title='拒绝' onclick='notPass(" + rowObject.id + ")' >";
+        html += "<span>拒绝</span></a>&nbsp;&nbsp;";
+        }
+        if (rowObject.isconfirm == 1 ) {
+            html += "<span style='color:#1ab394'>审核通过</span></a>&nbsp;&nbsp;";
+        }
+        if (rowObject.isconfirm == 2 ) {
+            html += "<span style='color:#ff2a2a'>审核已拒绝</span></a>&nbsp;&nbsp;";
+        }
+        return html;
+    }
+
+   // 审批通过
+   function doPass(json) {
+       layer.prompt({title:'请输入审批通过的原因',formType:2},function (val, index) {
+           if ($.locker) {
+               return false
+           }
+           $.locker = 1;
+           json.confirm_remark = val;//拼接审核理由
+           $.ajax({
+               type: 'POST',
+               dataType: 'json',
+               url: 'manualpayconfirm_uptoconfirm.shtml',
+               data: json,
+               success: function (data) {
+                   if (data.code === 1) {
+                       layer.msg(data.msg,{time:1000},function () {
+                           location.reload();
+                       })
+                   } else {
+                       switch (data.code) {
+                           case -1:
+                           case -2:
+                           case -3:
+                           case -4:
+                           case -5:
+                           case -6:
+                           case -7:
+                           case -8:
+                           case -9:
+                           case -10:
+                           case -11:
+                           case -12:
+                           case -13:
+                           case -14:
+                           case -15:
+                           case -16:
+                           case -17:
+                           case -18:
+                           case -19:
+                           case -20:
+                           case -21:
+                           case -22:
+                           case -23:
+                           case -24:
+                           case -25:
+                           case -26:
+                           case -27:
+                           case -28:
+                           case -29:
+                           case -30:
+                           case -31:
+                               layer.msg(data.msg, {time:1000}, function() {
+                                   location.reload();
+                               });
+                               break;
+                           default:
+                               layer.msg('审核失败，请重试！', {time:1000}, function() {
+                                   location.reload();
+                               });
+                       }
+                   }
+               }
+           });
+       });
+   }
+
+   // 审批拒绝
+    function notPass(id) {
+        layer.prompt({title:'请输入审批不通过的原因',formType:2},function (val, index) {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: 'manualpayconfirm_updateconfirm.shtml',
+                data : {
+                    isconfirm:2,
+                    id:id,
+                    confirm_remark:val,
+                },
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.msg(data.msg,{time:1000},function () {
+                            location.reload();
+                        })
+                    } else {
+                        layer.msg('没有修改权限！',{time:1000},function () {
+                            location.reload();
+                        })
+                    }
+                }
+            });
+        });
+    }
+
+</script>
+</body>
+</html>

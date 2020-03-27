@@ -1,0 +1,121 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">日期:</label>
+            <div class="col-sm-10">
+                <input placeholder="开始日期" class="form-control layer-date" id="start">
+                <input placeholder="结束日期" class="form-control layer-date" id="end">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="" class="sr-only">显示项目</label>
+            <select class="form-control" name="otid">
+                <option value="-1">全部</option>
+                <option value="1">人工存入</option>
+                <option value="2">人工提款</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="" class="sr-only">查询参数</label>
+            <select class="form-control" id="select_1">
+                <option value="username">会员账号</option>
+                <option value="">操作人</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">查询值</label>
+            <input type="text" id="value_1" name="" class="form-control">
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">操作金额:</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="sMoney">
+                <input type="text" class="form-control" id="bMoney">
+            </div>
+        </div>
+        <button class = "btn btn-primary" type = "submit">查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["日期","游戏","奖期" ,"开奖号码","截止投注时间","开奖时间","投注人数","下注总额","返奖总额","返点总额","盈亏值"],
+            //表格内容
+            colModel:[
+                {name:"joindate",index:"joindate",sorttype:"date",search:true},
+                {name:"cnname",index:"cnname",sorttype:"string",search:true,sortable: false},
+                {name:"issue",index:"issue",sorttype:"int",search:true,sortable: false},
+                {name:"code",index:"code",sorttype:"int",sortable: false},
+                {name:"saleend",index:"saleend",sorttype:"date",sortable: false},
+                {name:"writetime",index:"writetime",sorttype:"date",sortable: false},
+                {name:"usercount",index:"usercount",sorttype:"int"},
+                {name:"sell",index:"sell",sorttype:"float"},
+                {name:"bonus",index:"bonus",sorttype:"float",sortable: false},
+                {name:"return",index:"return",sorttype:"float",sortable: false},
+                {name:"saleresult",index:"saleresult"}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:50,       //每页展示的记录数
+            rowList:[50,100,200,500], //每页展示的记录数
+            sortable:true,//开启排序
+//            sortorder:"asc",
+            pager:"#pager_list_2",viewrecords:true
+
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            var postData = {};
+            $.each($(this).serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1,
+                mtype: "post",
+                datatype: 'json',
+                postData: postData
+            }).trigger('reloadGrid');
+
+            return false;
+        });
+
+
+    });
+
+</script>
+</body>
+
+
+</html>

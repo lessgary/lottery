@@ -1,0 +1,139 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label class="sr-only">开始时间</label>
+            开始时间：<input name="uStartTime" id="uStartTime" class="form-control layer-date" value="{$sTime}" placeholder="YYYY-MM-DD" onclick="laydate({istime: false, format: 'YYYY-MM-DD'})">
+        </div>
+        <div class="form-group mgl15">
+            <label class="sr-only">结束时间</label>
+            结束时间：<input name="uEndTime" id="uEndTime" class="form-control layer-date" value="{$eTime}" placeholder="YYYY-MM-DD" onclick="laydate({istime: false, format: 'YYYY-MM-DD'})">
+        </div>
+        <div class="form-group mgl15">
+            参与排名个数
+            <input type="text" class="form-control" name="userCount" id="userCount" value="25">
+        </div>
+        <!--<div class="form-group mgl15">-->
+            <!--游戏：-->
+            <!--<select class="form-control" name="lottery" id="lottery">-->
+                <!--<option value="0">-所有游戏-</option>-->
+                <!--{foreach from=$lottery item=l key=k}-->
+                <!--{if $lotteryid == $k}-->
+                <!--<option value="{$k}" selected>{$l}</option>-->
+                <!--{else}-->
+                <!--<option value="{$k}">{$l}</option>-->
+                <!--{/if}-->
+                <!--{/foreach}-->
+            <!--</select>-->
+        <!--</div>-->
+        <button class = "btn btn-primary" type = "submit">查询</button>
+        <a class = "btn btn-warning" onclick="exportReport()">导出</a>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["排名","用户名","总投注金额" ,"投注返点","总中奖金额","总结算","公司利润","投注IP","操作"],
+            //表格内容
+            colModel:[
+                {name:"order",index:"order",sorttype:"int",align:'center',search:true,sortable: false},
+                {name:"username",index:"username",align:"left",sorttype:"string",search:true,sortable: false},
+                {name:"totalprice",index:"totalprice",align:"right",sorttype:"float",search:true},
+                {name:"totalreturn",index:"totalreturn",align:"right",sorttype:"float",sortable: false},
+                {name:"totalbonus",index:"totalbonus",align:"right",width:"200",sorttype:"float"},
+                {name:"totallose",index:"totallose",align:"right",width:"200",sorttype:"float",formatter:setTotalLoseColor},
+                {name:"companyrate",index:"companyrate",align:"right",sorttype:"float",sortable: false},
+                {name:"lastip",index:"lastip",align:"left",sorttype:"string",sortable: false},
+                {name:"operation",index:"operation",align:'left',formatter: showlink }
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:-1,       //每页展示的记录数
+//            rowList:[25,100,200,500], //每页展示的记录数
+            sortable:true,//开启排序
+//            pager:"#pager_list_2",
+            viewrecords:true,
+            beforeRequest: function() {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //自定义操作表格
+        function showlink(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title='详情' href='pgame_playlist.shtml?username="+rowObject.username+"&sTime="+$('#uStartTime').val()+"&eTime="+$('#uEndTime').val()+"' >";
+            html += "<span>详情</span></a>";
+            return html;
+        }
+        //表单提交
+        $("#subbox").submit(function(){
+            if ($("#userCount").val() == "" || $("#userCount").val() < 1){
+                $("#userCount").val(25)
+            }
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1
+            }).trigger('reloadGrid');
+            return false;
+        });
+
+
+    });
+    //设置总结算的颜色 正数为绿色  负数为红色  0为黑色
+    function setTotalLoseColor(cellValue, options, rowObject) {
+        var html="";
+        if(rowObject.totallose==0){
+            html=rowObject.totallose;
+        }else{
+            html=rowObject.totallose>0?"<span style='color:green'>"+rowObject.totallose+"</span>":"<span style='color:red'>"+rowObject.totallose+"</span>"
+        }
+        return html;
+    }
+    //导出
+    function exportReport(){
+        var postData = {};
+        $.each($("#subbox").serializeArray(), function(i, n){
+            postData[n.name] = n.value;
+        });
+        var data = JSON.stringify(postData);
+        window.location.href="preport_exportuserwinorder.shtml?getData="+data;
+    }
+</script>
+</body>
+
+
+</html>

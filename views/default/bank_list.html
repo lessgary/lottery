@@ -1,0 +1,39 @@
+{include file="pageheader.html"}
+<div class="list-div" id="listDiv">
+    <table cellspacing='1' cellpadding='3' id='list-table' class="ui-jqgrid-btable ui-common-table table table-bordered">
+        <tr align="center">
+            <th align="center" >编号</th>
+            <th>银行名称</th>
+            <th>银行别名</th>
+            <th>LOGO</th>
+            <th>转账手续费</th>
+            <th>单笔充值限制</th>
+            <th>单笔提款限制</th>
+            <th>状态</th>
+            <th>自动充值</th>
+            <th>操作</th>
+        </tr>
+        {foreach from=$banklist item=bank key=k1}
+        <tr>
+            <td align="center" TITLE='{$list.entry}'>{$bank.bankid}</td>
+            <td align="center">{$bank.bankname|escape:html}{if $bank.isthirdpay==1}<font color="#FF0000">(三方)</font>{else}{/if}</td>
+            <td align="center">{$bank.nickname|escape:html}</td>
+            <td align="center">{if !empty($bank.logo)}<img src="./images/banks/{$bank.logo}" />{else}<font color="#CCCCCC">--</font>{/if}</td>
+            <td align="center">手续费比例：{$bank.transferfee.percent}%，最低：{$bank.transferfee.min}元，最高：{$bank.transferfee.max}元</td>
+            <td align="center">{$bank.minsave}--{$bank.maxsave}</td>
+            <td align="center">{$bank.mindraw}--{$bank.maxdraw}</td>
+            <td align="center">{if $bank.isclose==0}<font color="#008000">已开启</font>{else}<font color="#FF0000">已关闭</font>{/if}</td>
+            <td align="center">{if $bank.isonline==1}<font color="#008000">支持</font>{else}<font color="#FF0000">不支持</font>{/if}</td>
+            <td align="center">
+                <a TITLE='编号: {$bank.bankid}' href='./bank_bankedit.shtml?id={$bank.bankid}'>编辑</a> &nbsp;
+                <a TITLE='编号: {$bank.bankid}' href='./bank_bankset.shtml?id={$bank.bankid}&type=close&status={$bank.isclose}' {if $bank.isclose==0}onclick="javascript:return confirm('你确定要停止对 [{$bank.bankname}] 的支持? ');"{/if}>{if $bank.isclose==0}停用{else}启用{/if}</a> &nbsp; 
+                <a TITLE='编号: {$bank.bankid}' href='./bank_bankset.shtml?id={$bank.bankid}&type=online&status={$bank.isonline}' onclick="javascript:return confirm('你确定要{if $bank.isonline==1}停止{else}开通{/if}对 [{$bank.bankname}] 的自动充值支持? ');">{if $bank.isonline==0}开通自动{else}停用自动{/if}</a> &nbsp; 
+                <a TITLE='编号: {$bank.bankid}' href='./bank_bankset.shtml?id={$bank.bankid}&type=withdrawstatus&status={$bank.iswithdrawclose}' onclick="javascript:return confirm('你确定要{if $bank.iswithdrawclose==1}停止{else}开通{/if}对 [{$bank.bankname}] 的提现支持? ');">{if $bank.iswithdrawclose==1}开通提现{else}停用提现{/if}</a> &nbsp;
+            </td>
+        </tr>
+        {foreachelse}
+        <tr><td class="no-records" colspan="10">无相关数据</td></tr>
+        {/foreach}
+    </table>
+</div>
+{include file="pagefooter.html"}

@@ -1,0 +1,209 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <div class="form-group">
+            <label class="">方式</label>
+            <select class="form-control"  name="pattern">
+                {foreach from=$pattern item=val key=k}
+                <option value="{$k}">{$val}</option>
+                {/foreach}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="sr-only">查询参数</label>
+            <select class="form-control" id="select_1" name="searchType">
+                <option value="username">用户名</option>
+                <option value="proxyname">一级代理</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="sr-only">查询值</label>
+            <input type="text" id="value_1" name="username" class="form-control">
+        </div>
+        <div class="form-group">
+            <label class="">用户类型</label>
+            <select class="form-control"  name="usertype">
+                <option value="-1">全部</option>
+                <option value="0">用户</option>
+                <option value="1">代理</option>
+            </select>
+        </div>
+        <div class="form-group mgl15">
+            <label class="">登录时间：</label>
+            <input name="startlasttime" class="form-control layer-date" value="{$sdate}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group mgl15">
+            <label class="">—&nbsp;&nbsp;&nbsp;</label>
+            <input name="endlasttime" class="form-control layer-date" value="{$edate}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <button class=" btn btn-primary mgl15" type="submit" id="searchBtn">提交</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["注册时间","登录时间","用户名","用户类型","一级代理","真实姓名" ,"账户余额","存款次数","提款次数","存款总数","提款总数","优惠总额"],
+            //表格内容
+            colModel:[
+                {name:"registertime",index:"registertime",editable:true,sorttype:"int",sortable:false},
+                {name:"lasttime",index:"lasttime",editable:true,width:"160",sortable:false},
+                {name:"username",index:"username",editable:true,formatter: searchUserName,sorttype:"int",sortable:false},
+                {name:"groupname",index:"groupname",editable:true,sorttype:"int",sortable:false},
+                {name:"proxyname",index:"proxyname",editable:true,sorttype:"int",sortable:false},
+                {name:"realname",index:"realname",editable:true,sorttype:"int",sortable:false},
+                {name:"channelbalance",index:"channelbalance",align:"right",editable:true,sortable:false},
+                {name:"rechargetimes",index:"rechargetimes",align:"right",editable:true,sortable:false},
+                {name:"withdrawaltimes",index:"withdrawaltimes",align:"right",editable:true,sortable:false},
+                {name:"loadmoney",index:"loadmoney",editable:true,align:"right",sortable:false},
+                {name:"totalwithdrawal",index:"totalwithdrawal",editable:true,align:"right",sortable:false},
+                {name:"totalactivity",index:"totalactivity",editable:true,align:"right",sortable:false}
+            ],
+            //data:mydata,
+            height:650, //默认高度
+            mtype: "post", //提交方式
+            datatype: "json",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            footerrow: true , // 分页上添加一行，用于显示统计信息
+            rowNum:30,       //每页展示的记录数
+            rowList:[30,50,80], //每页展示的记录数
+            pager:"#pager_list_2",viewrecords:true,
+             beforeRequest: function() {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            },
+            loadComplete: function (data) {
+                if(data.length == 0){
+                    $(".ui-jqgrid-sdiv").hide();
+                    return false;
+                }
+                $(".ui-jqgrid-sdiv").show();
+                var $this = $(this),
+                    titleField = 'registertime', //头对应字段位置
+                    channelbalance = 'channelbalance', //统计字段位置
+                    rechargetimes = 'rechargetimes', //统计字段位置
+                    withdrawaltimes = 'withdrawaltimes', //统计字段位置
+                    loadmoney = 'loadmoney', //统计字段位置
+                    totalwithdrawal = 'totalwithdrawal', //统计字段位置
+                    totalactivity = 'totalactivity', //统计字段位置
+                    footerData = {},
+                    sumOfchannelbalance = $this.jqGrid("getCol", channelbalance, false, "sum"), //小计
+                    sumOfrechargetimes = $this.jqGrid("getCol", rechargetimes, false, "sum"), //小计
+                    sumOfwithdrawaltimes = $this.jqGrid("getCol", withdrawaltimes, false, "sum"), //小计
+                    sumOfloadmoney = $this.jqGrid("getCol", loadmoney, false, "sum"), //小计
+                    sumOftotalwithdrawal = $this.jqGrid("getCol", totalwithdrawal, false, "sum"), //小计
+                    sumOftotalactivity = $this.jqGrid("getCol", totalactivity, false, "sum"), //小计
+                    allchannelbalance = data[0]['totals']['allchannelbalance'],//总计
+                    allrechargetimes = data[0]['totals']['allrechargetimes'],//总计
+                    allwithdrawaltimes = data[0]['totals']['allwithdrawaltimes'],//总计
+                    alltotalwithdrawal = data[0]['totals']['alltotalwithdrawal'],//总计
+                    allloadmoney = data[0]['totals']['allloadmoney'],//总计
+                    alltotalactivity = data[0]['totals']['alltotalactivity'],//总计
+                    $footerRow = $(this.grid.sDiv).find("tr.footrow"),
+                    //totalSum = data[0]['totolSum'],//总计
+                    $newFooterRow;
+                $newFooterRow = $(this.grid.sDiv).find("tr.myfootrow");
+                if ($newFooterRow.length === 0) {
+                    // add second row of the footer if it's not exist
+                    $newFooterRow = $footerRow.clone();
+                    $newFooterRow.removeClass("footrow")
+                        .addClass("myfootrow ui-widget-content");
+                    $newFooterRow.children("td").each(function () {
+                        this.style.width = ""; // remove width from inline CSS
+                    });
+                    $newFooterRow.insertAfter($footerRow);
+                }
+                footerData[titleField] = "小计:";
+                footerData[channelbalance] = sumOfchannelbalance.toFixed(4);
+                footerData[rechargetimes] = sumOfrechargetimes.toFixed(4);
+                footerData[withdrawaltimes] = sumOfwithdrawaltimes.toFixed(4);
+                footerData[loadmoney] = sumOfloadmoney.toFixed(4);
+                footerData[totalwithdrawal] = sumOftotalwithdrawal.toFixed(4);
+                footerData[totalactivity] = sumOftotalactivity.toFixed(4);
+                $this.jqGrid("footerData", "set", footerData); //生成总计行
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + titleField + "]").text("总计:");
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + channelbalance + "]").text(allchannelbalance);
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + rechargetimes + "]").text(allrechargetimes);
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + withdrawaltimes + "]").text(allwithdrawaltimes);
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + loadmoney + "]").text(allloadmoney);
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + totalwithdrawal + "]").text(alltotalwithdrawal);
+                $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + totalactivity + "]").text(alltotalactivity);
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //尾部导航栏
+        $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#searchBtn").off().on("click", function () {
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1,
+                mtype: "post"
+            }).trigger('reloadGrid');
+            return false;
+        });
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+            $("#value_1").attr('name', $(this).val());
+        });
+    });
+    function searchUserName(cellValue, options, rowObject) {
+        var html = "";
+        if (rowObject.username != undefined){
+            html += "<a title='" + rowObject.username + "' onclick='clickByName(this)' >";
+            html += "<span style='color:#CE0000'>" + rowObject.username + "</span></a>";
+        }
+        return html;
+    }
+    var queue = new Array();
+    function clickByName(name) {
+        var name = name.text;
+        if (name == $('#value_1').val()){
+            queue.pop();
+            name = queue.pop();
+            if (!name) {
+                name = '';
+            }
+            document.getElementById('value_1').value = name;
+            document.getElementById('searchBtn').click();
+            queue.push(name);
+        }else {
+            document.getElementById('value_1').value = name;
+            document.getElementById('searchBtn').click();
+            queue.push(name);
+        }
+    }
+</script>
+</body>
+
+
+</html>

@@ -1,0 +1,246 @@
+{include file="pageheader.html"}
+<style type="text/css">
+    .SelectBG {
+        color: red;
+    }
+</style>
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <div>
+        <a href="manualpay_save.shtml" class="btn btn-primary mgr15">人工存入</a>
+        <a href="manualpay_out.shtml" class="btn btn-primary mgr15">人工提款</a>
+        <a href="manualpay_batch.shtml" class="btn btn-primary mgr15">批量存入</a>
+        <a href="manualpay_excelupload.shtml" class="btn btn-primary mgr15">Excel 批量存入</a>
+    </div>
+</div>
+<br>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div style="margin-left: 20px;">
+        <!--根据用户名查找用户-->
+        <form action="manualpay_excelupload.shtml" method="POST" enctype="multipart/form-data">
+            <button class="btn btn-success " type="button" id="file">
+                <i class="fa fa-upload"></i>&nbsp;&nbsp;
+                <span class="bold">上传 </span>
+            </button>
+            <input style="display: none" type="submit" id="Excel_submit">
+            <input style="display: none" class="btn btn-success" type="file" id="file_submit" name="Exce"
+                   onchange="uploadFile()">
+            <a style="margin-left: 200px" href="/swf/excel批量上传模板.xlsx">
+                <button type="button" class="btn btn-outline btn-primary">Excel 模板下载</button>
+            </a>
+
+        </form>
+    </div>
+    <div style="margin-top: 40px;margin-left: 20px;">
+        <span style="line-height: 20px">
+            下载模板请注意：<br>
+            1.请按照实际情况填写，请勿修改模板格式，以免无法读取数据；<br>
+            2.根据实际情况填写存入项目，只能填入“存款存入”，“普通存入”，“活动优惠”；<br>
+            3.根据实际情况填写常态性稽核和综合打码量稽核，只能填写数字；<br>
+            <span style="color: red">
+                4.确认提交前，请确认表格内无红色错误信息。
+            </span>
+        </span>
+    </div>
+    <br>
+    {if $list}
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <form action="" method="POST" id="json">
+            <input type="text" style="display: none" id="list" name="json_data" value='{$list}'>
+            <div style="text-align: center;margin: 10px;    letter-spacing: 60px;">
+                <button style="width: 140px;height: 40px" class="btn btn-primary " type="button"
+                        onclick="json_submit()"><i class="fa fa-check"></i>&nbsp;提交
+                </button>
+                <a href="manualpay_excelupload.shtml">
+                    <button style="width: 140px;height: 40px" class="btn btn-warning " type="button" onclick="window.location.reload()" id=""><i
+                        class="fa fa-times"></i>&nbsp;取消
+                    </button>
+                </a>
+            </div>
+
+        </form>
+    </div>
+    {/if}
+
+
+    <input type="hidden" id="iSucceed" value="{$iSucceed}">
+    <input type="hidden" id="ifail" value="{$ifail}">
+</div>
+<script>
+    $("#file").click(function () {
+        $("#file_submit").trigger("click");
+    })
+
+    function uploadFile() {
+        $("#Excel_submit").trigger("click");
+    }
+
+
+    function json_submit() {
+        $('#json').submit();
+    }
+
+
+    //表单列表
+
+
+    $(document).ready(function () {
+        //判断是否提交完毕
+        iSucceed = $("#iSucceed").val();
+        ifail = $("#ifail").val();
+        if (iSucceed != 0 || ifail != 0) {
+            layer.alert('成功导入了'+iSucceed+'条，导入失败了'+ifail+'条', {
+                skin: 'layui-layer-molv' //样式类名
+                ,closeBtn: 0
+                ,anim: 4 //动画类型
+            });
+        }
+
+
+        idata = $("#list").val();
+        if (idata) {
+            var adata = JSON.parse(idata);
+        } else {
+            var adata = []
+        }
+        var mydata = adata;
+        $.jgrid.defaults.styleUI = "Bootstrap";
+        var SelectRowIndx;
+        $("#table_list_2").jqGrid({
+            //表格头
+            data: mydata,
+            datatype: "local",
+            height: 650, //默认高度
+            autowidth: true,    //表格自适应宽度
+            shrinkToFit: true,   //自适应列宽
+            rownumbers: true,
+            rowNum: 30,       //每页展示的记录数
+            rowList: [30, 50, 100], //每页展示的记录数
+            colNames: ["账号", "姓名", "可用余额", "存入项目", "存入金额", "存入优惠", "综合打码量稽核", "常态稽核", "备注", "会员类型"],
+            //表格内容
+            colModel: [
+                {name: "username", index: "username", editable: true, sorttype: "int", search: true},
+                {
+                    name: "nickname", index: "nickname", editable: true, sortable: false,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "查无此用户") return "<font color='red'>查无此用户</font>";
+                        return cellvalue;
+                    }
+                },
+                {name: "channelbalance", index: "channelbalance", editable: true, sortable: false},
+                {
+                    name: "order_type", index: "order_type", editable: true, sortable: false,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "填写错误") return "<font color='red'>填写错误</font>";
+                        return cellvalue;
+                    }
+                },
+                {name: "amount", index: "amount", editable: true, sortable: false,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue=="-1") return "<font color='red'>填写错误</font>";
+                        return cellvalue;
+                    }
+                },
+                {name: "ext_amount", index: "ext_amount", editable: true, sorttype: "float",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue=="-1") return "<font color='red'>填写错误</font>";
+                        return cellvalue;
+                    }
+                },
+                {name: "ext_bets", index: "ext_bets", editable: true, sorttype: "float",
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue=="-1") return "<font color='red'>填写错误</font>";
+                        return cellvalue;
+                    }
+                },
+                {name: "audit_bets", index: "audit_bets", sortable: false,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) return 0;
+                        return cellvalue;
+                    }
+                },
+                {name: "apply_remark", index: "apply_remark", sortable: false},
+                {name: "identity", index: "identity", sortable: false},
+            ],
+            pager: "#pager_list_2",
+            viewrecords: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                var ids = $("#table_list_2").getDataIDs();
+                for (var i = 0; i < ids.length; i++) {
+                    var rowData = $("#table_list_2").getRowData(ids[i]);
+                    if (rowData.nickname === '查无此用户') {//如果审核不通过，则背景色置于红色
+                        $('#' + ids[i]).find("td").addClass("SelectBG");
+
+                    } else {
+                    }
+                }
+
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        $("#table_list_2").setSelection(4, true);
+        //尾部导航栏
+        $("#table_list_2").jqGrid("navGrid", "#pager_list_2", {
+            edit: false,
+            add: false,
+            del: false,
+            search: false
+        }, {height: 200, reloadAfterSubmit: true});
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+
+
+
+
+
+    });
+
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

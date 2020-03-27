@@ -1,0 +1,102 @@
+{include file="pageheader.html"}
+<style type="text/css">
+.iner-table tr:first-child > td{
+    border-top: none;
+}
+
+.iner-table td{
+    padding:0;
+}
+</style>
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" method="post">
+        <button class="btn  btn-primary mgr15" type="button" onclick="jump(1)">商户启用图</button>
+        <button class="btn  btn-primary mgr15" type="button" onclick="jump(2)">商户停用图</button>
+    </form>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <table class="table table-bordered bgcol-white">
+        <caption class="text-center">
+            <h3>{$tips}的三方账号</h3>
+        </caption>
+        <thead>
+            <tr ></tr>
+            <tr>
+                <th></th>
+                {foreach from = $aLayerList item=item}
+                    <th>{$item.name}</th>
+                {/foreach}
+            </tr>
+        </thead>
+        <tbody>
+            {foreach from = $aPayType key=key item=payType}
+                <?php $this->_var['pay_type_id'] = $this->_var['payType']['id'];  ?>
+                <tr>
+                    <td>
+                        {$payType.name}
+                    </td>
+                    {foreach from = $aLayerList item=layer}
+                        <td>
+                            <ol>
+                                {if array_key_exists($pay_type_id, $aList)}
+                                    {foreach from = $aList.$pay_type_id item=account}
+                                        {if in_array($layer.layerid, $account.user_layerids_array)}
+                                            <li>{$account.nickname}</li>
+                                        {/if}
+                                    {/foreach}
+                                {/if}
+                            </ol>
+                        </td>
+                    {/foreach}
+                </tr>
+            {/foreach}
+        </tbody>
+    </table>
+    <table class="table table-bordered bgcol-white">
+        <caption class="text-center">
+            <h3>{$tips}的入款账号</h3>
+        </caption>
+        <thead>
+        <tr ></tr>
+        <tr>
+            <th></th>
+            {foreach from = $aLayerList item=item}
+                <th>{$item.name}</th>
+            {/foreach}
+        </tr>
+        </thead>
+        <tbody>
+        {foreach from = $aBankList key=key item=bank}
+        <?php $this->_var['bank_id'] = $this->_var['bank']['bankid'];  ?>
+            <tr>
+                <td>
+                    {$bank.bankname}
+                </td>
+                {foreach from = $aLayerList item=layer}
+                    <td>
+                        <ol>
+                            {if array_key_exists($bank_id, $accList)}
+                                {foreach from = $accList.$bank_id item=acc}
+                                    {if in_array($layer.layerid, $acc.user_layerids_array)}
+                                        <li>{$acc.nickname}</li>
+                                    {/if}
+                                {/foreach}
+                            {/if}
+                        </ol>
+                    </td>
+                {/foreach}
+            </tr>
+        {/foreach}
+        </tbody>
+    </table>
+</div>
+<script>
+    function jump(status){
+        location.href ='layerchart_index.shtml?status=' + status;
+    }
+</script>
+</body>
+</html>

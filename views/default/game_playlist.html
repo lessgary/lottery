@@ -1,0 +1,281 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <span>
+            玩法类型：
+            <select name="game_way" id="game_way">
+                <option value="2">全部</option>
+                <option value="1">官方玩法</option>
+                <option value="0">信用玩法</option>
+            </select>
+        </span>
+        游戏名称:
+        <select class="form-control" name="lotteryid" id="lotteryid">
+            <option value="0">游戏</option>
+            {foreach from=$lottery item=alottery key=k}
+            <option value="{$alottery.lotteryid}.{$alottery.is_official}" class="tag{$alottery.is_official}">{$alottery.cnname}</option>
+            {/foreach}
+        </select>
+        <span id="game_info">
+            游戏玩法:
+            <select class="form-control" name='methodid' id='methodid'>
+                <option value='0' selected="selected">玩法</option>
+            </select>
+        </span>
+        <span>
+            中奖状态：
+            <select name="game_status" id="game_status">
+                <option value="-1">全部</option>
+                <option value="0">未判断</option>
+                <option value="1">中奖</option>
+                <option value="2">未中奖</option>
+            </select>
+        </span>
+        <span>
+            撤单状态：
+            <select name="isCancel" id="isCancel">
+                <option value="0">正常</option>
+                <option value="-1">全部</option>
+                <option value="1">自己撤单</option>
+                <option value="2">公司撤单</option>
+            </select>
+        </span>
+        <div class="form-group">
+            开始时间:
+            <input name="pStartTime" class="form-control layer-date" value="{if isset($smarty.get.sTime)}{$smarty.get.sTime}{else}{$sTime}{/if}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            结束时间:
+            <input name="pEndTime" class="form-control layer-date" value="{if isset($smarty.get.eTime)}{$smarty.get.eTime}{else}{$eTime}{/if}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="sort" id="sort">
+                <option value="DESC">逆序</option>
+                <option value="ASC">顺序</option>
+            </select>
+        </div>
+        <!--<div class="hr-line-dashed"></div>-->
+<p></p>
+        <div class="form-group">
+            <select class="form-control" name="moneytype" id="select_2">
+                <option value="money">奖金</option>
+                <option value="multiple">倍数</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" name="minmoney" id="value_2" class="form-control">
+        </div>
+        <span>~</span>
+        <div class="form-group">
+            <input type="text" name="maxmoney" id="value_3" class="form-control">
+        </div>
+        <div class="form-group">
+            <select class="form-control" name="nameType" id="select_1">
+                <option value="username">用户名</option>
+                <option value="periods">注单</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" id="value_1" name="username" value="{$smarty.get.username|escape:html}" class="form-control">
+        </div>
+        <div class="form-group">
+            期数：
+            <input type="text" id="issueid" name="issueid" value="{$smarty.get.issueid|escape:html}" class="form-control">
+        </div>
+        <button class = "btn btn-primary" type = "submit">查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames:["注单","用户名","时间" ,"彩种","期数","开奖结果","玩法","动态奖金","投注内容","倍数","投注总金额","模式","中奖金额","中奖状态","状态"],
+            //表格内容
+            colModel:[
+                {name:"encodeprojectid",index:"encodeprojectid",align:"center",formatter: searchUserName,sorttype:"string"},
+                {name:"username",index:"username",align:"center",sorttype:"string"},
+                {name:"writetime",index:"writetime",align:"center",sorttype:"date"},
+                {name:"cnname",index:"cnname",align:"center",sorttype:"string"},
+                {name:"issue",index:"issue",align:"center",sorttype:"int"},
+                {name:"nocode",index:"nocode",align:"center",sorttype:"int"},
+                {name:"methodname",index:"methodname",align:"center",sorttype:"string"},
+                {name:"dypointdec",index:"dypointdec",align:"center",sorttype:"string"},
+                {name:"code",index:"code",align:"center",sorttype:"string"},
+                {name:"multiple",index:"multiple",align:"center",sorttype:"int"},
+                {name:"totalprice",index:"totalprice",align:"right",sorttype:"float"},
+                {name:"modes",index:"modes",align:"center",formatter:'select',editoptions:{value:"1:元;2:角;3:分;4:厘"}},
+                {name:"bonus",index:"bonus",align:"right",sorttype:"float"},
+                {name:"isgetprize",index:"isgetprize",align:"center",formatter:'select',editoptions:{value:"0:未判断;1:中奖;2:未中奖"}},
+                {name:"iscancel",index:"iscancel",align:"center",formatter:'select',editoptions:{value:"0:正常;1:自己撤单;2:公司撤单"}}
+            ],
+            //data:mydata,
+            height:"auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "local",   //数据类型
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:50,       //每页展示的记录数
+            rowList:[50,100,200,500], //每页展示的记录数
+            footerrow: true , // 分页上添加一行，用于显示统计信息
+            pager:"#pager_list_2",viewrecords:true,
+            beforeRequest:function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $("#table_list_2").jqGrid("setGridParam", {
+                    postData: postData,
+                    loadComplete: function (data) {
+                        if(data.length == 0){
+                            $(".ui-jqgrid-sdiv").hide();
+                            layer.confirm("查询不到数据");
+                            return false;
+                        }
+                        $(".ui-jqgrid-sdiv").show();
+                        var $this = $(this),
+                            titleField = 'encodeprojectid', //头对应字段位置
+                            valueField = 'totalprice', //统计字段位置
+                            valueBonus = 'bonus', //统计字段位置
+                            footerData = {},
+                            sumOfValueField = $this.jqGrid("getCol", valueField, false, "sum"), //小计
+                            sumOfValueBonus = $this.jqGrid("getCol", valueBonus, false, "sum"), //小计
+                            $footerRow = $(this.grid.sDiv).find("tr.footrow"),
+                            totalSum = data[0]['totolSum'].toFixed(4),//总计
+                            totalBonus = data[0]['totolBonus'].toFixed(4),//总计
+                            $newFooterRow;
+                        $newFooterRow = $(this.grid.sDiv).find("tr.myfootrow");
+                        if ($newFooterRow.length === 0) {
+                            // add second row of the footer if it's not exist
+                            $newFooterRow = $footerRow.clone();
+                            $newFooterRow.removeClass("footrow")
+                                .addClass("myfootrow ui-widget-content");
+                            $newFooterRow.children("td").each(function () {
+                                this.style.width = ""; // remove width from inline CSS
+                            });
+                            $newFooterRow.insertAfter($footerRow);
+                        }
+                        footerData[titleField] = "小计:";
+                        footerData[valueField] = sumOfValueField.toFixed(4);
+                        footerData[valueBonus] = sumOfValueBonus.toFixed(4);
+                        $this.jqGrid("footerData", "set", footerData); //生成总计行
+                        $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + titleField + "]").text("总计:");
+                        $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + valueField + "]").text(totalSum).css({paddingRight: '2px'});
+                        $newFooterRow.find(">td[aria-describedby=" + this.id + "_" + valueBonus + "]").text(totalBonus).css({paddingRight: '2px'});
+                    }
+                });
+            }
+        });
+        $("#table_list_2").setSelection(4,true);
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            var postData = {};
+            $.each($(this).serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $("#table_list_2").jqGrid("setGridParam", {
+                page: 1,
+                url:"pgame_playlist.shtml",
+                datatype: 'json'
+            }).trigger('reloadGrid');
+            return false;
+        });
+        function searchUserName(cellValue, options, rowObject) {
+            var html ="";
+            if(rowObject.projectid != 0 && rowObject.projectid != "小计:"){
+                html += "<a title=\"投注详情\"  onclick=\"detailLayer('"+rowObject.encodeprojectid+"')\">";
+                html += "<span style='color:#1ab394'>"+rowObject.encodeprojectid+"</span></a>";
+            }else{
+                html += "<span style='color:black'>请不要乱点，谢谢</span>&nbsp;&nbsp;&nbsp;";
+
+            }
+            return html;
+        }
+        // 搜索用户名下拉框
+        $(":input[id=select_1]").change(function(){
+            var id = 1; //$(this).attr('id');
+            $("#value_" + id).attr('name', $(this).val());
+        });
+        // 搜索金额下拉框
+        $(":input[id=select_2]").change(function(){
+
+            $("#value_2" ).attr('name', 'min'+$(this).val());
+            $("#value_3" ).attr('name', 'max'+$(this).val());
+        });
+
+    });
+
+    //投注详情
+    function detailLayer(projectid){
+        if(projectid == "小计:"){
+            return false;
+        }
+        layer.open({
+            type: 2,
+            title: '投注详情',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['810px', '550px'],
+            content: ['pgame_playdetail.shtml?id='+projectid, 'no'],
+        });
+    }
+    $("#game_way").change(function () {
+        $("#lotteryid").val('0')
+        $("#methodid").val('0')
+        if ($("#game_way").val()==='1'){
+            $("#lotteryid").find(".tag0").hide();
+            $("#lotteryid").find(".tag1").show();
+        }else if ($("#game_way").val()==='0') {
+            $("#lotteryid").find(".tag0").show();
+            $("#lotteryid").find(".tag1").hide();
+        }else {
+            $("#lotteryid").find(".tag0").show();
+            $("#lotteryid").find(".tag1").show();
+        }
+    })
+    jQuery("#lotteryid").change(function(){
+        $.get( "./_apis/service.php?method=methods_issue&is_official="+$("#lotteryid").val().split(".")[1], function( data ) {
+            var data_arr = data.split('@');
+            var data_method = JSON.parse(data_arr[0]);
+            var obj_method = $("#methodid")[0];
+            i =  $("#lotteryid").val();
+            ai=i.split(".");
+            $("#methodid").empty();
+            addItem( obj_method,'玩法',0 );
+            if(ai[0]>0)
+            {
+                $.each(data_method[ai[0]],function(j,k){
+                    addItem( obj_method,k.methodname,k.methodid );
+                });
+            }
+        });
+    });
+</script>
+</body>
+
+
+</html>

@@ -1,0 +1,378 @@
+{include file="pageheader.html"}
+<link href="css/plugins/chosen/chosen.css" rel="stylesheet">
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <div>
+        <a href="manualpay_save.shtml" class="btn btn-primary mgr15">人工存入</a>
+        <a href="manualpay_out.shtml" class="btn btn-primary mgr15">人工提款</a>
+        <a href="manualpay_batch.shtml" class="btn btn-primary mgr15">批量存入</a>
+        <a href="manualpay_excelupload.shtml" class="btn btn-primary mgr15">Excel 批量存入</a>
+
+    </div>
+</div>
+<br>
+<div class="wrapper wrapper-content  animated fadeInRight">
+<div>
+    <!--根据用户名查找用户-->
+    <form id="get_userinfo">
+
+        <select class="form-control m-b chosen-select" name="username" id="companyid">
+            <option value="">请搜索选择</option>
+        </select>
+    </form>
+</div>
+    <br>
+    <div>
+        <!--提交表单 触发审核-->
+        <form action="manualpay_confirm.shtml" method="POST" id="form">
+            <table class="table table-bordered table1-hover bgcol-white">
+                <tr>
+                    <th colspan="2" style="text-align: center">人工存入</th>
+                </tr>
+                <tr>
+                    <td style="width:260px">账号：</td>
+                    <td>
+                       <!--{$userpro.username}-->
+                        <input type="text" name="username" readonly="readonly" style="border:0;box-shadow:none;">
+                        <!--<input type="hidden" name="username" value="{$userpro.username}">-->
+                        <input type="hidden" name="userid" >
+                        <input type="hidden" name="optype" value="0"><!--加款-->
+                        <input type="hidden" name="single" value="single">
+                    </td>
+                </tr>
+                <tr>
+                    <td>姓名：</td>
+                    <td><input type="text" name="nickname" readonly="readonly" style="border:0;box-shadow:none;"></td>
+                    <!--<td>{$userpro.nickname}</td>-->
+                </tr>
+                <tr>
+                    <td>可用余额：</td>
+                    <td>
+                        <!--{$userpro.cashbalance}&lt;!&ndash;现金余额&ndash;&gt;-->
+                        <input type="text" name="channelbalance" readonly="readonly" style="border:0;box-shadow:none;">
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="order_type_id">存入项目：</label></td>
+                    <td>
+                        <select name="order_type" id="order_type_id">
+                            <option value="1">存款存入</option>{* 充值理赔 *}
+                            <option value="0">普通存入</option> {* 普通理赔 *}
+                            <option value="3">活动优惠</option>
+                        </select>
+                        <span style="color: #ff2a2a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*必选(对有充值行为的用户请选择存款存入)</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>存入金额：</td>
+                    <td>
+                        <input name="amount" type="text" id="amount_id" required="required" placeholder="请填写金额，只能填写数字..."><span style="color: #ff2a2a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*必填(只能输入数字)</span>
+                    </td>
+                </tr>
+                <tr id="ext_amount_id">
+                    <td>存款优惠：</td>
+                    <td>
+                        <input name="ext_amount" type="text" id="ext_amount_text_id">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;选填(只能输入数字)
+                    </td>
+                </tr>
+                <tr>
+                    <td>综合打码量稽核：</td>
+                    <td>
+                        <input name="ext_bets" type="text" id="ext_bets_id">
+                        请选择倍数（选填）：
+                        <label>
+                            <input type="radio" value=3 name="times">&nbsp;&nbsp;
+                            3倍&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <label>
+                            <input type="radio" value=5 name="times">&nbsp;&nbsp;
+                            5倍&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <label>
+                            <input type="radio" value=0 name="times">&nbsp;&nbsp;
+                            免流水&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #ff2a2a">选填(只能输入数字)</span>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>常态性稽核：</td>
+                    <td>
+                        <input name="audit_bets" type="text" value="0">
+                        请选择倍数：
+                        <label>
+                            <select name="audit_multi_select">
+                               <option>0</option>
+                               <option selected="selected">1</option>
+                               <option>2</option>
+                               <option>3</option>
+                               <option>4</option>
+                               <option>5</option>
+                               <option>6</option>
+                               <option>7</option>
+                               <option>8</option>
+                               <option>9</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td>
+                        <input name="apply_remark" type="text" style="width: 100%" required="required"><span style="color: #ff2a2a">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*必填</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>会员备注：</td>
+                    <td>
+                        <input type="text" name="identity" readonly="readonly" style="border:0;box-shadow:none;">
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="确定" class="btn btn-primary" >
+                        <input type="reset" value="取消" class="btn btn-warning mgl15">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        $(".chosen-select").chosen({no_results_text: "未找到",search_contains:true,width:"15%"});
+        $('.chosen-search>input').attr('oninput',"this.value=this.value.replace(/[\u4e00-\u9fa5]/g,'');")
+        var timeout = 0;
+        var flag = true;
+        var username;
+        $('.chosen-search>input').on('compositionstart',function(){
+            flag = false;
+        })
+        $('.chosen-search>input').bind("input propertychange",function () {
+            username = $('.chosen-search>input').val();
+            clearTimeout(timeout);
+            timeout = setTimeout(function () {
+                $('.chosen-search>input').on('compositionstart',function(){
+                    flag = false;
+                })
+                $('.chosen-search>input').on('compositionend',function(){
+                    flag = true;
+                })
+                if (flag){
+
+                    $.ajax({
+                        url:'manualpay_save.shtml',
+                        type:'POST',
+                        dataType:'json',
+                        data:{
+                            getuser:'save',
+                            username:username,
+                            fuzzy:1,
+                        },
+                        success: function (data){
+                            var  html = '<option value=""></option>';
+                            if (data.code === 1) {
+                                $.each(data.msg,function (key,val) {
+                                    html += '<option value="' + val.username + '">'+ val.username +'</option>'
+                                })
+                            } else {
+                                html = '<option value="">未找到</option>'
+                            }
+                            $(".chosen-select").html(html)
+                            $(".chosen-select").trigger("chosen:updated");
+                            $('.chosen-search>input').val(username);
+                        }
+                    });
+                }
+            },300);
+
+        });
+
+
+// 更换倍数
+        $("input[name=times]").change(function () {
+            var Money = $("input[name=amount]").val();
+            var eMoney = $("input[name=ext_amount]").val();
+            var typeN = $("#order_type_id").val();
+            var times = $(this).val();
+            if (Money > 0) {
+//                if (typeN == 0||typeN == 3) {
+//                    alert()
+//                } else {
+                    if (eMoney > 0) { // 额外金额大于零
+                        if (typeN == 1) {
+                            var summ = (parseInt(Money) + parseInt(eMoney)) * times;
+                            if (times == 3) {
+                                $("input[name=ext_bets]").val(summ);
+                            }
+                            if (times == 5) {
+                                $("input[name=ext_bets]").val(summ);
+                            }
+                            if (times == 0) {
+                                $("input[name=ext_bets]").val(0);
+                            }
+                        }else {
+                            $("input[name=ext_amount]").val(0);
+                        }
+                    } else {
+                        var sum = Money * times;
+                        if (times == 3) {
+                            $("input[name=ext_bets]").val(sum);
+                        }
+                        if (times == 5) {
+                            $("input[name=ext_bets]").val(sum);
+                        }
+                        if (times == 0) {
+                            $("input[name=ext_bets]").val(0);
+                        }
+                    }
+//                }
+            }
+            return false;
+        });
+        // 获取用户输入金额
+        $("input[name=amount]").change(function () {
+            var money = $(this).val();
+            var eMoney = $("input[name=ext_amount]").val();
+            if (money > 0) {
+                 $("input[name=ext_bets]").val(money);
+                 $("input[name=audit_bets]").val(money);
+            }
+            return false;
+        });
+// 同步存款优惠
+        $("input[name=ext_amount]").change(function () {
+            var eMoney = $(this).val();
+            var mMoney =  $("input[name=amount]").val();
+            if (eMoney > 0) {
+                // if ( mMoney > 0) {
+                //     var sssum = (parseInt(eMoney)+parseInt(mMoney));
+                //     $("input[name=ext_bets]").val(sssum);
+                // }
+            }else {
+                if (eMoney < 0){
+                    alert("优惠金额不能为负数");
+                    $("input[name=ext_amount]").val(0);
+                }
+                $("input[name=ext_bets]").val(mMoney);
+            }
+        });
+        // 人工存入选择状态
+        $("#order_type_id").change(function () {
+            var typeNum = $(this).val();
+            if (typeNum==1){
+                $("input[name=amount]").val(0);
+                $("input[name=ext_amount]").val(0);
+                $("input[name=ext_bets]").val(0);
+//                $("input[name=times]").val(0);
+                $("#ext_amount_id").show();
+            }else {
+                $("input[name=amount]").val(0);
+                $("input[name=ext_amount]").val(0);
+                $("input[name=ext_bets]").val(0);
+//                $("input[name=times]").val(0);
+                $("#ext_amount_id").hide();
+            }
+        });
+        // 清空状态
+    });
+    $("#companyid").change(function () {
+        var username = $(this).val();
+        $.ajax({
+            url:'manualpay_save.shtml',
+            type:'POST',
+            dataType:'json',
+            data:{
+                getuser:'save',
+                username:username
+            },
+            success: function (data){
+                if (data.code === 1) {
+                    $("input[name='username']").val(data.username);
+                    $("input[name='nickname']").val(data.nickname);
+                    $("input[name='channelbalance']").val(data.channelbalance);
+                    $("input[name='identity']").val(data.identity);
+                    $("input[name='userid']").val(data.userid);
+                    layer.msg(data.msg);
+                } else {
+                    layer.alert('查询没有结果！');
+                }
+            }
+        });
+        return false;
+    });
+
+    $("#form").submit(function(event){
+        event.preventDefault();
+        var url = $('#form').attr('action');
+            $.ajax({
+                //几个参数需要注意一下
+                type: "POST",//方法类型
+                dataType: "json",//预期服务器返回的数据类型
+                url: url ,//url
+                data: $('#form').serialize(),
+                success: function (result) {
+                    if (result.code == 1){
+                        layer.msg(result.msg,{time:1000},function () {
+                            window.location.reload();
+                        });
+                    }else {
+                        layer.msg(result.msg);
+                    }
+                }
+            });
+    });
+
+    $('select[name=audit_multi_select]').on('change', function () {
+        var amount = parseFloat($('#amount_id').val());
+        var audit = $(this).val() * (amount ? amount : 0);
+        $('input[name=audit_bets]').val(audit);
+    });
+    // $("#submit").click(function () {
+    //     var url = $('#form').attr('action');
+    //     $.ajax({
+    //         //几个参数需要注意一下
+    //         type: "POST",//方法类型
+    //         dataType: "json",//预期服务器返回的数据类型
+    //         url: url ,//url
+    //         data: $('#form').serialize(),
+    //         success: function (result) {
+    //             if (result.code == 1){
+    //                 layer.msg(result.msg,{time:1000},function () {
+    //                     window.location.reload();
+    //                 });
+    //             }else {
+    //                 layer.msg(result.msg);
+    //             }
+    //             console.log(result);
+    //         }
+    //     });
+    //     console.log(111)
+    // })
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

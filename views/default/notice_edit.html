@@ -1,0 +1,283 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="plugins/kindeditor/themes/default/default.css"/>
+<script charset="utf-8" src="plugins/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="plugins/kindeditor/lang/zh_CN.js"></script>
+<body>
+<div class="container">
+    <div class="row ">
+        <div class="ibox-content  border-bottom">
+            <form class="form-horizontal" enctype="multipart/form-data" id="subbox" onsubmit="return false">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">公告标题：</label>
+                    <div class="col-sm-8">
+                        <input id="subject" name="subject" class="form-control" type="text" required="required"
+                               value="{$nvalue.subject}">
+                        <input type="hidden" name="id" value="{$nvalue.id}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">公告类型：</label>
+                    <div class="col-sm-8">
+                            {if $nvalue.type == 1}
+                        <select><option>文字公告</option></select>
+                        <input name="type" type="hidden" value="1" id="type_id">
+                            {else}
+                       <select><option>图片公告</option></select>
+                        <input name="type" type="hidden" value="2">
+                            {/if}
+                    </div>
+                </div>
+                <!--<div class="form-group">-->
+                    <!--<label class="col-sm-3 control-label">开始时间</label>-->
+                    <!--<div class="col-sm-8">-->
+                        <!--<input name="sdate" class="form-control layer-date" value="{$nvalue.sdate}"-->
+                               <!--placeholder="YYYY-MM-DD hh:mm:ss"-->
+                               <!--onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">-->
+                    <!--</div>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                    <!--<label class="col-sm-3 control-label">结束时间</label>-->
+                    <!--<div class="col-sm-8">-->
+                        <!--<input name="edate" class="form-control layer-date" value="{$nvalue.edate}"-->
+                               <!--placeholder="YYYY-MM-DD hh:mm:ss"-->
+                               <!--onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="form-group">-->
+                    <!--<label class="col-sm-3 control-label">显示排序顺序（越小越靠前）：</label>-->
+                    <!--<div class="col-sm-8">-->
+                        <!--<input type="text" name="sorts" value="{$nvalue.sorts}" required="required">-->
+                    <!--</div>-->
+                <!--</div>-->
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">是否弹窗：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="radio" value="1" name="iswindow"  { if $nvalue.iswindow==1}checked{else}{/if}>
+                            是 <span style="color: #ff2a2a"></span>
+                        </label>&nbsp;&nbsp;
+                        <label>
+                            <input type="radio" value="2" name="iswindow"  { if $nvalue.iswindow==2}checked{else}{/if}>
+                            否 <span style="color: #ff2a2a"></span>
+                        </label>
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label class="col-sm-3 control-label">发送版本：</label>
+                    <div class="col-sm-8 " style="padding-top: 7px;">
+                        <label>
+                            <input type="checkbox" value="0" name="all_version" id="all_version" {if isset($version[WEB]) && isset($version[APP])} checked {else} {/if}>
+                            全部 <span style="color: #ff2a2a"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="1" name="version[]"  {if isset($version[WEB]) }checked{else}{/if} >
+                            PC端 <span style="color: #ff2a2a"></span>
+                        </label>
+                        <label>
+                            <input type="checkbox" value="2" name="version[]"   {if isset($version[APP]) }checked{else}{/if}>
+                            移动端 <span style="color: #ff2a2a"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">发送范围：</label>
+                    <div class="col-sm-8 ">
+                        <label>
+                            <input type="checkbox" value="1" name="allUser" id="all_user" checked>
+                            所有用户 <span style="color: #ff2a2a">*(未登录用户和所有层级都会看到该公告)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">层级：</label>
+                    <div class="col-sm-8 ">
+                        <label>
+                            <input type="checkbox" value="1" name="all_level"> 全部
+                        </label>
+                        {foreach item=lv from=$layer key=idd}
+                        <label>
+                            {if $lv.checked == 1 }
+                            <input type="checkbox" name="layerid[]" value="{$lv.layerid}" checked="checked">{$lv.name}
+                            {else}
+                            <input type="checkbox" name="layerid[]" value="{$lv.layerid}">{$lv.name}
+                            {/if}
+                        </label>
+                        {/foreach}
+                    </div>
+                </div>
+                <!--文本内容-->
+                {if $nvalue.type == 1}
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">添加文字公告：</label>
+                    <div class="col-sm-12">
+                        <textarea name="content" style="width:100%;height:250px;display: none">{$nvalue.content}</textarea>
+                    </div>
+                </div>
+                {/if}
+                {if $nvalue.type == 2}
+                <div class="form-group" id="image_id">
+                    <br>
+                    <label class="col-sm-3 control-label" >添加图片公告：</label><span style="color: #ff2a2a">*上传图片最大不能超过2M</span>
+                    <div class="col-sm-8 ">
+                        <input type="file" name="image" class="layer-upload-file" id="img_id">
+                        <br>
+                        <!--<input type="button" class="btn btn-success" id="img_sub" value="确定">-->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                <label class="col-sm-3">当前公告图片:</label>
+                <div class="col-sm-8">
+                    {if $nvalue.image}
+                    <a href="#" target="_blank"><img src="{$imgpath}" title="{$nvalue.subject}" alt="当前没有图片" /></a>
+                    <input type="hidden" name="oldImg" value="{$nvalue.image}">
+                    <p></p>
+                    <div class="btn btn-danger" onclick="delImg({$smarty.get.id})">删除图片</div>
+                    {else}
+                    <span style="color: #ff2a2a">当前没有图片</span>
+                    {/if}
+                </div>
+                </div>
+                {/if}
+                <br>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-3">
+                        <button class="btn btn-primary" id="submit_id" type="submit">发送消息</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <button class="btn btn-primary"  type="button" onclick="closeA()">取消</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // 创建编辑器
+    var editor;
+    var tt = $("#type_id").val();
+    if (tt == 1) {
+        editor = KindEditor.create('textarea[name="content"]', {
+            uploadJson: 'default_kindeditoruploadimage.shtml',
+            fileManagerJson: 'default_kindeditorimagemanager.shtml',
+            allowImageUpload: true,
+            allowFileUpload: false
+        });
+    }
+    //全部版本
+        $(":input[name=all_version]").click(function () {
+            $(":input[name^=version]").prop('checked', $(this).prop('checked'));
+        });
+        //web/app
+        $(":input[name^=version]").click(function(){
+
+              if ($(":input[name^=version]").length == $(":input[name^=version]:checked").length) {
+                $(":input[name=all_version]").prop('checked', true);
+            } else {
+                $(":input[name=all_version]").prop('checked', false);
+            }
+        });
+    // 修改选项
+    $(":input[name=all_level]").click(function () {
+        $(":input[name^=layer]").prop('checked', $(this).prop('checked'));
+        $("#all_user").prop('checked', !$(this).prop('checked'));
+    });
+    $(":input[name^=layer]").change(function () {
+        if ($(":input[name^=layer]").length == $(":input[name^=layer]:checked").length) {
+            $(":input[name=all_level]").prop('checked', true);
+        } else {
+            $(":input[name=all_level]").prop('checked', false);
+        }
+        if($(":input[name^=layer]:checked").length == 0 ) {
+            $("#all_user").prop('checked', true);
+        }else {
+            $("#all_user").prop('checked', false);
+        }
+    }).trigger("change");
+    $("#all_user").click(function(){
+        $(":input[name^=layer]").prop('checked', !$(this).prop('checked'));
+        $(":input[name=all_level]").prop('checked', !$(this).prop('checked'));
+    });
+
+
+//异步提交表单
+    $("#subbox").submit(function () {
+        console.log($.editor);
+        $.ajax({
+            type:'POST',
+            url:'notice_update.shtml',
+            data:new FormData($(this)[0]),
+            dataType:'json',
+            processData:false,
+            contentType:false,
+            success:function (data) {
+                if (data.code === 1) {
+                    layer.alert(data.msg,function (index) {
+                        parent.layer.closeAll();
+                        parent.location.reload();
+                    })
+                } else {
+                    switch (data.code)
+                    {
+                        case 3:
+                        case 4:
+                        case 5:
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 10:
+                        case 11:
+                        case 12:
+                        case 13:
+                        case 14:
+                        case 15:
+                            layer.alert(data.msg);
+                            break;
+                        default:
+                            layer.alert('修改失败！');
+                    }
+
+                }
+            }
+        });
+        return false;
+    });
+
+    function delImg(id) {
+        layer.confirm('是否确认删除图片？', {
+            btn: ['确认', '取消']
+        },function () {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: 'notice_del.shtml',
+                data: {
+                    id: id,
+                    delimg: 1
+                },
+                success: function (data) {
+                    if (data.code === 2) {
+                        layer.alert(data.msg, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                }
+            });
+        });
+        return false;
+    }
+
+    //    关闭弹出层
+    function closeA() {
+        layer.confirm('是否确认关闭，未发布的公告将不会被保存',function () {
+            parent.layer.closeAll();
+//            parent.location.reload();
+        });
+    }
+</script>
+</body>
+</html>

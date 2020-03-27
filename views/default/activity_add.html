@@ -1,0 +1,356 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="plugins/kindeditor/themes/default/default.css"/>
+<script charset="utf-8" src="plugins/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="plugins/kindeditor/lang/zh_CN.js"></script>
+<style type="text/css">
+    img{
+        cursor: pointer;
+        max-width: 610px;
+    }
+    .ibox-content .my_hidden {
+        display: none;
+    }
+</style>
+<body>
+<div class="container"  id="origin">
+<div class="row">
+    <div class="col-sm-6" style="width: 100%">
+        <div class="ibox float-e-margins">
+
+            <div class="ibox-content">
+                <form class="form-horizontal m-t" onsubmit="return false" id="subbox"
+                      enctype='multipart/form-data'>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="title_1">活动名称:</label>
+                        <div class="col-sm-8">
+                            <input id="title_1" name="title" class="form-control" type="text" required="required"
+                                   value="{$result.title}"  >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">开始时间:</label>
+                        <div class="col-sm-8">
+                            <input name="starttime" class="form-control layer-date" value="{$today}"
+                                   placeholder=""
+                                   onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">结束时间:</label>
+                        <div class="col-sm-8">
+                            <input name="endtime" class="form-control layer-date" value="{$today}"
+                                   placeholder=""
+                                   onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">活动排序值:</label> 
+                        <div class="col-sm-8">
+                            <input name="sort" class="form-control layer-date" value="">
+                        </div>
+                    <span style="color:red;">(*不可重复,越小优先显示)</span>
+                    </div>
+                   <!--  <div class="form-group">
+                        <label class="col-sm-2 control-label">活动状态:</label>
+                        <div class="col-sm-8">
+                            <label>
+                            <input type="radio" value="0" name="disable" checked="checked">
+                            开启</label>
+                            <label>
+                            <input type="radio" value="1" name="disable">
+                            关闭</label>
+                        </div>
+                    </div> -->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">PC端 Banner:</label>&nbsp;&nbsp;&nbsp;<span style="">尺寸：1200X160</span>
+                        <div class="col-sm-8">
+                            <img src="" alt="" class="pic my_hidden">
+                            <input type="file" name="web_banner" > 
+                        </div>
+                    </div>
+                     <!--文本内容-->
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                             <label class="col-sm-2 control-label" >PC端 活动详情:</label><span style="color:red">前台图片标准尺寸：1170X任意</span>
+                             <textarea name="detail" style="width:80%;height:250px;float:right;"></textarea>
+                        </div>
+                    </div>
+                   
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">移动端 Banner:</label> &nbsp;&nbsp;<span style="">尺寸：990X400</span>
+                        <span style="color: #ff2a2a"></span>
+                        <div class="col-sm-8">
+                            <img src="" alt="" class="pic my_hidden">
+                            <input type="file" name="app_banner"> 
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">移动端 活动类型:</label>
+                        <div class="col-sm-8 " style="padding-top: 7px;">
+                            <label>
+                                <input type="radio" value="1" name="app_type" class="notice_type" checked >
+                                图片上传 <span style="color: #ff2a2a"></span>
+                            </label>
+                            <label>
+                                <input type="radio" value="0" name="app_type"  class="notice_type" >
+                                HTML编辑器<span style="color: #ff2a2a"></span>
+                            </label>
+
+                        </div>
+                    </div>
+                     <div class="form-group" id="appimage">
+                        <label class="col-sm-2 control-label">移动端 活动详情:</label> &nbsp; <span style="">尺寸：1080X任意</span>
+                        <div class="col-sm-8">
+                            <img src="" alt="" class="pic my_hidden">
+                            <input type="file" name="app_content">
+                        </div>
+                    </div>
+                     <div class="form-group" id="appdetail" style="display: none;">
+                        <div class="col-sm-12" >
+                             <label class="col-sm-2 control-label" >移动端 活动详情:</label>
+                             <span style="color:red;">前台图片标准尺寸：1080X任意</span>
+                             <textarea name="app_detail" style="width:80%;height:250px;float:right;"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-8">
+                            <input type="submit" value="提交" class="btn btn-primary">
+                            <input type="button" onclick="goBack()"  value="取消" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+    var editor;
+      editor = KindEditor.create('textarea[name="detail"]', {
+            uploadJson : 'default_kindeditoruploadimage.shtml',
+            fileManagerJson : 'default_kindeditorimagemanager.shtml',
+            allowImageUpload: true,
+            allowFileUpload: false
+    });
+    var yy = $('input[name="app_type"]:checked').val();
+    if (yy == 0 ) {
+        editor = KindEditor.create('textarea[name="app_detail"]', {
+            uploadJson : 'default_kindeditoruploadimage.shtml',
+            fileManagerJson : 'default_kindeditorimagemanager.shtml',
+            allowImageUpload: true,
+            allowFileUpload: false
+        });
+    }else{
+         $("#appimage").show();
+    }
+
+    $(".notice_type").click(function () {
+        var xx = $(this).val();
+        if (xx == 0) {
+            editor = KindEditor.create('textarea[name="app_detail"]', {
+                uploadJson : 'default_kindeditoruploadimage.shtml',
+                fileManagerJson : 'default_kindeditorimagemanager.shtml',
+                allowImageUpload: true,
+                allowFileUpload: false
+            });
+            $("#appdetail").show();
+            $("#appimage").hide();
+        } else if (editor) {
+            //editor.remove();
+            $("#appimage").hide();
+            if (xx == 1) {
+                $("#appimage").show();
+                $("#appdetail").hide();
+            }
+        }else {
+            if (xx == 1) {
+                $("#appimage").show();
+                $("#appdetail").hide();
+//                addImg();
+            }
+        }
+    });
+
+    function resetFile(fileSize, input) {
+        if (fileSize > 2097152) {
+            layer.alert("当前图片尺寸过大，请重新选择图片上传",{closeBtn:false},function () {
+                $(input).val("");
+                layer.closeAll();
+            });
+        }
+    }
+    function check(name, input, width, height) {
+        if ('app_banner' === name) {
+            if (width != '990' || height != '400') {
+                layer.alert("app banner 请上传990x400的图片",{closeBtn:false},function () {
+                    $(input).val("").show().parent('div').find('img').attr('src', '').hide();
+                    layer.closeAll();
+                });
+            }
+        } else if ('web_banner' === name) {
+            if (width != '1200' || height != '160')  {
+                layer.alert("web banner 请上传1200x160的图片",{closeBtn:false},function () {
+                    $(input).val("").show().parent('div').find('img').attr('src', '').hide();
+                    layer.closeAll();
+                });
+            }
+        } else if ('app_content' === name) {
+            if (width != '1080') {
+                layer.alert("app 活动详情 请上传宽度为1080的图片",{closeBtn:false},function () {
+                    $(input).val("").show().parent('div').find('img').attr('src', '').hide();
+                    layer.closeAll();
+                });
+            }
+        } /*else if ('web_content' === name) {
+            if (width != '1170') {
+                layer.alert("web 活动详情 请上传宽度为1170的图片",{closeBtn:false},function () {
+                    $(input).val("").show().parent('div').find('img').attr('src', '').hide();
+                    layer.closeAll();
+                });
+            }
+        }*/
+    }
+    // 兼容ie9以下浏览器
+    $("input[type='file']").change(function () {
+        var input = this;
+        if (!input.value) {
+            return;
+        }
+        var name = this.name;
+        if (input.files) {
+            var fileSize = input.files[0].size;
+            resetFile(fileSize, input);
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = e.target.result;
+                //加载图片获取图片真实宽度和高度
+                var image = new Image();
+                image.onload=function(){
+                    var width = image.width;
+                    var height = image.height;
+                    check(name, input, width, height);
+                };
+                image.src= data;
+            };
+            reader.readAsDataURL(input.files[0]);
+        } else {
+            var image = new Image();
+            image.onload = function(){
+                var fileSize = image.fileSize;
+                resetFile(fileSize, input);
+                var width = image.width;
+                var height = image.height;
+                check(name, input, width, height);
+            };
+            image.src = input.value;
+        }
+    });
+
+    $(document).ready(function () {
+        $('.pic').click(function(){
+            $(this).parent('div').find("input[type='file']").click().show().end().end().hide();
+        });
+        $("input[type='file']").change(function(){
+            if (!this.value) {
+                return false;
+            }
+            var $file = $(this);
+            var fileObj = $file[0];
+            var windowURL = window.URL || window.webkitURL;
+            var dataURL;
+            var $img = $file.parent('div').find('img').show();
+
+            if (fileObj && fileObj.files && fileObj.files[0]) {
+                dataURL = windowURL.createObjectURL(fileObj.files[0]);
+                $img.attr('src', dataURL);
+            } else {
+                dataURL = $file.val();
+                var imgObj = $img[0];
+                imgObj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)";
+                imgObj.filters.item("DXImageTransform.Microsoft.AlphaImageLoader").src = dataURL;
+            }
+            $img.removeClass('my_hidden');
+            $file.hide();
+        });
+        //提交表单
+        $("#subbox").submit(function () {
+            var web_banner = $("input[name='web_banner']").val(),
+                web_content = $("input[name='web_content']").val(),
+                app_banner = $("input[name='app_banner']").val(),
+                app_content = $("input[name='app_content']").val();
+            if (!web_banner  && !app_banner ) {
+                layer.alert('请上传web或app端相关图片');
+                return false;
+            }
+
+            if (web_banner ) {
+                if (!web_banner) {
+                    layer.alert('请上传web banner');
+                    return false;
+                }
+               /* if (!web_content) {
+                    layer.alert('请上传web content');
+                    return false;
+                }*/
+            }
+
+            if (app_banner ) {
+                if (!app_banner) {
+                    layer.alert('请上传app banner');
+                    return false;
+                }
+               /* if (!app_content) {
+                    layer.alert('请上传app content');
+                    return false;
+                }*/
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: 'activity_add.shtml',
+                data: new FormData($(this)[0]),
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.code === 1) {
+                        layer.alert(data.msg, function (index) {
+                            parent.layer.closeAll();
+                            parent.location.reload();
+                        })
+                    } else {
+                        switch (data.code) {
+                            case -100:
+                            case -101:
+                            case -102:
+                            case -103:
+                            case -104:
+                            case -105:
+                            case -106:
+                            case -107:
+                            case -108:
+                            case -109:
+                                layer.alert(data.msg);
+                                break;
+                            default:
+                                layer.alert('修改失败！');
+                        }
+                    }
+                }
+            });
+            return false;
+        });
+    });
+    function goBack() {
+        layer.confirm('是否确定返回活动列表，未发布的活动将不会保存？', {
+            btn: ['确定', '取消']
+        }, function () {
+            parent.layer.closeAll();
+        });
+        return false;
+    }
+</script>
+</body>
+</html>

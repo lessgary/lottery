@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>商户管理后台 - 登录</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min.css" rel="stylesheet">
+    <link href="css/login.min.css" rel="stylesheet">
+    <script type="text/javascript" src="{$ImgServer}/js/jquery.min.js?modidate={$jsupdate}"></script>
+    <script type="text/javascript" src="{$ImgServer}/js/jquery.md5.js?modidate={$jsupdate}"></script>
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+   <!-- <script>
+        if(window.top!==window.self){window.top.location=window.location};
+    </script>-->
+<script type="text/javascript">
+    if (top.location != self.location) {
+        top.location = self.location;
+    }
+    $(document).ready(function () {
+        $("#username").value = '';
+        $("#validcode_source").val();
+        $("#validate").attr('src', "/?useValid=" + Math.random());
+        $("#username").focus();
+    });
+    function refreshimg() {
+        $("#validate").attr('src', "/?useValid=" + Math.random());
+    }
+    function LoginNow() {
+        var loginuser = $("#username").val();
+        var typepw = $("#loginpass_source").val();
+        var randnum = $("#validcode_source").val().toUpperCase();
+        if (loginuser == '') {
+            alert('请填写用户名');
+            return false;
+        }
+        if  (typepw == '') {
+            alert('请填写密码');
+            return false;
+        }
+        if (randnum == '') {
+            alert('请填写验证码');
+            return false;
+        }
+        
+        var submitvc = $.md5(randnum);
+        var submitpw = $.md5( submitvc + $.md5(typepw) );
+            
+        $("#loginpass")[0].value = submitpw;
+        $("#captcha")[0].value = submitvc;
+        $("#loginpass_source")[0].value = '12345678901234567890';
+        
+        document.forms['login'].submit();
+    }
+</script>
+</head>
+
+<body class="signin">
+    <div class="signinpanel">
+        <div class="row">
+            <div class="col-sm-7">
+                <div class="signin-info">
+                    <div class="logopanel m-b">
+                        <h1>尊敬的商户</h1>
+                    </div>
+                    <div class="m-b"></div>
+                    <h1>欢迎登录 <strong>商户后台</strong></h1>
+                    <ul class="m-b">
+                       
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <form method="post" action="" name="login" id="login" onSubmit="LoginNow(); return false;" >
+                    <input type="hidden" name="flag" value="login"/>
+                    <input type="hidden" name="loginpass" id="loginpass">
+                    <input type="hidden" name="captcha" id="captcha">
+                    <h4 class="no-margins">登录：</h4>
+                    <p class="m-t-md"></p>
+                    <input type="text" class="form-control uname" name="username" id="username" value=""
+                           spellcheck="false" maxlength="500" title="由0-9,a-z,A-Z组成的6-16个字符" placeholder="用户名" />
+                    <input type="password" class="form-control pword m-b" id="loginpass_source" placeholder="密码" />
+                    <input type="text" class="form-control code" id="validcode_source" placeholder="验证码" autocomplete="off"/>
+                    <div class="veri_pic">
+                        <img src="" name="validate"  id="validate" onclick="refreshimg()" width="130" height="35"
+                             style="margin-top:5px;"/>
+                    </div>
+                    <!-- <a href="#">忘记密码了？</a> -->
+                    <button class="btn btn-success btn-block">登录</button>
+                </form>
+            </div>
+        </div>
+        <div class="signup-footer">
+            <div class="pull-left">
+                &copy; 2015 All Rights Reserved. 
+            </div>
+        </div>
+    </div>
+</body>
+</html>

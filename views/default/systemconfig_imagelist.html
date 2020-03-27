@@ -1,0 +1,113 @@
+{include file="pageheader.html"}
+<style type="text/css">
+    th, td {
+        text-align: center;
+    }
+
+    input {
+        padding-bottom: 5px;
+    }
+
+    ul li {
+        list-style-type: none;
+    }
+
+    li {
+        padding-bottom: 5px;
+    }
+
+    ul {
+        -webkit-padding-start: 20px;
+    }
+    .text-primary {
+        color: #337ab7;
+    }
+</style>
+
+<script src="js/plugins/layer/layer-3.03/layer.js"></script>
+
+<body class="gray-bg">
+<form action="" method="post">
+    <div class="wrapper wrapper-content">
+        <div class="jqGrid_wrapper">
+            <div class="ui-jqgrid " id="gbox_table_list" dir="ltr">
+                <div class="jqgrid-overlay ui-overlay" id="lui_table_list"></div>
+                <div class="ui-jqgrid-view table-responsive" role="grid" id="gview_table_list">
+                    <div class="ui-jqgrid-hdiv">
+                        <div>
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered bgcol-white"
+                                   role="presentation"
+                                   aria-labelledby="gbox_table_list">
+                                <thead>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>logo</th>
+                                    <th>
+                                        {if !empty($info) && !empty($info['logo'])}
+                                            <img src="<?php echo getImageLoadUrl(); ?>{$info.logo}">
+                                        {/if}
+                                    </th>
+                                    <th><a class="upload mgr15" data-image-type = 'logo'>上传</a><a class=" " onclick="clearImage('logo')" data-image-type = 'logo'>删除图片</a></th>
+                                </tr>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>icon</th>
+                                    <th>
+                                        {if !empty($info) && !empty($info['icon'])}
+                                        <img src="<?php echo getImageLoadUrl(); ?>{$info.icon}">
+                                        {/if}
+                                    </th>
+                                    <th><a class="upload mgr15" data-image-type = 'icon'>上传</a><a class="" onclick="clearImage('icon')" data-image-type = 'icon'>删除图片</a></th>
+                                </tr>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>slogan</th>
+                                    <th>
+                                        {if !empty($info) && !empty($info['slogo'])}
+                                        <img src="<?php echo getImageLoadUrl(); ?>{$info.slogo}">
+                                        {/if}
+                                    </th>
+                                    <th><a class="upload mgr15" data-image-type = 'slogo'>上传</a><a class="" onclick="clearImage('slogo')" data-image-type = 'slogo'>删除图片</a></th>
+                                </tr>
+                                </thead>
+                            </table>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $('.upload').click(function(){
+        var imageType = $(this).attr('data-image-type');
+        layer.open({
+            type: 2,
+            title: '上传',
+            shadeClose: true,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px', '750px'],
+            content: 'systemconfig_upload.shtml?image_type=' + imageType
+        });
+    });
+    function clearImage(imageType) {
+        if(confirm('确定删除吗？')) {
+            var imageType = imageType;
+             $.ajax({
+                type: "POST",
+                url:"systemconfig_clearimage.shtml",
+                data:{imageType:imageType}, 
+                success: function(data) {
+                    var data = eval("("+data+")");
+                    if(data.code == 0){
+                        layer.msg(data.msg,{icon: 2, time: 1000 });
+                    }else{
+                        layer.msg(data.msg,{icon: 2, time: 1000 },function(){
+                               window.location.reload();
+                            });
+                    }
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

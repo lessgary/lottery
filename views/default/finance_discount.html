@@ -1,0 +1,113 @@
+{include file="pageheader.html"}
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+    .page-box {
+        width: 900px;
+        margin: auto;
+        margin-top: 50px;
+        height: auto;
+        border: 1px solid #B3B3B3;
+        border-bottom: 0 solid #B3B3B3;
+    }
+    .top-bar-one {
+        height: 35px;
+        width: 900px;
+        border-bottom: 1px solid #B3B3B3;
+    }
+    .top-bar-one>div {
+        display: inline-block;
+        height: inherit;
+        width: 345px;
+        text-align: center;
+        line-height: 35px;
+        font-size: 12px;
+    }
+    .right-border {
+        border-right: 1px solid #B3B3B3;
+    }
+
+    .top-bar-two {
+        width: inherit;
+        height: 50px;
+        border-bottom: 1px solid #B3B3B3;
+
+    }
+    .top-bar-two>.top-bar-two-item {
+        display: inline-block;
+        height: inherit;
+        width: 132px;
+        font-size: 12px;
+        text-align: center;
+        line-height: 50px;
+        float: left;
+        border-right: 1px solid #B3B3B3;
+    }
+    .red-bg {
+        background-color: #EBA09D;
+    }
+    .top-bar-two-item-1 {
+        width: 140px !important;
+    }
+    .top-bar-two-item-2 {
+        width: 146px !important;
+    }
+    .top-bar-two-item-3 {
+        width: 117px !important;
+    }
+    .no-right-border {
+        border-right: 0 !important;
+    }
+    .no-float {
+        width: 0;
+        height: 0;
+        clear: both;
+    }
+</style>
+<body>
+<div class="page-box">
+    <div class="top-bar-one">
+        <div class="top-bar-one-item right-border">
+            项目
+        </div>
+        <div class="top-bar-one-item">
+            金额
+        </div>
+    </div>
+    <div class="top-bar-one">
+        <div class="top-bar-one-item right-border">
+            公司入款
+        </div>
+        <div class="top-bar-one-item">
+            <a style='color: red' href='finance_discountcategory.shtml?inserdate={$smarty.get.inserdate}&category=1' target="_blank">{$aDiscount.company.discount}（{$aDiscount.company.user_count}）人</a>
+        </div>
+    </div>
+    <div class="top-bar-one">
+        <div class="top-bar-one-item right-border">
+            三方入款
+        </div>
+        <div class="top-bar-one-item">
+            <a style='color: red' href='finance_discountcategory.shtml?inserdate={$smarty.get.inserdate}&category=2' target="_blank">{$aDiscount.fastpay.discount}（{$aDiscount.fastpay.user_count}）人</a>
+        </div>
+    </div>
+    <div class="top-bar-one">
+        <div class="top-bar-one-item right-border">
+            存款存入
+        </div>
+        <div class="top-bar-one-item">
+            <a style='color: red' href='finance_discountcategory.shtml?inserdate={$smarty.get.inserdate}&category=3' target="_blank">{$aDiscount.deposit.discount}（{$aDiscount.deposit.user_count}）人</a>
+        </div>
+    </div>
+    <div class="top-bar-one">
+        <div class="top-bar-one-item right-border">
+            优惠活动
+        </div>
+        <div class="top-bar-one-item">
+            <a style='color: red' href='finance_discountcategory.shtml?inserdate={$smarty.get.inserdate}&category=4' target="_blank">{$aDiscount.activity.discount}（{$aDiscount.activity.user_count}）人</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

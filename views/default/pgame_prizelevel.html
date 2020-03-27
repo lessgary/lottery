@@ -1,0 +1,447 @@
+{include file="pageheader.html"}
+{insert_scripts files="jquery.js"}
+<head>
+<style type="text/css">
+ #table_list_2{
+     border:1px solid #e7eaec;  
+     width:100%;
+ }
+#table_list_2 tr th{
+    text-align:center;
+    background-color: #f3f3f4;
+ } 
+#table_list_2 tr {
+    text-align:center;
+
+ } 
+#table_list_2 tr td {
+    height: 40px;
+    text-align:center;
+ }
+#table_list_2 tr td input {
+    width: 50%;
+    margin:auto;
+ }
+/* table tbody {
+     display:block;
+     height:600px;
+     overflow:auto;
+ }
+
+ table thead, tbody tr,table tfoot{
+     display:table;
+     width:100%;
+     table-layout:fixed;
+ }
+
+ table thead,table tfoot{
+     width: calc( 100% - 1em )
+ }
+ table thead th{ background:#ccc;}*/
+ </style>
+</head>
+<script>
+    $(document).ready(function() {
+            jQuery("#methodids").click(function(){
+                $(":checkbox[class='methodid_box']").attr("checked",jQuery("#methodids").attr("checked"));
+            });
+
+
+            /*最低奖金全选*/
+            jQuery("#min_price_box").click(function(){
+                $(":checkbox[class='min_price']").attr("checked",jQuery("#min_price_box").attr("checked"));
+            });
+
+
+            $('.min_pirce_text').bind('blur', function(){
+                if(!$(this).val() || isNaN($(this).val())) {
+                    return false;
+                }
+                if (!/^\d{1,10}(\.\d{1,3})?$/.test($(this).val())) {
+                    layer.msg('最多保留小数点后3位');
+                    return false;
+                }
+                $(":checkbox[class='min_price'][checked]").parent("td").next("td").find("input").val($(this).val());
+            });
+
+            /*最高返点全选*/
+            jQuery("#max_price_box").click(function(){
+                $(":checkbox[class='max_price']").attr("checked",jQuery("#max_price_box").attr("checked"));
+            });
+
+            $('.max_pirce_text').bind('blur', function(){
+
+                if(!$(this).val() || isNaN($(this).val())) {
+                    return false;
+                }
+                if (!/^\d{1,10}(\.\d{1,3})?$/.test($(this).val())) {
+                    layer.msg('最多保留小数点后3位');
+                    return false;
+                }
+                function fixZero(value) {
+                    value = String(value || '');
+                    var arr = value.split('.');
+                    if (arr[0] == '') {
+                        arr[0] = 0;
+                    }
+                   arr[1] = arr[1] || '';
+                    for (var i = arr[1].length; i <3; i ++) {
+                        arr[1] += '0';
+                    }
+                    return arr.join('.')
+                }
+                var maxPirce = $(this);
+                $(":checkbox[class='max_price'][checked]").parent("td").next("td").find("input").val($(this).val());
+                $(":checkbox[class='max_price'][checked]").each(function () {
+                    var totalprofit = parseFloat($(this).parent().prev().find('span').text());
+                    var lastprofit = totalprofit * 10000-parseFloat(maxPirce.val()) * 10000;
+                    lastprofit = lastprofit/10000;
+                    lastprofit = lastprofit.toFixed(3);
+                    if (lastprofit <= 0) {
+                        $(this).parent("td").next("td").next('td').next('td').find("input").val(fixZero(lastprofit)).parent("td").css("background-color","red");
+                    } else {
+                        $(this).parent("td").next("td").next('td').next('td').find("input").val(fixZero(lastprofit)).parent("td").css("background-color","white");
+                    }
+                })
+
+
+            });
+            /**
+             * zu
+             * */
+            jQuery(":input").change();//数据默认加载
+
+        });
+
+        function changepoint(methodid,level) {
+             var lastprofit=jQuery("#lastprofit_"+methodid+"_"+level).val();
+              if(lastprofit <= 0) {
+               
+                jQuery("#lastprofit_"+methodid+"_"+level).parent("td").css("background-color","red");
+                return false;
+            }else{
+                jQuery("#lastprofit_"+methodid+"_"+level).parent("td").css("background-color","white");
+            }
+            //如果有改变调整颜色
+            var userpoint=jQuery("#userpoint_"+methodid+"_"+level).val();
+            if(userpoint<0) {
+                layer.msg('最高返点不能小于0');
+                return false; 
+            }
+            var fixvalue = jQuery("#userpoint_"+methodid+'_'+level).attr("fixvalue");
+            if (!/^\d{1,10}(\.\d{1,3})?$/.test( userpoint ) ) {
+                jQuery("#userpoint_"+methodid+'_'+level).val(fixvalue);
+                  layer.msg('最多保留小数点后3位');
+                  return false; 
+               }
+            isChange(methodid,level,userpoint,fixvalue);
+        }
+        //公司抽水和最高奖金计算  
+        function fandian( methodid,level,type){
+            var userpoint=jQuery("#userpoint_"+methodid+"_"+level).val();
+            if(userpoint=="" ){//当前总代玩法返点设置
+                userpoint =0.00;
+                jQuery("#userpoint_"+methodid).val("0.00");
+            }
+            if(userpoint<0) {
+                layer.msg('最高返点不能小于0');
+                return false; 
+            }
+             totalprofit = jQuery("#totalprofit_"+methodid+'_'+level).html();
+             x=totalprofit-userpoint;
+             if(x.toFixed(3) <= 0) {
+                 jQuery("#lastprofit_"+methodid+"_"+level).parent("td").css("background-color","red");
+             }
+            jQuery("#lastprofit_"+methodid+'_'+level).val(x.toFixed(3));
+            jQuery("#lastprofit_"+methodid+'_'+level).attr("fixvalue",x.toFixed(3));
+            //计算最高奖金
+            var total =jQuery("#totalmoney_"+methodid).val();
+            var no_count=jQuery("#nocount_"+methodid+"_"+level).val();
+            var prize=jQuery("#prize_"+methodid+"_"+level).val();
+            var y = parseFloat(total/no_count*userpoint)+parseFloat(prize);
+            jQuery("#biggestPrize_"+methodid+'_'+level).val(y.toFixed(3));
+            jQuery("#biggestPrize_"+methodid+'_'+level).attr("fixvalue",y.toFixed(3));
+        }
+        //返点/最高奖金计算  
+        function choushui( methodid,level,type){
+            var lastprofit=jQuery("#lastprofit_"+methodid+"_"+level).val();
+            totalprofit = jQuery("#totalprofit_"+methodid+'_'+level).html();
+            x=totalprofit-lastprofit;
+            if(x <0 || lastprofit < 0) {
+                layer.alert("公司抽水不能小于0"); return false;
+            }
+            jQuery("#userpoint_"+methodid+'_'+level).val(x.toFixed(3));
+            //计算最高奖金
+            var total =jQuery("#totalmoney_"+methodid).val();
+            var userpoint=jQuery("#userpoint_"+methodid+"_"+level).val();
+            var no_count=jQuery("#nocount_"+methodid+"_"+level).val();
+            var prize=jQuery("#prize_"+methodid+"_"+level).val();
+            var y = parseFloat(total/no_count*userpoint)+parseFloat(prize);
+            jQuery("#biggestPrize_"+methodid+'_'+level).val(y.toFixed(3));
+            var fixvalue = jQuery("#lastprofit_"+methodid+'_'+level).attr("fixvalue");
+            isChange(methodid,level,lastprofit,fixvalue);//如果有改变调整颜色
+        }
+        //改变最低奖金计算最高返点  最高返点=1-（最低奖金/全包金额+公司抽水）
+        function changelowprize(methodid,level) {
+            var total =jQuery("#totalmoney_"+methodid).val();
+            var totalprofit = jQuery("#totalprofit_"+methodid+'_'+level).html();
+            var no_count=jQuery("#nocount_"+methodid+"_"+level).val();
+            var userpoint=jQuery("#userpoint_"+methodid+"_"+level).val();
+            var prize = jQuery("#prize_"+methodid+"_"+level).val();
+            if (!/^\d{1,10}(\.\d{1,3})?$/.test( prize ) ) {
+                jQuery("#prize_"+methodid+'_'+level).val(fixvalue);
+                  layer.msg('最多保留小数点后3位');
+                  return false; 
+               }
+            var biggestprize = parseFloat(total/no_count*userpoint)+parseFloat(prize);
+            var lastprofit = totalprofit- userpoint;
+            var fixvalue = jQuery("#prize_"+methodid+'_'+level).attr("fixvalue");
+            jQuery("#lastprofit_"+methodid+"_"+level).val(lastprofit.toFixed(3));
+            if(lastprofit <= 0) {
+                layer.msg("公司抽水不能小于0");
+                 jQuery("#lastprofit_"+methodid+"_"+level).parent("td").css("background-color","red");
+                return false;
+            } else {
+                 jQuery("#lastprofit_"+methodid+"_"+level).parent("td").css("background-color","white");
+            }
+             jQuery("#biggestPrize_"+methodid+'_'+level).val(biggestprize.toFixed(3));
+            //jQuery("#userpoint_"+methodid+'_'+level).val(userpoint.toFixed(3));
+            isChange(methodid,level,prize,fixvalue);//如果有改变调整颜色 
+        }
+
+
+
+
+    /*
+ *  四种模式  计算总利润
+ *    A:单奖级模式,直接计算
+ *    B:奖金不累加
+ *    C:奖金累加型
+ *    D:返奖率累加
+ * param methodid 玩法id
+ * param mode type '奖级类别[1:单奖级,2:奖金累加型(兼中兼得),3:奖金不累加型,4:返奖率累加]',
+ * param level 奖级等级
+ * param totallevel 奖级个数
+ */
+    function jisuan(methodid,mode,level,totallevel){
+        var total =jQuery("#totalmoney_"+methodid).val();
+         val = jQuery("#prize_"+methodid+"_"+level).val();
+            if(val==""){
+                jQuery("#prize_"+methodid+"_"+level).val('0.00');
+                val ="0.00";
+            }
+            t = jQuery("#nocount_"+methodid+"_"+level).val();
+            x = (total -val*t)/total;
+            jQuery("#totalprofit_"+methodid+"_"+level).html(x.toFixed(3));
+        //jQuery("#userpoint_"+methodid+"_"+level).change();
+    }
+    /**
+     * desc 最高奖金变动
+     * 全包成本/转直注数*最高返点+最低奖金
+     * 改变最高奖金计算公司抽水
+     * 公司抽水=1-最高奖金/全包金额
+     */
+    function changeBigestPrize(obj,total,methodid,level,prize,no_count){
+        var biggestPrize = obj.val();
+        var total =jQuery("#totalmoney_"+methodid).val();
+        var no_count=jQuery("#nocount_"+methodid+"_"+level).val();
+        lastprofit = 1- biggestPrize/(total/no_count);
+        var prize=jQuery("#prize_"+methodid+"_"+level).val();
+        var fixvalue = jQuery("#biggestPrize_"+methodid+'_'+level).attr("fixvalue");
+        if(lastprofit < 0 || biggestPrize <= prize ) {
+            jQuery("#biggestPrize_"+methodid+'_'+level).val(fixvalue);
+            layer.msg("最高奖金设置不合理"); 
+            return false;
+        }
+        
+        jQuery("#lastprofit_"+methodid+'_'+level).val(lastprofit.toFixed(3));
+        
+        isChange(methodid,level,biggestPrize,fixvalue);
+    }
+    var isChange = function(methodid , level ,val ,fixval){
+        if(val != fixval){
+
+            jQuery("#prize_"+methodid+'_'+level).css("background-color","#eee")
+            jQuery("#userpoint_"+methodid+'_'+level).css("background-color","#eee")
+            //jQuery("#biggestPrize_"+methodid+'_'+level).css("background-color","#eee")
+        }else{
+            jQuery("#prize"+methodid+'_'+level).css("background-color","white")
+            jQuery("#userpoint_"+methodid+'_'+level).css("background-color","white")
+            //jQuery("#biggestPrize_"+methodid+'_'+level).css("background-color","white")
+        }
+    }
+
+</script>
+<body class="white-bg">
+    <div class="ibox-content">
+        <form role="form" class="form-inline" action="" method="get" id="subbox">
+                <div class="form-group">
+                <label >游戏 ：</label>
+
+                   <select class="form-control" name="id">
+                   {foreach from=$lotterylist item=info}
+                       <option value="{$info.lvtop_lottery}" {if $info.lvtop_lottery==$iLvtopLottery}selected{/if}>{$info.cnname}</option>
+                    {/foreach}
+                   </select>
+                 </div>
+                <div class="form-group">
+                <!-- <label >基数设置</label>
+                   <input type="text" placeholder="" id="value_1" name="username" value="" class="form-control">
+                 </div> -->
+            <button class=" btn   btn-primary" type="submit">确定</button>
+        </form>
+    </div>
+    <form role="form" class="form-inline" action="pgame_editprize.shtml" method="POST" id="prize_form" onsubmit="return false;" >
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <input type="hidden" name="pgid" id="pgid" value="{$pgid}">
+                            <table id="table_list_2" class="tb_table" cellspacing="0"  border="1px"  >
+                                <thead>
+                                    <tr height="40px" width="100%">
+                                        <th>玩法组</th>
+                                        <th>玩法名称</th>
+                                        <th>奖金等级</th>
+                                        <th>修改确认</th>
+                                        <th>最低奖金</th>
+                                        <th>总利润</th>
+                                        <th>修改确认</th>
+                                        <th>最高返点</th>
+                                        <th>最高奖金</th>
+                                        <th>公司抽水</th>
+                                        <th>保存确认</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {foreach from=$amethod item=crowd key=k}
+                                <tr>
+                                    <td rowspan="{$crowd.count}" >   <!--玩法群名称-->
+                                        <b>{$crowd.crowdname}</b>
+                                    </td>
+                                    {foreach from=$crowd.method item=method key=l}
+                                    <td  rowspan="{$method.count}" > <!--玩法名称-->
+                                        {$method.methodname}
+                                    </td>
+                                        {foreach from=$method.nocount item=no key=k2}
+
+
+                                            <td>{$no.name}</td>  <!--奖金等级-->
+                                            <td>
+                                                <input type="checkbox" value='prize_{$method.methodid}_{$k2}' class="min_price" name="min_price">
+                                            </td><!--修改确认-->
+                                           <!--最低奖金-->
+                                            <td><input type="text" name="prize[{$method.methodid}][{$k2}]" id="prize_{$method.methodid}_{$k2}" value="{$prizelevel.prize.$method.methodid.$k2}"  fixvalue="{$prizelevel.prize.$method.methodid.$k2}" onchange="jisuan({$method.methodid},{$method.type},{$k2},{$method.level});" onblur="changelowprize({$method.methodid},{$k2});" class="form-control min_price_text_box"></td>
+                                            <td> <span  id="totalprofit_{$method.methodid}_{$k2}"></span></td>
+
+                                    <td>    <!--修改确认-->
+                                        <input type="checkbox"  class="max_price" name="max_price" value="userpoint_{$method.methodid}_{$k2}">
+                                    </td>
+
+                                             <!--最高返点-->
+                                            <td>
+                                            <input type="text" name="userpoint[{$method.methodid}][{$k2}]" id="userpoint_{$method.methodid}_{$k2}" value="{$prizelevel.userpoint.$method.methodid.$k2|default:0.000|escape:money:3}" onblur="changepoint({$method.methodid},{$k2});" onchange="fandian({$method.methodid},{$k2},{$method.type});" fixvalue="{$prizelevel.userpoint.$method.methodid.$k2|default:0.000|escape:money:3}" class="form-control max_price_text_box">
+                                            </td>
+                                            <!--最高奖金-->
+                                            <!-- onblur="changeBigestPrize($(this),{$method.totalmoney},{$method.methodid},{$k2},{$prizelevel.prize.$method.methodid.$k2},{$no.count})" -->
+                                            <td>
+                                            <input type="text"  disabled="true" name="biggestprize[{$method.methodid}][{$k2}]" id="biggestPrize_{$method.methodid}_{$k2}"   value="" class="form-control">
+                                            </td>
+                                           
+                                               <!--公司抽水-->
+                                            <td align="center">
+                                            <input type="text" disabled="true" name="lastprofit[{$method.methodid}][{$k2}]" id="lastprofit_{$method.methodid}_{$k2}" onblur="choushui({$method.methodid},{$k2},{$method.type});" class="form-control" value=""  fixvalue="">
+                                           
+                                            </td>
+                                            <td>
+                                            <input type="checkbox" class="methodid_box" name="methodid[{$method.methodid}][{$k2}]" value="[{$method.methodid}][{$k2}]">
+                                            <input type="hidden" id="totalmoney_{$method.methodid}" value="{$method.totalmoney}">
+                                            <input type="hidden" id="nocount_{$method.methodid}_{$k2}" value="{$no.count}">
+                                            </td>
+                                </tr>
+                                        {/foreach}
+                                    {/foreach}
+                               {/foreach}
+
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <!--最小奖金全选-->
+                                    <th>全部设定</th>
+                                    <th></th>
+                                    <th></th>
+                                    <th><label>全选 <input type="checkbox" id="min_price_box">&nbsp;</label></th>
+                                    <th>
+                                        <input type="text"  style='width:50%' class="min_pirce_text form-control">
+                                    </th>
+                                    <th></th>
+
+
+                                    <th><label>全选 <input type="checkbox" id="max_price_box">&nbsp;</label></th>
+                                    <th>
+                                        <input type="text" style='width:50%' class="max_pirce_text form-control">
+                                    </th>
+                                    <th></th>
+                                    <th></th>
+                                    <th  align="left" ><label>全选 <input type="checkbox" id="methodids">&nbsp;</label></th>
+                                 
+                                </tr>
+
+                                <tr ><td colspan="11"><input  class="btn btn-primary" id="prizeformbtn" type="submit" value="保存"></td></tr>
+                                </tfoot>
+                            </table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</body>
+<script type="text/javascript">
+    $("#prizeformbtn").click(function(){
+            var postData = {};
+            $("input:checked").each(function(i,n){
+            var k =$(":input[name='userpoint"+n.value+"']").attr("name");
+            var v =$(":input[name='userpoint"+n.value+"']").val();
+            var prize =$(":input[name='prize"+n.value+"']").attr("name");
+            var prizev =$(":input[name='prize"+n.value+"']").val();
+            var lastk =$(":input[name='lastprofit"+n.value+"']").attr("name");
+            var lastv =$(":input[name='lastprofit"+n.value+"']").val();
+            postData[k] = v;
+            postData[prize] = prizev;
+            postData[lastk] = lastv;
+        });
+        /*for(var k in postData){
+             if(postData[k] < 0){
+                layer.alert("最高返点和公司抽水不能小于0");
+                return false;
+             }
+        }*/
+        postData['pgid'] = $("#pgid").val();
+        $.ajax({
+                url:"pgame_editprize.shtml",
+                type: "POST",
+                data:postData, 
+                success: function(data){
+                    var data = eval("("+data+")");
+                    if(data.code == 0){
+                        layer.alert(data.msg);
+                    }else{
+                        layer.alert(data.msg,function(){
+                            layer.closeAll()
+                        });
+                    
+                    }
+                }
+        });
+    });
+   
+  
+    
+</script>
+
+</html>

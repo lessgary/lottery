@@ -1,0 +1,126 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div class="form-group">
+            <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+            日期:
+            <input name="starttime" class="form-control layer-date" value="{if isset($smarty.get.sdate)}{$smarty.get.sdate}{else}{$sdate}{/if}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+            ~
+            <input name="endtime" class="form-control layer-date" value="{if isset($smarty.get.edate)}{$smarty.get.edate}{else}{$edate}{/if}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+
+        <div class="form-group">
+            <label class="sr-only">登入信息</label>
+            登入信息
+            <select class="form-control" id="login_type" name="login_type">
+                <option value="-1" {if isset($smarty.get.login_type) && $smarty.get.login_type =="-1"}selected{/if}>全部</option>
+                <option value="0" {if isset($smarty.get.login_type) && $smarty.get.login_type =="0"}selected{/if}>登入成功</option>
+                <option value="4" {if isset($smarty.get.login_type) && $smarty.get.login_type =="4"}selected{/if}>注册成功</option>
+                <option value="1" {if isset($smarty.get.login_type) && $smarty.get.login_type =="1"}selected{/if}>密码错误</option>
+                <option value="2" {if isset($smarty.get.login_type) && $smarty.get.login_type =="2"}selected{/if}>登陆冻结账号</option>
+                <option value="3" {if isset($smarty.get.login_type) && $smarty.get.login_type =="3"}selected{/if}>其他错误</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">搜索类型</label>
+            <select class="form-control" id="search_type" name="search_type">
+                <option value="1" {if isset($smarty.get.search_type) && $smarty.get.search_type =="1"}selected{/if}>用户名</option>
+                <option value="2" {if isset($smarty.get.search_type) && $smarty.get.search_type =="2"}selected{/if}>IP地址</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">关键字</label>
+            <input type="text"  name="keyword" class="form-control" value="<?php if(!empty($_GET['keyword'])) echo $_GET['keyword']; ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">稽查</label>
+            <input type="checkbox" name="is_check" id="is_check" {if isset($smarty.get.is_check) && $smarty.get.is_check=="1"}checked{/if}>
+            稽查
+        </div>
+
+        <button class="fm-button btn btn-primary fm-button-icon-right ui-search" type="submit">查询</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list"></table><!--初始化表格必须-->
+                        <div id="page_list"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list").jqGrid({
+            //表格头
+            colNames:["编号","用户名","登入信息" ,"IP地址","位置","访问网址","登入日期"],
+            //表格内容
+            colModel:[
+                {name:"entry",index:"entry",editable:false,sortable:false},
+                {name:"username",index:"username",editable:false,sortable:false},
+                {name:"loginmessage",index:"loginmessage",editable:false,sortable:false},
+                {name:"clientip",index:"clientip",editable:false,sortable:false},
+                {name:"area",index:"area",editable:true,sortable:false},
+                {name:"querystring",index:"querystring",editable:true,sortable:false},
+                {name:"times",index:"times",editable:true,sortable:false}
+            ],
+            //data:mydata,
+            height:450, //默认高度
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:10,       //每页展示的记录数
+            rowList:[10,50,100,150,200,500], //每页展示的记录数
+            pager:"#page_list",
+            viewrecords:true,
+            mtype: "post",
+            datatype: 'json',
+            beforeRequest: function() {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                // 处理 checkbox
+                if ($("#is_check").is(":checked")) {
+                    postData.is_check = 'on';
+                } else {
+                    postData.is_check = '';
+                }
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list").jqGrid("setGridParam", {page: 1,datatype: 'json'}).trigger('reloadGrid');
+
+            return false;
+        });
+    });
+</script>
+</body>
+
+
+</html>

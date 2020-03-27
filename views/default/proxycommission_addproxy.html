@@ -1,0 +1,236 @@
+{include file="pageheader.html"}
+<link href="css/plugins/chosen/chosen.css?id=4" rel="stylesheet">
+
+<style>
+    .search {
+        padding: 6px 12px;
+        width: 75%;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background-color: #FFF;
+        background-image: none;
+        color: inherit;
+        font-size: 14px;
+    }
+    .form-group .readonly {
+        background-color: #eee;
+        opacity: 1;
+    }
+</style>
+<body class="gray-bg">
+<div class="row">
+    <div class="col-sm-6" style="width: 100%">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form role="form" id="addForm">
+                    <div class="form-group">
+                        <label>代理账号：</label>
+                        <br>
+                        <select name="userId" class="form-control chosen-select1" style="width: 258px">
+                            <option value="">请选择代理</option>
+                            {foreach from=$proxy item=domains key=k}
+                            <option value={$domains.userid}>{$domains.username}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>绑定域名：</label>
+                        <div class="input-group">
+                            <select name="domain" id="domain" class="form-control chosen-select1" style="width: 258px">
+                                <option value="">不绑定域名</option>
+                                {foreach from=$aDomains item=domains key=k}
+                                <option value={$domains.domain}>{$domains.domain}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>显示邀请码：</label>
+                        <select id="isShowCode" name="isShowCode" class="form-control">
+                            <option value="0">不显</option>
+                            <option value="1">显示</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>开户类型：</label>
+                        <select id="userType" name="userType" class="form-control">
+                            <option value="0">会员</option>
+                            <option value="1">代理</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>推广链接返点设置：</label>
+                        <select id="point" name="point" class="form-control">
+                            <option value="0" selected="selected">请选择返点等级</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>备注：</label>
+                        <input id="remarks" name="remarks" type="text"  value="" class="form-control">
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-primary" id="addSubmit"  type="submit">新增</button>
+                        <button class="btn btn-primary" id="addproxy-cancel" type="submit">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/plugins/validate/jquery.validate.min.js"></script>
+<script src="js/plugins/validate/messages_zh.min.js"></script>
+<script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+<script type="text/javascript">
+    $(".chosen-select1").chosen({no_results_text: "未找到",search_contains:true});
+    $.searching = false;
+    $().ready(function() {
+        $('#addproxy-cancel').click(function () {
+            parent.layer.closeAll();
+        });
+        $("#addSubmit").click(function(){
+            var postData = {};
+            $.each($("#addForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                type: "POST",
+                url:"",
+                data:postData,
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    layer.msg(data.msg,{
+                        time: 1500, //自动关闭时间
+                    },function () {
+                        if(data.code == 0){
+                            parent.layer.closeAll();
+                        }else{
+                            layer.closeAll();
+                        }
+                        $("#table_list_2").trigger('reloadGrid');
+                    });
+                }
+            });
+            return false;
+        });
+        var flag=true;
+        var timeout=0;
+        var username;
+        $('.chosen-search>input').on('compositionstart',function(){
+            flag = false;
+        })
+        $('.chosen-search>input').bind("input propertychange",function () {
+            clearTimeout(timeout);
+            username = $('.chosen-search>input').eq(0).val();
+            timeout = setTimeout(function () {
+                $('.chosen-search>input').on('compositionstart',function(){
+                    flag = false;
+                })
+                $('.chosen-search>input').on('compositionend',function(){
+                    flag = true;
+                })
+                if (!flag || username=='') {
+                    return false;
+                }
+                $.ajax({
+                    url:"",
+                    type:'POST',
+                    dataType:'json',
+                    data:{
+                        getproxy:'1',
+                        username:username,
+                    },
+                    success: function (data){
+                        var  html = '<option value=""></option>';
+                        if (data.code === 1) {
+                            $.each(data.msg,function (key,val) {
+                                html += '<option value="' + val.userid + '">'+ val.username +'</option>'
+                            })
+                        } else {
+                            html = '<option value="">未找到</option>'
+                        }
+                        $("select[name='userId']").html(html);
+                        $(".chosen-select1").trigger("chosen:updated");
+                        $('.chosen-search>input').eq(0).val(username);
+                    }
+                });
+            },300);
+        });
+
+    });
+
+    //选择代理账号后 发送一个ajax获取返点数据
+    $("select[name='userId']").change(function () {
+            editUserid($(this).val());
+    });
+
+    function editUserid(userid) {
+        $.ajax({
+            type: "POST",
+            dataType:"json",
+            url:"proxycommission_getpoint.shtml",
+            data:{"userid":userid},
+            success: function(data) {
+                $("#point").empty();
+                $.each(data,function () {
+                    $("#point").append("<option value='"+this.val+"'>"+this.str+"</option>");
+                });
+            }
+        });
+    }
+
+    $('#search').click(function(){
+        if ($.searching) {
+            layer.alert('正在努力加载，请勿重复点击！');
+            return;
+        }
+
+        if (2 == $(this).val()) {
+            $('#key_word').removeClass('readonly').removeAttr('readonly').val('').focus();
+            $(this).val(1).text('搜索');
+            $('#userId').val('');
+            $("#point").empty().append('<option value="0" selected="selected">请选择返点等级</option>');
+            return;
+        }
+
+        var key_word = $('#key_word').val();
+        $('#userId').val('');
+        if (!key_word) {
+            layer.alert('请输入一级、二级代理用户账号', function(index){
+                layer.close(index);
+                $('#key_word').val('').focus();
+            });
+            return;
+        }
+
+        $.searching = true;
+        $.ajax({
+            type : "post",
+            dataType : 'json',
+            url : 'proxycommission_addproxy.shtml',
+            data : {'username':key_word, 'is_search':'yes'},
+            success : function (data) {
+                $.searching = false;
+                layer.msg(data.msg,{
+                    time: 1500, //自动关闭时间
+                });
+                if (data.code === 0) {
+                    $('#userId').val(data.user_id);
+                    editUserid(data.user_id);
+                    $('#key_word').attr('readonly', 'readonly').addClass('readonly');
+                    $('#search').text('修改').val(2);
+                } else {
+                    $('#key_word').focus();
+                }
+            },
+            error : function() {
+                $.searching = false;
+            }
+        });
+    });
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

@@ -1,0 +1,896 @@
+{include file="pageheader.html"}
+<link href="http://g.alicdn.com/sj/dpl/1.5.1/css/sui.min.css" rel="stylesheet">
+<link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+<link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+<link href="css/plugins/chosen/chosen.css" rel="stylesheet">
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+<script type="text/javascript" src="http://g.alicdn.com/sj/dpl/1.5.1/js/sui.min.js"></script>
+<style>
+    .col-md-2 {
+        margin-right: -15px;
+        width: 138px
+    }
+    .chosen-container-single .chosen-single{
+        background: #fff;
+        line-height: 32px;
+        border-radius: 4px;
+        border-color: #ccc;
+    }
+</style>
+<body class="gray-bg">
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div class="form-group">
+            <label for="">状态</label>
+            <select class="form-control" name="status">
+                <option value="-1">全部</option>
+                <option value="1">启用</option>
+                <option value="2">停用</option>
+            </select>
+        </div>　
+        <div class="form-group">
+            <label for="">三方类型</label>
+            <select class="form-control" name="account_type">
+                <option value="-1">全部</option>
+                <option value="0">入款</option>
+                <option value="1">出款</option>
+            </select>
+        </div>　
+        <div class="form-group">
+            <label for="">支付类型</label>
+            <select name="paytypeid" id="" class="form-control">
+                <option value="-1">全部</option>
+                {foreach from=$pay_type item = value}
+                <option value="{$value.id}">{$value.name}</option>
+                {/foreach}
+            </select>
+        </div>
+        <div class="form-group">
+            三方公司:<input type="text" placeholder="请输入三方公司名" name="company_name" id="company_name" class="form-control"
+                        value="">
+        </div>
+        <button class="btn  btn-primary mgl15" type="submit">查询</button>
+        <a onclick="addlayer(0)" class="btn  btn-primary mgl15">新增入款</a>
+        <a onclick="addlayer(1)" class="btn  btn-primary mgl15">新增出款</a>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list" class="text-center"></table><!--初始化表格必须-->
+                        <div id="page_list"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="ibox-content" id="box_add" style="display: none">
+    <form method="post" class="form-horizontal" action="" id="box_add_form" enctype='multipart/form-data'>
+        <div class="form-group" id="layers">
+            <div class="col-sm-12">
+
+                <label class="checkbox-inline">
+                    <input type="checkbox" value="value" class="select_all">全部层级
+                </label>
+                <div class="hr-line-dashed"></div>
+
+                <div class = 'controls-wrap'>
+                    {foreach from=$layer_list item=item}
+                    <label class="checkbox-inline">
+                        <input type="checkbox" value="{$item.layerid}" name="user_layerids[]" class="user_layer">{$item.name}
+                    </label>
+                    {/foreach}
+                    <style>
+                        .user_layer_1 {
+                            height: 0px;
+                            width: 0px;
+                        }
+                    </style>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" value="-1" name="user_layerids[]" class="user_layer_1">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="hr-line-dashed"></div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">三方公司</label>
+            <div class="col-sm-10">
+                <select class="form-control m-b chosen-select" name="companyid" id="companyid">
+                    {foreach from=$pay_company item=value}
+                    <option value="{$value.id}">{$value.cnname}</option>
+                    {/foreach}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" id="paytype">
+            <label class="col-sm-2 control-label">支付类型</label>
+            <div class="col-sm-10">
+                <select class="form-control m-b" name="paytypeid" id="paytypeid">
+                </select>
+            </div>
+        </div>
+        <div class="form-group" id="isshowmobile">
+            <label class="col-sm-2 control-label">是否移动端显示</label>
+            <div class="col-sm-10">
+                <input type="radio"  name="isshowmobile" value="1"> 否
+                <input type="radio" checked="checked" name="isshowmobile" value="0"> 是
+            </div>
+        </div>
+        <div class="form-group" id="ispoint">
+            <label class="col-sm-2 control-label">小数点</label>
+            <div class="col-sm-10">
+                <input type="radio" name="ispoint" value="1"> 自动添加
+                <input type="radio" name="ispoint" checked="checked" value="0"> 不添加
+            </div>
+        </div>
+        <div class="form-group" id="use_set">
+            <label class="col-sm-2 control-label">入款类型</label>
+            <div class="col-sm-10">
+                <input type="radio" checked="checked" name="use_set" value="0"> 范围金额入款
+                <input type="radio"  name="use_set" value="1"> 固定金额入款
+            </div>
+        </div>
+
+        <div id="scope_use_set">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">最小限额</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="min_deposit">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">最大限额</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="max_deposit">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" id="fixation_use_set">
+            <label class="col-sm-2 control-label">固定金额</label>
+            <div id="amount_set">
+                <div class="col-md-2 amount_set">
+                    <input type="text" class="form-control amount_set_val" name="amount_set[]">
+                </div>
+            </div>
+            <button class="btn btn-primary dim increaseAmount_set" style="height: 30px;margin-left: 14px;outline: none;margin-right: -4px;" type="button"
+                    onclick="increaseAmount_set()">
+                <i class="fa fa-plus"></i>
+            </button>
+            <button class="btn btn-danger dim deleteAmount_set" style="height: 30px;outline: none;margin-left: 15px" onclick="deleteAmount_set()"
+                    type="button">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">额度</label>
+
+            <div class="col-sm-10 nickname">
+                <input type="text" class="form-control" name="quota" id="quota">
+            </div>
+        </div>
+        <input type="hidden" class="form-control"  name="current_quota" id="current_quota">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">商户代称</label>
+
+            <div class="col-sm-10 nickname">
+                <input type="text" class="form-control" name="nickname" id="nickname">
+                <div id="tsnickname">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">商户号</label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="merchantid">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">商户秘钥</label>
+
+            <div class="col-sm-10">
+                <!--<input type="text" class="form-control" name="key">-->
+                <textarea name="key" id="key" cols="95" rows="10"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">三方公钥</label>
+
+            <div class="col-sm-10">
+                <!--<input type="text" class="form-control" name="pubkey">-->
+                <textarea name="pubkey" id="pubkey" cols="95" rows="10"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label">支付域名</label>
+
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="redirecturl">
+            </div>
+        </div>
+
+        <!--<div class="form-group">-->
+            <!--<label class="col-sm-2 control-label">支付顺序</label>-->
+
+            <!--<div class="col-sm-10">-->
+                <!--<input type="text" class="form-control" name="seq">-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="form-group" id="status">
+            <label class="col-sm-2 control-label">状态</label>
+            <div class="col-sm-10">
+                <select class="form-control m-b" name="status">
+                    <option value="1">启用</option>
+                    <option value="2" selected>停用</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-4 col-sm-offset-2">
+                <input type="hidden" name="id">
+                <button class="btn btn-primary" type="button" id="submit" onclick="formEditSubmit()" >保存</button>
+                <button class="btn btn-white" type="button" onclick="closeAll()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(".chosen-select").chosen({no_results_text: "未找到",search_contains:true,width:"100%"});
+    $("#nickname").blur(function () {
+        var data = {};
+        data['nickname'] = $(this).val();
+        var id = $('#box_add').find("input[name='id']").val();
+        data['id'] = id ? id :0;
+        if (data['nickname'] != ""){
+             $.ajax({
+                type: 'POST',
+                url: 'tripartite_add.shtml?check_unique=1',
+                data: data,
+                dataType:'json',
+                async: false,
+                success: function (data){
+                    if ('error' in data) {
+                        if (data['error'] === 1) {
+                            $("#tsnickname").html(' ')
+                        }else {
+                            $("#tsnickname").html('<div class="sui-msg msg-error help-inline"><div class="msg-con"><span>商户代称已经存在！</span></div><i class="msg-icon"></i></div>')
+                        }
+                    } else {
+                        layer.alert(data);
+                    }
+                }
+            });
+        }
+    });
+
+    !function($){
+        // 表单校验
+        // var unique = function (value, element, param) {
+        //     var data = {};
+        //     data[param] = value;
+        //     var is_unique = false;
+        //     var id = $('#box_add').find("input[name='id']").val();
+        //     data['id'] = id ? id :0;
+        //     $.ajax({
+        //         type: 'POST',
+        //         url: 'tripartite_add.shtml?check_unique=1',
+        //         data: data,
+        //         dataType:'json',
+        //         async: false,
+        //         success: function (data){
+        //             if ('error' in data) {
+        //                 if (data['error'] === 1) {
+        //                     is_unique = true;
+        //                 }
+        //             } else {
+        //                 layer.alert(data);
+        //             }
+        //         }
+        //     });
+        //     return is_unique;
+        // };
+        // jQuery.validate.setRule('unique', unique, 'unique');
+
+        // 表单校验
+        var url = function (value, element, param) {
+            value = $.trim(value);
+            if ('' === value) {
+                return true;
+            }
+            var rule = /^http(s)?:\/\/([\w-]+\.)+\w+/i;
+            return rule.test(value);
+        };
+        jQuery.validate.setRule('url', url, '请填写带有协议的url，支持协议：http://或者https://');
+    }(window.jQuery);
+    $(document).ready(function(){
+        $('#box_add_form').validate({
+            rules : {
+                'user_layerids[]' : {
+                    required : true
+                },
+                'companyid' : {
+                    required : true
+                },
+                'nickname' : {
+                    required : true,
+                    // unique : 'nickname'
+                },
+                'merchantid' : {
+                    required : true
+//                    unique : 'merchantid'
+                },
+                'key' : {
+                    required : function($input) {
+                        var id = $('#box_add').find("input[name='id']").val();
+                        var value = $input.val();
+                        if (id) {
+                            return true;
+                        } else if (!value) {
+                            return false;
+                        }
+                        return true;
+                    }
+                },
+                'redirecturl' : {
+                    required : true,
+                    url : true
+                }
+            },
+            messages: {
+                'user_layerids[]' : ['请至少选择一个层级'],
+                'nickname' : '商户代称已经存在！',
+                'merchantid' : '商户号已经存在！'
+            }
+        });
+
+        // 层级全选
+        $('.select_all').change(function(){
+            if ($(this).is(":checked")) {
+                $('.user_layer').prop('checked', true);
+            } else {
+                $('.user_layer').removeAttr('checked');
+            }
+        });
+
+        // 显示层级
+        function userLayer(cellValue, options, rowObject){
+            var msg  = {{foreach from = $layer_list item = item key = key}{$key}:'{$item.name}',{/foreach}};
+            var html = '';
+
+            if ('user_layerids_array' in rowObject) {
+                for (var i=0; i < rowObject.user_layerids_array.length; i++) {
+                    if (rowObject.user_layerids_array[i] in msg) {
+                        html += "<div><span>" + msg[rowObject.user_layerids_array[i]] + "</span></div>";
+                    }
+                }
+            }
+
+            return html;
+        }
+
+            // 自定义操作表格
+            function operate(cellValue, options, rowObject) {
+                var json = JSON.stringify(rowObject);
+                var html ="";
+                html += "<a title='修改'  class='mgr15' onclick='edit("+json+")'>";
+                html += "<span>修改</span></a>";
+                // html +="<button  class='btn btn-info' type='button' onclick='edit("+json+")'><i class='fa fa-paste'></i> 编辑</button>&nbsp;"
+                if(rowObject.account_type == 1) {
+                    if (rowObject.status == '1'){
+                        html += "<a title='停用'  class='mgr15 ' onclick='isSet("+json+")'>";
+                        html += "<span>停用</span></a>";
+                        // html +="<button  class='btn btn-warning' type='button' onclick='isSet("+json+")'><i class='fa fa-times'></i> 停用</button>&nbsp;"
+                    }else if(rowObject.withdrawAcc == '1') {
+                        // html +="<button  class='btn btn-info' type='button' onclick='isSet("+json+")'><i class='fa fa-check'></i> 启用</button>&nbsp;"
+                        html += "<a title='启用'  class='mgr15' onclick='isSet("+json+")'>";
+                        html += "<span>启用</span></a>";
+                    }
+                }else {
+                    if (rowObject.status == '1'){
+                        html += "<a title='停用'  class='mgr15 ' onclick='isSet("+json+")'>";
+                        html += "<span>停用</span></a>";
+                        // html +="<button  class='btn btn-warning' type='button' onclick='isSet("+json+")'><i class='fa fa-times'></i> 停用</button>&nbsp;"
+                    }else {
+                        // html +="<button  class='btn btn-info' type='button' onclick='isSet("+json+")'><i class='fa fa-check'></i> 启用</button>&nbsp;"
+                        html += "<a title='启用'  class='mgr15' onclick='isSet("+json+")'>";
+                        html += "<span>启用</span></a>";
+                    }
+                }
+                if (rowObject.seq == '1') {
+                    html += "<a title='置顶'  class='mgr15' onclick='isUp("+rowObject.id+","+rowObject.paytypeid+",0)'>";
+                    html += "<span>置顶</span></a>";
+                }
+
+                if (rowObject.seq == '0') {
+                    html += "<a title='解除置顶'  class='mgr15' onclick='isUp("+rowObject.id+","+rowObject.paytypeid+",1)'>";
+                    html += "<span style='color: red'>解除置顶</span></a>";
+                }
+                html += "<a title='删除'  onclick='dele("+rowObject.id+")' >";
+                html += "<span>删除</span></a>";
+                // html +="<button  class='btn btn-info' type='button'  onclick='dele("+rowObject.id+")'><i class='fa fa-paste'></i> 删除</button>&nbsp;"
+
+                return html;
+            }
+        function quota(cellValue, options, rowObject) {
+            var json = JSON.stringify(rowObject);
+            var html ="";
+            html += "<span>"+rowObject.current_quota+"/"+rowObject.quota+"</span>&nbsp;&nbsp;&nbsp;";
+            html += "<a title='清零'  class='mgr15' onclick='clearQuota("+json+")'>";
+            html += "<span style='color: red'>清零</span></a>";
+            return html;
+        }
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list").jqGrid({
+                // 表格头
+                colNames:['三方类型', '商户代称', '支付类型', '三方公司', '商户号',  '启用层级',  '当前额度', '启用状态', '操作人', '操作'],
+                // 表格内容
+                colModel:[
+                    {name:"account_type",index:"account_type",formatter:'select',editoptions:{value:"0:入款;1:出款"}},
+                    {name:"nickname",index:"nickname",editable:false,sortable:false},
+                    {name:"pay_type_msg",index:"pay_type_msg",editable:false,sortable:false},
+                    {name:"pay_company_msg",index:"pay_company_msg",editable:false,sortable:false},
+                    {name:"merchantid",index:"merchantid",editable:false,sortable:false},
+                    {name:"user_layerids_msg",index:"user_layerids_msg",editable:false,sortable:false,align:'center',formatter:userLayer},
+                    {name:"quota",index:"quota",editable:false,sortable:false,formatter:quota},
+                    {name:"status_msg",index:"status_msg",editable:false,sortable:false},
+                    {name:"adminname",index:"adminname",editable:false,sortable:false},
+                    {name:"operate",index:"operate",align:'left',editable:false,sortable:false,formatter:operate}/*格式化本列为超链接*/
+                ],
+                mtype: "post",
+                datatype: 'json',
+                height:'720', //默认高度
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowList:{$page_number}, //每页展示的记录数
+                pager:"#page_list",
+                viewrecords:true
+            });
+
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list").setGridWidth(width);
+            });
+
+            //表单提交
+            $("#subbox").submit(function(){
+                var postData = {};
+                $.each($(this).serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $("#table_list").jqGrid("setGridParam", {
+                    page: 1,
+                    mtype: "post",
+                    datatype: 'json',
+                    postData: postData
+                }).trigger('reloadGrid');
+                return false;
+            });
+        });
+
+    // 预览图片弹出层
+    function showPicture(id) {
+        if (!$('#' + id).find('img').is('[src]')) {
+            return false;
+        }
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: '300px',
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: $('#' + id)
+        });
+    }
+
+    // 删除资讯
+    function dele(id){
+        layer.confirm('确定删除吗？', function(index){
+            $.ajax({
+                type: 'POST',
+                url: 'tripartite_delete.shtml',
+                data: {
+                    'id' : id
+                },
+                success: function (data){
+                    if (data.result !== undefined) {
+                        layer.alert(data.msg, function(index){
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                },
+                dataType:'json'
+            });
+        });
+    }
+
+    // 添加层级
+    function addlayer(type){
+        reSet();
+        var title = '新增入款';
+        if(type == 1) { title = '新增出款' }
+        $("#status").show();//添加需要状态选择
+        $("#isshowmobile").hide();
+        $("#scope_use_set").show();
+        $("#fixation_use_set").hide();
+        $(".deleteAmount_set").hide();
+        $(".increaseAmount_set").show();
+        $('#companyid').bind();
+        if (type == 1) {
+            $("#isshowmobile").hide();
+            $("#paytype").hide();
+            $("#ispoint").hide();
+            $("#use_set").hide();
+            $("#layers").hide();
+            $('.hr-line-dashed').hide();
+            $("#fixation_use_set").hide();
+            $('#companyid').unbind('change', changeCompany);
+            $('.user_layer_1').prop('checked', true);
+        }else {
+            $('.user_layer_1').prop('checked', false);
+            $("#paytype").show();
+            $("#ispoint").show();
+            $("#use_set").show();
+            $('.hr-line-dashed').show();
+            $("#layers").show();
+            $('#companyid').bind('change', changeCompany);
+        }
+        $("#amount_set").html('<div class="col-md-2 amount_set"><input type="text"  class="form-control amount_set_val" name="amount_set[]"></div>');
+        $('#box_add_form').attr('action', 'tripartite_add.shtml');
+        layer.open({
+            type: 1,
+            title: title,
+            shadeClose: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: '900px',
+            content: $('#box_add'),
+            cancel: function(index, layero){
+                reSet();
+            }
+        });
+        $("#tsnickname").html(' ')
+        $(".chosen-select").trigger("chosen:updated");
+        $('#box_add').find("select[name='companyid']").trigger('change');
+    }
+
+    // 编辑弹窗
+    function edit(obj){
+        var title = '修改入款';
+        if (obj.account_type == 1) {
+            $("#isshowmobile").hide();
+            $("#paytype").hide();
+            $("#ispoint").hide();
+            $("#use_set").hide();
+            $("#layers").hide();
+            $('.hr-line-dashed').hide();
+            $("#fixation_use_set").hide();
+            $('#companyid').unbind('change', changeCompany);
+            $('.user_layer_1').prop('checked', true);
+            title = '修改出款';
+        }else {
+            $('.user_layer_1').prop('checked', false);
+            $("#paytype").show();
+            $("#ispoint").show();
+            $("#use_set").show();
+            $('.hr-line-dashed').show();
+            $("#layers").show();
+            $('#companyid').bind('change', changeCompany);
+        }
+        assignment(obj);
+        $("#status").hide();//修改不需要编辑状态，所以隐藏
+        layer.open({
+            type: 1,
+            title: title,
+            shadeClose: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: '900px',
+            content: $('#box_add'),
+            cancel: function(index, layero){
+                reSet();
+            }
+        });
+    }
+
+    function assignment(obj) {
+        $(".chosen-select").val(obj.companyid);
+        $(".chosen-select").trigger("chosen:updated");
+        $('#box_add').find("select[name='companyid']").val(obj.companyid).trigger('change');
+        $('#box_add').find("select[name='paytypeid']").val(obj.paytypeid);
+        $('#box_add').find("input[name='nickname']").val(obj.nickname);
+        $('#box_add').find("input[name='merchantid']").val(obj.merchantid);
+        $('#box_add').find("input[name='redirecturl']").val(obj.redirecturl);
+        $('#box_add').find("input[name='seq']").val(obj.seq);
+        $('#box_add').find("input[name='quota']").val(obj.quota);
+        $('#box_add').find("input[name='current_quota']").val(obj.current_quota);
+        $('#box_add').find("select[name='status']").val(obj.status);
+        $('#box_add').find("input[name='min_deposit']").val(obj.min_deposit);
+        $('#box_add').find("input[name='max_deposit']").val(obj.max_deposit);
+        $('#box_add').find("input[name='id']").val(obj.id);
+        $('#box_add').find("textarea[name='pubkey']").val(obj.pubkey);
+        $('#box_add').find("textarea[name='key']").attr('placeholder', obj.key);
+        $(":radio[name='ispoint'][value='" + obj.ispoint + "']").prop("checked", "checked");
+        $(":radio[name='use_set'][value='" + obj.use_set + "']").prop("checked", "checked");
+        $(":radio[name='isshowmobile'][value='" + obj.isshowmobile + "']").prop("checked", "checked");
+        //如果是固定金额入款
+        $("#amount_set").html('<div class="col-md-2 amount_set"><input type="text"  class="form-control amount_set_val" name="amount_set[]"></div>');
+        $(".increaseAmount_set").show();
+        $(".deleteAmount_set").show();
+        var array = ['2','3','7','9','10','11'];//所有扫码支付类型
+        if ($.inArray(obj.paytypeid + '',array) < 0) {
+            $("#isshowmobile").hide();
+        }else{
+            $("#isshowmobile").show();
+        }
+        if(obj.use_set == 1){
+            $("#scope_use_set").hide();
+            $("#fixation_use_set").show();
+            aAmount_set=obj.amount_set.split(",")
+            $.each( aAmount_set, function(i, v){
+                if (aAmount_set.length-1 > i) {
+                    $("#amount_set").append('<div class="col-md-2 amount_set"><input type="text"  class="form-control amount_set_val" name="amount_set[]"></div>');
+                }
+                $(".amount_set_val").eq(i).val(v)
+            });
+            if (aAmount_set.length >= 5){
+                $(".increaseAmount_set").hide();
+            }
+            if (aAmount_set.length <= 1){
+                $(".deleteAmount_set").hide();
+            }
+
+        }else {
+            $("#scope_use_set").show();
+            $("#fixation_use_set").hide();
+            $(".deleteAmount_set").hide();
+
+        }
+        // 层级选中
+        if ('user_layerids_array' in obj && obj.user_layerids_array.length) {
+            $('#box_add').find(".user_layer").removeAttr('checked').each(function(){
+                if (-1 < $.inArray($(this).val(), obj.user_layerids_array)) {
+                    $(this).prop('checked', true);
+                }
+            });
+        }
+        $('#box_add_form').attr('action', 'tripartite_edit.shtml');
+    }
+
+    //修改状态方法
+    function status(obj) {
+        assignment(obj);
+        //判断
+        if (obj.status == '1'){
+            $('#box_add').find("select[name='status']").val(2);
+        }else {
+            $('#box_add').find("select[name='status']").val(1);
+        }
+        var targetUrl = $('#box_add_form').attr('action');
+        if (obj.account_type == "1") {
+            $('.user_layer_1').prop('checked', true);
+        }else {
+            $('.user_layer_1').prop('checked', false);
+        }
+        var data = $("#box_add_form").serialize();
+        $.ajax({
+            type:'post',
+            url:targetUrl,
+            cache: false,
+            data:data,
+            success:function(data){
+                layer.msg('修改成功',{
+                    time: 2000,
+                    anim:1
+                })
+                $("#subbox").submit();
+            },
+            error:function(){
+                layer.msg("修改失败")
+            }
+        })
+    }
+
+
+    // 加停用启用快捷
+    function isSet(obj){
+        layer.confirm('请确定您的操作吗？',{
+            btn:['确定','取消']
+        },function() {
+            status(obj)
+        })
+        return false;
+    }
+
+
+    // 关闭layer弹窗
+    function closeAll(){
+        reSet();
+        layer.closeAll();
+    }
+
+    // 重置
+    function reSet(){
+        document.getElementById("box_add_form").reset();
+        $('#box_add').find("input[name='status'][value='0']").prop('checked', true);
+        $('#box_add_form').validate('hideError');
+        $('#box_add').find("input[name='id']").val('');
+        $('#box_add').find("textarea[name='key']").removeAttr('placeholder');
+    }
+    // 联动 支付类型
+    $('#box_add').find("select[name='companyid']").change(function(){
+        $('#box_add').find("select[name='paytypeid']").find('option').remove();
+        var option = {$available_pay_type};
+        var key = $('#box_add').find("select[name='companyid']").val();
+        if (key in option) {
+            $.each(option[key], function(){
+                $('#box_add').find("select[name='paytypeid']").append($('<option value="'+this.id+'">'+this.name+'</option>'));
+            });
+        }
+    });
+    $("#fixation_use_set").hide();//隐藏固定金额div
+    //点击use_set单选框
+    $("input[name=use_set]").change(function () {
+        var v = $(this).val();//获取入款类型值
+        if (v == 1) {
+            //如果选择固定金额入款
+            $("#scope_use_set").hide();
+            $("#fixation_use_set").show();
+
+        } else {
+            $("#scope_use_set").show();
+            $("#fixation_use_set").hide();
+
+        }
+
+    })
+
+    function increaseAmount_set() {
+        var $elements = $('.amount_set');
+        var len = $elements.length;
+        //判断如果超过5个就不能添加了
+        if (len < 5) {
+            $("#amount_set").append('<div class="col-md-2 amount_set"><input type="text"  class="form-control amount_set_val" name="amount_set[]"></div>');
+            $(".deleteAmount_set").show();
+            if (len >= 4){
+                $(".increaseAmount_set").hide();
+            }
+        }
+    }
+
+    function deleteAmount_set() {
+        var $elements = $('.amount_set');
+        var len = $elements.length;
+        if (len > 1) {
+            $(".amount_set").eq(len - 1).remove();
+            $(".increaseAmount_set").show();
+            if (len <= 2){
+                $(".deleteAmount_set").hide();
+            }
+        }
+
+    }
+
+    function formEditSubmit() {
+        var targetUrl = $('#box_add_form').attr('action');
+        var data = $("#box_add_form").serialize();
+        $.ajax({
+            type:'post',
+            url:targetUrl,
+            cache: false,
+            data:data,
+            success:function(data){
+                var dataObj = JSON.parse(data);
+                if (dataObj.code == 1){
+                    $("#table_list").trigger('reloadGrid');
+                    closeAll()
+                }
+                layer.msg(dataObj.msg,{
+                    time: 2000
+                })
+            }
+        })
+    }
+
+    /**
+     * 清零额度
+     * @param obj
+     */
+    function clearQuota(obj) {
+        assignment(obj);
+        var targetUrl = $('#box_add_form').attr('action');
+        if (obj.account_type == "1") {
+            $('.user_layer_1').prop('checked', true);
+        }else {
+            $('.user_layer_1').prop('checked', false);
+        }
+        $("#current_quota").val(0);
+        var data = $("#box_add_form").serialize();
+        $.ajax({
+            type:'post',
+            url:targetUrl,
+            cache: false,
+            data:data,
+            success:function(data){
+                layer.msg('已清零',{
+                    time: 2000,
+                    anim:1
+                })
+                $("#subbox").submit();
+            },
+            error:function(){
+                layer.msg("修改失败")
+            }
+        })
+    }
+
+    /**
+     * 置顶
+     * @param id
+     * @param paytypeid
+     * @param seq
+     */
+    function isUp(id,paytypeid,seq) {
+        $.ajax({
+            type:'post',
+            url:"tripartite_isup.shtml",
+            cache: false,
+            data:{id:id,paytypeid:paytypeid,seq:seq},
+            success:function(data){
+                layer.msg('操作成功',{
+                    time: 2000,
+                    anim:1
+                })
+                $("#subbox").submit();
+            },
+            error:function(){
+                layer.msg("操作失败")
+            }
+        })
+    }
+
+    var array = ['2','3','7','9','10','11'];//所有扫码支付类型
+    function changeCompany () {
+        var i = $(this).children('option:selected').val();
+        var option = {$available_pay_type};
+        var companychangid =  option[i][0].id;
+        if ($.inArray(companychangid + '',array) < 0) {
+            $("#isshowmobile").hide();
+        }else{
+            $("#isshowmobile").show();
+        }
+    }
+    $("#companyid").change(changeCompany);
+    //如果是扫码，是否在手机端展示
+    $("#paytypeid").change(function () {
+        var ss = $(this).children('option:selected').val();
+        if ($.inArray(ss,array) < 0) {
+            $("#isshowmobile").hide();
+        }else{
+            $("#isshowmobile").show();
+        }
+    });
+</script>
+</body>
+
+</html>

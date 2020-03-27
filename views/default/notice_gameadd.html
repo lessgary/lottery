@@ -1,0 +1,29 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content" style="height: 120px;">
+</div>
+<div class="container">
+    <form action="notice_gameadd.shtml" >
+        <label>请选择要添加公告的游戏</label><br/><br/>
+    <div class="main-box1">
+    {foreach from=$gamename key=id item=mygame}
+    <input name="game_list" type="checkbox" value="{$id}" id="{$id}">
+    &nbsp;&nbsp;&nbsp;
+    <label for="{$id}">{$mygame}</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    {/foreach}
+    </div>
+        <br/><br/>
+    <div>
+        <label for="content-box">公告内容</label><br/>
+        <br/>
+        <textarea name="content" id="content-box" style="width: 100%;height: 200px" placeholder="请输入公告内容..." required="required"></textarea>
+    </div>
+        <input type="submit" value="提交">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="#">取消</a>
+    </form>
+</div>
+<script>
+</script>
+</body>
+</html>

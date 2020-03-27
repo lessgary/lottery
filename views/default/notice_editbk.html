@@ -1,0 +1,255 @@
+{include file="pageheader.html"}
+
+<link rel="stylesheet" href="plugins/kindeditor/themes/default/default.css"/>
+<script charset="utf-8" src="plugins/kindeditor/kindeditor-all-min.js"></script>
+<script charset="utf-8" src="plugins/kindeditor/lang/zh_CN.js"></script>
+
+<body class="gray-bg">
+<div class="ibox-content">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div class="form-group">
+            <label for="" class="sr-only">资讯状态</label>
+            资讯状态：
+            <select class="form-control" name="iStatus">
+                <option value="-1">全部</option>
+                <option value="0">正常</option>
+                <option value="1">隐藏</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="" class="sr-only">资讯类型</label>
+            资讯类型：
+            <select class="form-control" name="iType">
+                <option value="-1">全部</option>
+                <option value="0">新闻</option>
+                <option value="1">技巧</option>
+            </select>
+        </div>
+        <button class="btn  btn-primary" type="submit" style="margin-left: 50px;">开始查询</button>
+        <a onclick="addlayer()" class="btn  btn-primary" style="margin-left: 50px">添加资讯</a>
+    </form>
+</div>
+
+<div class="ibox-content" id="box_add" style="display:none">
+    <form method="post" class="form-horizontal" action="information_add.shtml" id="box_add_form">
+        <div class="form-group">
+            <label class="col-sm-1 control-label">标题</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="title">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">排序</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" name="sort">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">状态</label>
+
+            <div class="col-sm-10">
+                <select class="form-control m-b" name="status">
+                    <option value="0">正常</option>
+                    <option value="1">隐藏</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">分类</label>
+            <div class="col-sm-10">
+                <label class="checkbox-inline">
+                    <input type="radio" value="0" name="type">新闻
+                </label>
+                <label class="checkbox-inline">
+                    <input type="radio" value="1" name="type">技巧
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-1 control-label">内容</label>
+            <div class="col-sm-10">
+                <textarea name="content" style="width:100%;height:200px;display: none"></textarea>
+            </div>
+        </div>
+        <div class="hr-line-dashed"></div>
+        <div class="form-group">
+            <div class="col-sm-12 text-center">
+                <input type="hidden" name="informationid">
+                <button class="btn btn-primary" type="submit">保存内容</button>
+                <button class="btn btn-white" type="button" onclick="closeAll()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 删除资讯
+    function dele(informationid) {
+        layer.confirm('确定删除吗？', function (index) {
+            $.ajax({
+                type: 'POST',
+                url: 'information_delete.shtml',
+                data: {
+                    change_sticky: 'yes',
+                    'informationid': informationid
+                },
+                success: function (data) {
+                    if (data.result !== undefined) {
+                        layer.alert(data.msg, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+    // 修改置顶状态
+    function changeSticky(informationid) {
+        layer.confirm('确定要修改置顶状态吗？', function (index) {
+            $.ajax({
+                type: 'POST',
+                url: 'information_edit.shtml',
+                data: {
+                    change_sticky: 'yes',
+                    'informationid': informationid
+                },
+                success: function (data) {
+                    if (data.result !== undefined) {
+                        layer.alert(data.msg, function (index) {
+                            location.reload();
+                        });
+                    } else {
+                        layer.alert('没有修改权限！');
+                    }
+                },
+                dataType: 'json'
+            });
+        });
+    }
+
+    // 添加层级
+    function addlayer() {
+        $('#box_add_form').attr('action', 'information_add.shtml');
+        layer.open({
+            scrollbar: true,
+            zIndex: 100,
+            type: 1,
+            title: '添加资讯',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px','600px'],
+            content: $('#box_add'),
+            cancel: function (index, layero) {
+                closeAll();
+                return false;
+            }
+        });
+        editorStart();
+    }
+
+    // 编辑弹窗
+    function edit(obj) {
+        $('#box_add').find("input[name='title']").val(obj.title);
+        $('#box_add').find("input[name='sort']").val(obj.sort);
+        $('#box_add').find("select[name='status']").val(obj.status);
+        $('#box_add').find("input[name='type']").removeAttr('checked');
+        $('#box_add').find("input[name='type'][value='" + obj.type + "']").prop('checked', true);
+        $('#box_add').find("input[name='informationid']").val(obj.informationid);
+        $('#box_add').find("textarea[name='content']").val(obj.content);
+        $('#box_add_form').attr('action', 'information_edit.shtml');
+        layer.open({
+            zIndex: 100,
+            type: 1,
+            title: '修改资讯',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['900px','600px'],
+            content: $('#box_add'),
+            cancel: function (index, layero) {
+                reSet();
+            }
+        });
+        editorStart();
+    }
+
+    // 关闭layer弹窗
+    function closeAll() {
+        layer.confirm('所有未保存的数据都将消失，确定要关闭吗？',function(){
+            reSet();
+            layer.closeAll();
+        });
+    }
+
+    // 重置
+    function reSet() {
+        document.getElementById("box_add_form").reset();
+        $('#box_add').find("input[name='type'][value='0']").prop('checked', true);
+        editorReset();
+    }
+
+    // 编辑器开始
+    function editorStart() {
+        $.editor = KindEditor.create('textarea[name="content"]', {
+            uploadJson : 'default_kindeditoruploadimage.shtml',
+            fileManagerJson : 'default_kindeditorimagemanager.shtml',
+            allowImageUpload: true,
+            allowFileUpload: false
+        });
+    }
+
+    // 编辑器关闭
+    function editorReset() {
+        $.editor.html('');
+        $.editor.remove('textarea[name="content"]');
+    }
+
+    $(document).ready(function () {
+        // 自定义操作表格
+        function operate(cellValue, options, rowObject) {
+            var json = JSON.stringify(rowObject);
+            var html = "";
+            html += "<a title='修改'  onclick='edit(" + json + ")'>";
+            html += "<span style='color:#1ab394'>修改</span></a>&nbsp;";
+            html += "<a title='删除' onclick='dele(" + rowObject.informationid + ")' >";
+            html += "<span style='color:#1ab394'>删除</span></a>&nbsp;";
+            if (1 == rowObject.is_sticky) {
+                html += "<a title='解除置顶' onclick='changeSticky(" + rowObject.informationid + ")' >";
+                html += "<span style='color:#FF3333'>解除置顶</span></a>&nbsp;";
+            } else {
+                html += "<a title='置顶' onclick='changeSticky(" + rowObject.informationid + ")' >";
+                html += "<span style='color:#1ab394'>置顶</span></a>&nbsp;";
+            }
+
+            return html;
+        }
+
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function () {
+            var postData = {};
+            $.each($(this).serializeArray(), function (i, n) {
+                postData[n.name] = n.value;
+            });
+            $("#table_list").jqGrid("setGridParam", {
+                page: 1,
+                mtype: "post",
+                datatype: 'json',
+                postData: postData
+            }).trigger('reloadGrid');
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

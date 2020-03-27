@@ -1,0 +1,114 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <form role="form" class="form-inline" id="subbox" method="post">
+        <div class="form-group">
+            <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+            日期:
+            <input name="starttime" class="form-control layer-date" value="{if isset($smarty.get.sdate)}{$smarty.get.sdate}{else}{$sdate}{/if}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+            ~
+            <input name="endtime" class="form-control layer-date" value="{if isset($smarty.get.edate)}{$smarty.get.edate}{else}{$edate}{/if}" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+        </div>
+
+        <div class="form-group">
+            日志类型：
+            <label for="" class="sr-only">菜单操作</label>
+            <select class="form-control" id="proxy_menu_id" name="proxy_menu_id">
+                <option value="0">全部</option>
+                {foreach from = $aProxyMenu item = menu key=key}
+                    <option value="{$menu.menuid}"   {if isset($smarty.get.proxy_menu_id) && $smarty.get.proxy_menu_id == $menu.menuid}selected{/if}>{$menu.title}</option>
+                {/foreach}
+            </select>
+        </div>
+
+        <div class="form-group">
+            子账号：
+            <label for="" class="sr-only">子账号</label>
+            <input type="text"  name="adminname" class="form-control" value="<?php if(!empty($_GET['adminname'])) echo $_GET['adminname'];?>">
+        </div>
+
+        <div class="form-group">
+            IP：
+            <label for="" class="sr-only">IP</label>
+            <input type="text"  name="client_ip" class="form-control" value="<?php if(!empty($_GET['client_ip'])) echo $_GET['client_ip'] ?>">
+        </div>
+
+        <div class="form-group">
+            日志内容(模糊)
+            <label for="" class="sr-only">日志内容(模糊)：</label>
+            <input type="text" name="content" class="form-control" value="<?php if(!empty($_GET['content'])) echo $_GET['content'] ?>">
+        </div>
+
+        <button class="fm-button btn btn-primary fm-button-icon-right ui-search" type="submit">搜索</button>
+    </form>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list"></table><!--初始化表格必须-->
+                        <div id="page_list"></div><!--分页展示必须-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+        $.jgrid.defaults.styleUI="Bootstrap";
+        $("#table_list").jqGrid({
+            //表格头
+            colNames:["编号","子账号","操作名称" ,"日志内容","IP","时间"],
+            //表格内容
+            colModel:[
+                {name:"entry",index:"entry",editable:false,sortable:false},
+                {name:"adminname",index:"adminname",editable:false,sortable:false},
+                {name:"title",index:"title",editable:false,sortable:false},
+                {name:"content",index:"content",editable:false,sortable:false},
+                {name:"clientip",index:"clientip",editable:true,sortable:false},
+                {name:"times",index:"times",editable:true,sortable:false}
+            ],
+            height:450, //默认高度
+            page: 1,            //当前页码
+            autowidth:true,    //表格自适应宽度
+            shrinkToFit:true,   //自适应列宽
+            rowNum:10,       //每页展示的记录数
+            rowList:[10,50,100,150,200,500], //每页展示的记录数
+            pager:"#page_list",
+            viewrecords:true,
+            mtype:'post',
+            datatype:'json',
+            beforeRequest: function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $(this).jqGrid("setGridParam", {
+                    postData: postData
+                });
+            }
+        });
+        //窗口自适应
+        $(window).bind("resize",function(){
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list").setGridWidth(width);
+        });
+        //表单提交
+        $("#subbox").submit(function(){
+            $("#table_list").jqGrid("setGridParam", {datatype:'json',page: 1}).trigger('reloadGrid');
+            return false;
+        });
+    });
+</script>
+</body>
+
+
+</html>

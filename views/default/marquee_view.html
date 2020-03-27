@@ -1,0 +1,29 @@
+{include file="pageheader.html"}<!--review by ken 2017-->
+<body>
+<div class="ibox-content">
+    <h3>跑马灯详情</h3>
+</div>
+<div class="container">
+    <div class="list-div" id="listDiv">
+        <table class="table table-bordered" id='list-table'>
+            <tr>
+                <td class="narrow-label">跑马灯排序:</td>
+                <td>{$aMarquee.sorts}</td>
+            </tr>
+            <tr>
+                <td class="narrow-label">跑马灯标题:</td>
+                <td>{$aMarquee.subject|escape:html}</td>
+            </tr>
+            <tr>
+                <td class="narrow-label">发布人:</td>
+                <td>{$aMarquee.adminname|escape:html}</td>
+            </tr>
+            <tr>
+                <td class="narrow-label">跑马灯内容:</td>
+                <td>{$aMarquee.content}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

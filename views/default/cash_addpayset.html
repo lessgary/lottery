@@ -1,0 +1,199 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="./css/systemconfig_set.css">
+
+<body class="gray-bg">
+<form action="" method="post">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="jqGrid_wrapper">
+            <div class="ui-jqgrid " id="gbox_table_list" dir="ltr" style="width: 100%">
+                <div class="jqgrid-overlay ui-overlay" id="lui_table_list"></div>
+                <div class="ui-jqgrid-view table-responsive" role="grid" id="gview_table_list">
+                    <div class="ui-jqgrid-hdiv">
+                        <div class="ui-jqgrid-hbox bgcol-white">
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list">
+                                <thead>
+                                <tr class="ui-jqgrid-labels">
+                                    <th>名称</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td class="center">
+                                        <input type="text" name="title" value="">
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list" style="margin-top: 35px">
+                                <thead>
+                                <tr class="ui-jqgrid-labels">
+                                    <th colspan="3" >出款手续费</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td class="center">达到有效投注额是否免手续费：
+                                        <input type="radio" name="withdraw_isallowfree" value="1" checked="checked">是
+                                        <input type="radio" name="withdraw_isallowfree" value="0">否
+                                    </td>
+                                    <td class="center">每天免手续费次数：
+                                        <input type="text" name="withdraw_freetimes" value="0">
+                                    </td>
+                                    <td class="center" id="free">手续费：
+                                        <input type="text" value="50" style="width: 90px" name="withdraw_charge">%
+                                        <label>
+                                            <input type="radio" name="withdraw_chargetype" value="0">百分比
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="withdraw_chargetype" value="1" checked="checked">固定金额
+                                        </label>
+                                        <span id="withdraw_chargemax">&nbsp;&nbsp;每笔手续费上限：
+                                            <input type="text" style="width: 90px" name="withdraw_chargemax" value="999999">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">每天可出款次数：
+                                        <input type="text" name="withdraw_times" value="999">
+                                    </td>
+                                    <td class="center">出款上限：
+                                        <input type="text" name="withdraw_max" value="10000000">
+                                    </td>
+                                    <td class="center">出款下限：
+                                        <input type="text" name="withdraw_min" value="100">
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list" style="margin-top: 35px">
+                                <thead>
+                                <tr class="ui-jqgrid-labels" role="row">
+                                    <th>入款设定</th>
+                                    <th>线上入款</th>
+                                    <th>公司入款</th>
+                                </tr>
+                                </thead>
+                                <tr>
+                                    <td class="center">存款优惠</td>
+                                    <td>
+                                        <input type="radio" name="fastpay_favortime" value="1" checked="checked">首次
+                                        <input type="radio" name="fastpay_favortime" value="2">每次
+                                        <input type="radio" name="fastpay_favortime" value="0">无优惠
+                                    </td>
+                                    <td>
+                                        <input type="radio" name="deposit_favortime" value="1" checked="checked">首次
+                                        <input type="radio" name="deposit_favortime" value="2">每次
+                                        <input type="radio" name="deposit_favortime" value="0">无优惠
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">优惠标准（元）</td>
+                                    <td>
+                                        <input type="text" name="fastpay_favorbase" value="100">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_favorbase" value="100">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">优惠百分比(%)</td>
+                                    <td>
+                                        <input type="text" name="fastpay_favorrate" value="0">%负数为手续费
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_favorrate" value="0">%负数为手续费
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">优惠上限金额</td>
+                                    <td>
+                                        <input type="text" name="fastpay_favormax" value="0">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_favormax" value="0">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">入款上限</td>
+                                    <td>
+                                        <input type="text" name="fastpay_max" value="10000000">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_max" value="10000000">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">入款下限</td>
+                                    <td>
+                                        <input type="text" name="fastpay_min" value="1">
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_min" value="1">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">综合额度流水审核</td>
+                                    <td>
+                                        <input type="text" name="fastpay_extbets" value="1">
+                                        <input type="radio" name="fastpay_isextbets" value="1" checked="checked">是
+                                        <input type="radio" name="fastpay_isextbets" value="0">否
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_extbets" value="1">
+                                        <input type="radio" name="deposit_isextbets" value="1" checked="checked">是
+                                        <input type="radio" name="deposit_isextbets" value="0">否
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">常态性流水审核</td>
+                                    <td>
+                                        <input type="text" name="fastpay_betsrate" value="100">%
+                                        <input type="radio" name="fastpay_isbets" value="1" checked="checked">是
+                                        <input type="radio" name="fastpay_isbets" value="0">否
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_betsrate" value="100">%
+                                        <input type="radio" name="deposit_isbets" value="1" checked="checked">是
+                                        <input type="radio" name="deposit_isbets" value="0">否
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">常态性流水放宽额度</td>
+                                    <td>
+                                        <input type="text" name="fastpay_betsreducerate" value="5">%
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_betsreducerate" value="5">%
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="center">常态性流水审核行政费率</td>
+                                    <td>
+                                        <input type="text" name="fastpay_betschargerate" value="30">%
+                                    </td>
+                                    <td>
+                                        <input type="text" name="deposit_betschargerate" value="30">%
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="center">
+        <button class="btn btn-primary" type="submit">保存</button>
+        <button class="btn btn-primary" onclick="window.history.go(-1)" type="submit">取消</button>
+    </div>
+</form>
+</body>
+<script>
+    $(function () {
+        $('#free').find('input[type="radio"]').click(function () {
+            if($(this).val() == 1){
+                $('#withdraw_chargemax').css({display:'none'})
+            }else {
+                $('#withdraw_chargemax').css({display:'block'})
+            }
+        }).click();
+    })
+</script>
+</html>

@@ -1,0 +1,122 @@
+{include file="pageheader.html"}
+<link href="css/plugins/chosen/chosen.css" rel="stylesheet">
+
+<body class="gray-bg">
+<div class="row">
+    <div class="col-sm-6" style="width: 100%">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <form role="form" id="editForm">
+                    <div class="form-group">
+                        <label>推广码：</label>
+                        <input id="reg_code" name="reg_code" readonly="readonly" type="text"  value="{$proxy.reg_code}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>绑定域名：</label>
+                        <div class="input-group">
+                            <select name="domain" class="form-control chosen-select" style="width: 258px">
+                                <option value="">不绑定域名</option>
+                                {if !empty($proxy.reg_domain)}
+                                    <option value="{$proxy.reg_domain}" selected="selected">{$proxy.reg_domain}</option>
+                                {/if}
+
+                                {foreach from=$aDomains item=domains key=k}
+                                <option value="{$domains.domain}" {if $proxy.reg_domain==$domains.domain}selected="selected"{/if}>{$domains.domain}</option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>显示邀请码：</label>
+                        <select id="isShowCode" name="isShowCode" class="form-control">
+                            <option value="0" {if $proxy.show_code==0}selected="selected"{/if}>不显</option>
+                            <option value="1" {if $proxy.show_code==1}selected="selected"{/if}>显示</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>开户类型：</label>
+                        <select id="userType" name="userType" class="form-control">
+                            <option value="0" {if $proxy.user_type==0}selected="selected"{/if}>会员</option>
+                            <option value="1" {if $proxy.user_type==1}selected="selected"{/if}>代理</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>推广链接返点设置：</label>
+                        <select id="point" name="point" class="form-control">
+                            {foreach from=$aAllowPoint item=kppoint key=k1}
+                            <option value="{$kppoint.val}" {if $proxy.user_point==$kppoint.val}selected="selected"{/if}>{$kppoint.str}</option>
+                            {/foreach}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>备注：</label>
+                        <input id="remarks" name="remarks" type="text"  value="{$proxy.remark}" class="form-control">
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-primary" id="editSubmit"  type="submit">修改</button>
+                        <button class="btn btn-primary" id="editcommission-cancel" type="button">取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/plugins/validate/jquery.validate.min.js"></script>
+<script src="js/plugins/validate/messages_zh.min.js"></script>
+<script src="js/user_validate/form-validate-userlayer.min.js"></script>
+<script src="js/plugins/chosen/chosen.jquery.js"></script>
+
+<script type="text/javascript">
+    $(".chosen-select").chosen({no_results_text: "未找到",search_contains:true});
+    $().ready(function() {
+        $('#editcommission-cancel').click(function () {
+            parent.layer.closeAll();
+        })
+        $("#editSubmit").click(function(){
+            var postData = {};
+            $.each($("#editForm").serializeArray(), function(i, n){
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                type: "POST",
+                url:"",
+                data:postData,
+                success: function(data) {
+                    var data = eval("("+data+")")
+                    layer.msg(data.msg,{
+                        time: 1500, //自动关闭时间
+                    },function () {
+                        if(data.code == 0){
+                            parent.layer.closeAll();
+                        }else{
+                            layer.closeAll();
+                        }
+
+                    });
+                }
+            });
+            return false;
+        });
+
+    })
+    function editUserid(userid) {
+        $.ajax({
+            type: "POST",
+            dataType:"json",
+            url:"proxycommission_getpoint.shtml",
+            data:{"userid":userid},
+            success: function(data) {
+                $("#point").empty();
+                $.each(data,function () {
+                    $("#point").append("<option value='"+this.val+"'>"+this.str+"</option>");
+                });
+            }
+        });
+    }
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

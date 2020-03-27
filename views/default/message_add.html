@@ -1,0 +1,192 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-6" style="width: 100%">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h4>添加消息</h4>
+                    <!--ken 已修改-->
+                </div>
+                <div class="ibox-content">
+                    <form name="listForm" class="form-horizontal m-t" action="./message_send.shtml" method="POST"
+                          id="messageSave" onsubmit="return validate()"><!--@TODO 修改指定id 对应表单-->
+                        <!--消息类型-->
+                        <div class="form-group">
+                            <label class=" col-sm-3 control-label">消息类型：</label>
+                            <div class="col-sm-8">
+                                <!--@TODO ken write-->
+                                <select class="form-control" name="mt" style="width: 893px">
+                                    <!--<option value="-1" {if $s.mt=='-1'}SELECTED{/if}>不限类型</option>-->
+                                    {$info.mtoptions}
+                                </select>
+                            </div>
+                        </div>
+                        <!--@TODO UP DONE-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">消息标题：</label>
+                            <div class="col-sm-8">
+                                <input name="subject" type="text" size="60" required="required" class="form-control"
+                                       style="width: 893px">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mySelect" class=" col-sm-3 control-label">发送范围</label>
+                            <div class="col-sm-8">
+                                <select name="send_range" class="form-control" id="mySelect" style="width: 893px">
+                                    <option value="islevel">选择层级</option>
+                                    <option value="ismember" selected="selected">选择会员</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" style="display: none" id="lever">
+                            <div class="col-sm-3"></div>
+                            <div class="col-sm-8 ">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="all_level" value="1"> 全部层级
+                                    </label>
+                                    {foreach item=level from=$layer}
+                                    <label>
+                                        <input type="checkbox" name="level[{$level.id}]" value="{$level.layerid}">
+                                        {$level.name}
+                                    </label>
+                                    {/foreach}
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                </div>
+                            </div>
+                        </div>
+                        <!--@TODO 调试用 修改后将display 改回none-->
+                        <div class="form-group" style="display: block" id="member">
+                            <!--@TODO KEN 2017-->
+                            <div class="col-sm-3">
+                            </div>
+                            <div class="col-sm-8 ">
+                                <label for="recname">
+                                    选择接收人（*多用户用英文半角逗号（,）分隔）,接收用户只能是代理和会员
+                                </label>
+                                <input type="text" name="receivename" value="{$receivename}" style="width: 893px"
+                                       id="recname" class="form-control">
+                                <div class="checkbox">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    <label for="t1"><input type="checkbox" name="type[]" value="1" id="t1">本人不接受</label>
+                                    &nbsp;&nbsp;<label for="t2"><input type="checkbox" name="type[]" value="2" id="t2">所有下级</label>
+                                    &nbsp;&nbsp;<label for="t3"><input type="checkbox" name="type[]" value="3" id="t3">直接下级</label>
+                                    &nbsp;&nbsp;<label for="t4"><input type="checkbox" name="type[]" value="4" id="t4">所有上级</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="msgContent" class="col-sm-3 control-label">消息内容</label>
+                            <div class="col-sm-8">
+                                <textarea name="content" id="msgContent" cols="120" rows="10" placeholder="请输入消息正文..."
+                                          required="required" style="width: 893px"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <!--@TODO 修改-->
+                                <input type="submit" name="send" value="发送消息" class="btn btn-primary">
+                                <div class="btn btn-primary mgl15" onclick="goBack()">取消</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#usertype_1").click(function () {
+            $("#proxymodule").css("display", "block");
+        })
+        $("#usertype_2").click(function () {
+            $("#proxymodule").css("display", "none");
+        })
+
+        $("#formsubmit").click(function () {
+            var postData = {};
+            $.each($("#messageSave").serializeArray(), function (i, n) {
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                type: "POST",
+                url: "",
+                data: postData
+                /*
+                 @TODO 关闭验证 调试用
+                 success: function(data) {
+                 var data = eval("("+data+")")
+                 if(data.code == 0){
+                 layer.alert(data.msg);
+                 }else{
+                 layer.alert(data.msg);
+
+                 }
+                 }
+                 */
+            });
+            return "表单提交失败！";
+            //return false;
+        });
+
+        // @TODO 调试专用 正常则删除 后期更改为正常的简短类型 for ken
+        $('#mySelect').change(function () {
+            var p = $(this).children('option:selected').val();
+            if (p == 'ismember') {
+                document.getElementById('lever').style.display = 'none';
+                document.getElementById('member').style.display = 'block';
+                // 选择会员
+            } else {
+                document.getElementById('member').style.display = 'none';
+                document.getElementById('lever').style.display = 'block';
+            }
+        });
+        $(":input[name=all_level]").click(function () {
+            $(":input[name^=level]").prop('checked', $(this).prop('checked'));
+        });
+        $(":input[name^=level]").click(function () {
+            if ($(":input[name^=level]").length == $(":input[name^=level]:checked").length) {
+                $(":input[name=all_level]").prop('checked', true);
+            } else {
+                $(":input[name=all_level]").prop('checked', false);
+            }
+        });
+    });
+    function goBack() {
+        layer.confirm('是否确认关闭，未发送的站内信将不会被保存', function () {
+            location.href = "message_list.shtml";
+        });
+    }
+
+
+    /*from old*/
+    /**
+     * 检查表单输入的内容
+     */
+    function validate() {
+        var validator = new Validator('listForm');
+        validator.required('mt', "消息类型不能为空!");
+        validator.required('subject', "消息标题不能为空!");
+        validator.required('username', "接收用户不能为空!");
+        validator.required('content', "消息内容不能为空!");
+
+        if (document.getElementById("t1").checked == true
+            && document.getElementById("t2").checked == false
+            && document.getElementById("t3").checked == false
+            && document.getElementById("t4").checked == false) {
+            validator.addErrorMsg('群发选项错误');
+        }
+        return validator.passed();
+    }
+
+
+</script>
+</body>
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/form_validate.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:16 GMT -->
+</html>

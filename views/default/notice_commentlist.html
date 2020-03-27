@@ -1,0 +1,88 @@
+{include file="pageheader.html"}
+
+{literal}
+<script type="text/javascript">
+    function confirmSubmit(frm, ext)
+    {
+        if (frm.elements['form_action'].value == '')
+        {
+            alert('请选择操作的类型');
+            return false;
+        }
+        else if (frm.elements['form_action'].value == 'bat_delete')
+        {
+            return confirm("确定要删除选中的数据?");
+        }
+        else
+        {
+            return true;
+        }
+    }
+</script>
+{/literal}
+
+<div class="form-div">
+    <FORM name="searchForm" action="./notice_commentlist.shtml" METHOD='GET'>
+        <img src="./images/icon_search.gif" width="26" height="22" border="0" alt="SEARCH" /> 
+
+        页签状态: <select name="isdel">
+            <option value="-1" {if $s.isdel=='-1'}SELECTED{/if} style="color:#960">不限</option>
+            <option value="0" {if $s.isdel=='0'}SELECTED{/if} style="color:#690">正常</option>
+            <option value="1" {if $s.isdel=='1'}SELECTED{/if} style="color:#F90">已删</option></select>&nbsp;&nbsp;
+        所属平台: <select name="channelid">
+            <option value="-1" {if $s.channelid==-1}SELECTED{/if}>所有信息</option>
+            {foreach from=$aChannelData item=channel key=k}
+            <option value="{$k}" {if $s.channelid==$k}SELECTED{/if}>{$channel}</option>
+            {/foreach}
+        </select>
+        <input style='margin-left:20px' type="submit" value=" 开始查询 " class="button" />
+    </FORM>
+</div>
+
+<div class="list-div" id="listDiv">
+    <form method="POST" name="listForm" action='./notice_commentedit.shtml' onsubmit="return confirmSubmit(this)">
+        <table cellspacing='1' cellpadding='3' id='list-table'>
+            <tr>
+                <th width=80>ID</th>
+                <th width=60>排序值</th>
+                <th>页签名称</th>
+                <th>所属平台</th>
+                <th>最后更新时间</th>
+                <th>管理员</th>
+                <th width=80>状态</th>
+                <th>操作</th>
+            </tr>
+
+            {foreach from=$aList item=notice key=k1}
+            <tr>
+                <td  align="center">{$notice.id}</td>
+
+                <td align="center">{$notice.sorts|escape:html}</td>
+                <td align="left" class="first-cell nowrap">
+                    <a href="./notice_commentedit.shtml?id={$notice.id}"
+                       >{$notice.tagname|escape:html}</a></td>
+                <td align="center">{$aChannelData.$notice.channelid|escape:html}</td>
+                <td align="center">{$notice.lastupdatetime}</td>
+                <td align="center">{$notice.sendername|escape:html}</td>
+
+                <td align="center">{if $notice.isdel}<font color='#FF0000'>已删</font>{else}
+                    <font color='#669900'>正常</font>{/if}</td>
+                <td align="center" width=220>
+                    <a href="./notice_commentedit.shtml?id={$notice.id}">修改</a> &nbsp; | &nbsp;
+                    <a href="./notice_commentdel.shtml?id={$notice.id}" 
+                       onclick="javascript:return confirm('您确定要删除页签: [ {$notice.tagname} ] ?');">删除</a> &nbsp; 
+                </td>
+            </tr>
+            {foreachelse}
+            <tr><td class="no-records" colspan="10">无相关数据</td></tr>
+            {/foreach}
+        </table>
+
+
+        <table id="page-table" cellspacing="0"><tr><td align="right" nowrap="true">
+                    <div style='padding-right:30px; padding-top:6px;'>{$pages}</div></td></tr></table>
+
+    </form>
+</div>
+{insert_scripts files="./js/global.js"}
+{include file="pagefooter.html"}

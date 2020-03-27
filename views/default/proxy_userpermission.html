@@ -1,0 +1,317 @@
+{include file="pageheader.html"}
+<script type="text/javascript" src="./js/jquery.js"></script>
+<head>
+<style type="text/css">
+#tabbody-div {
+    border: 1px solid #f5f5f5;
+    padding: 10px;
+    background: #FFF;
+}
+table {
+    display: table;
+    border-collapse: separate;
+    border-spacing: 1px;
+    border-color:   #f5f5f5;
+}
+/*
+ 列表部分的样式
+ */
+.list-div {
+  width: 100%;
+  background: #f5f5f5;
+  border: 0px solid #f5f5f5;
+  margin-bottom: 5px;
+}
+
+.list-div table {
+  width: 100%;
+}
+
+.list-div th {
+  line-height: 24px;
+  background: #f5f5f5 url("../images/th_bg.gif") repeat-x;
+  white-space: nowrap;
+}
+
+.list-div td {
+  background: #FFF;
+  line-height: 25px;
+}
+
+.list-div td.first-cell{
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+.list-div input {
+  vertical-align: middle;
+}
+
+.list-div a:visited, .list-div a:link {
+  text-decoration: underline;
+  color: #f5f5f5;
+}
+
+.list-div a:hover {
+  color: #f5f5f5;
+}
+
+.list-div input, list-div img {
+  vertical-align: middle;
+}
+
+.list-div .footer {
+  background: #F4FAFB;
+  text-align: right;
+}
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 6px;
+    font-weight: 100;
+}
+.button-div {
+    text-align: center;
+    padding: 3px 0;
+}
+	</style>
+</head>
+<script type="text/javascript">
+    jQuery.noConflict();
+    function check_top(thisid,topid)
+    {
+	if( jQuery("#"+thisid).attr("checked") == true )
+	{
+	    jQuery("#"+topid).attr("checked",true);
+	}
+    }
+    function clear_son( topid )
+    {
+	if( jQuery("#"+topid).attr("checked") == false )
+	{
+	    jQuery("#"+topid).parent().parent().nextAll().find(":checkbox").attr("checked",false);
+	}
+    }
+    function selectAll(obj)
+    {
+	jQuery(":checkbox[id!='"+obj+"']").attr("checked",jQuery("#"+obj).attr("checked"));
+    }
+    function clear_bytop( topid, count )
+    {
+	if( jQuery("#"+topid).attr("checked") == false )
+	{
+	    jQuery("#"+topid).closest("tr").find(":checkbox").attr("checked",false);
+	    for(i=0;i<count-1;i++)
+	    {
+		jQuery("#"+topid).closest("tr").nextAll("tr:eq("+i+")").find(":checkbox").attr("checked",false);
+	    }
+	}
+    }
+</script>
+<form method="POST" name="listForm" action="./proxy_{$form_action}.shtml"  onsubmit="return true;" >
+    <div class="tab-div">
+	<div id="tabbar-div">
+		
+	</div>
+
+	{* 标签 : 基本信息 *}
+	<div id="tabbody-div">
+	    {* 标签 : 权限属性 *}
+	    <div class="list-div form-group" id="listDiv">
+		<table cellspacing='1' cellpadding='2' id="detail-table" style="display:table">
+<tr>{foreach from=$menus.0 item=menu key=top}
+	<td rowspan="{$counts.$top}"  class="first-cell" style='width:16%;'><label for="menu_{$top}" TITLE='{$menu.desc}'><input type="checkbox" 
+	name="menustrs[]" id="menu_{$top}" value="{$top}" {if $menu.check||$usermenus.$top}checked="checked"{/if} 
+	{if $menu.check}disabled{/if}
+	onclick="clear_bytop('menu_{$top}',{$counts.$top})">{$menu.title}</label></td>
+	{foreach from=$menus.$top item=menu2 key=top2}
+		<td width="15%" style='color:#690;padding-left:6px;'><label for="menu_{$top2}" TITLE='{$menu2.desc}'><input type="checkbox" name="menustrs[]" id="menu_{$top2}" value="{$top2}" {if $menu2.check||$usermenus.$top2}checked="checked"{/if} 
+		{if $menu2.check}disabled{/if}
+		onclick="check_top('menu_{$top2}','menu_{$top}');clear_son('menu_{$top2}')">{$menu2.title}</label></td>
+		<td style="color:#666;width:69%;line-height:18px;padding-left:12px;">
+		{if count($menus.$top2)>0}
+			{foreach from=$menus.$top2 item=menu3 key=top3}<div style="width:160px;float:left;"><label for="menu_{$top3}" TITLE='{$menu3.desc}'><input type="checkbox" name="menustrs[]" id="menu_{$top3}" value="{$top3}"{if $menu3.check||$usermenus.$top3}checked="checked"{/if} 
+			{if $menu3.check}disabled{/if}
+			onclick="check_top('menu_{$top3}','menu_{$top2}');check_top('menu_{$top3}','menu_{$top}')">{$menu3.title}</label></div>{/foreach}
+		{else}
+		&nbsp;
+		{/if}
+		</td>
+</tr>{/foreach}
+{/foreach} 
+<tr>
+		<!-- 	<td colspan="4" height="25" align="center">
+			    <label>
+				<input type="checkbox" name="selectall" id="selectall" onclick="selectAll('selectall')" />全选
+			    </label>
+			</td> -->
+		    </tr> 
+</table>
+	    </div>
+		<input type="hidden" name="proxyadminid" value='{$proxyadminid}'>
+
+	    <div class="button-div"><br/>
+		<input type="submit" value="提交" class="btn btn-primary"  />
+		<input type="reset" value="重置" class="btn btn-primary" />
+	    </div>
+	</div>
+
+    </div>
+</form>
+
+
+<script language="JavaScript">
+    {literal}
+    document.getElementById("tabbar-div").onmouseover = function(e)
+    {
+	var obj = Utils.srcElement(e);
+	if (obj.className == "tab-back")
+	{
+	    obj.className = "tab-hover";
+	}
+    }
+
+    document.getElementById("tabbar-div").onmouseout = function(e)
+    {
+	var obj = Utils.srcElement(e);
+	if (obj.className == "tab-hover")
+	{
+	    obj.className = "tab-back";
+	}
+    }
+
+    document.getElementById("tabbar-div").onclick = function(e)
+    {
+	var obj = Utils.srcElement(e);
+	if (obj.className=='' || obj.className == "tab-front")
+	{
+	    return;
+	}
+	else
+	{
+	    objTable = obj.id.substring(0, obj.id.lastIndexOf("-")) + "-table";
+
+	    var tables = document.getElementsByTagName("table");
+	    var spans  = document.getElementsByTagName("span");
+
+	    for (i = 0; i < tables.length; i++)
+	    {
+		if (tables[i].id == objTable)
+		{
+		    tables[i].style.display = (Browser.isIE) ? "block" : "table";
+		}
+		else
+		{
+		    tables[i].style.display = "none";
+		}
+	    }
+	    for (i = 0; spans.length; i++)
+	    {
+		if (spans[i].className != null && spans[i].className == "tab-front")
+		{
+		    spans[i].className = "tab-back";
+		    obj.className = "tab-front";
+		    break;
+		}
+	    }
+	}
+    }
+
+    function showNotice(objId)
+    {
+	var obj = document.getElementById(objId);
+
+	if (obj)
+	{
+	    if (obj.style.display != "block")
+	    {
+		obj.style.display = "block";
+	    }
+	    else
+	    {
+		obj.style.display = "none";
+	    }
+	}
+    }
+    function checkAll(frm, checkbox)
+    {
+	for (i = 0; i < frm.elements.length; i++)
+	{
+	    if (frm.elements[i].name == 'action_code[]' || frm.elements[i].name == 'chkGroup')
+	    {
+		frm.elements[i].checked = checkbox.checked;
+	    }
+	}
+    }
+
+    function check(list, obj)
+    {
+	var frm = obj.form;
+
+	for (i = 0; i < frm.elements.length; i++)
+	{
+	    if (frm.elements[i].name == "action_code[]")
+	    {
+		var regx = new RegExp(frm.elements[i].value + "(?!_)", "i");
+
+		if (list.search(regx) > -1) frm.elements[i].checked = obj.checked;
+	    }
+	}
+    }
+
+    if (document.getElementById("listDiv"))
+    {
+	document.getElementById("listDiv").onmouseover = function(e) {
+	    obj = Utils.srcElement(e);
+	    if (obj) {
+		if (obj.parentNode.tagName.toLowerCase() == "tr") row = obj.parentNode;
+		else if (obj.parentNode.parentNode.tagName.toLowerCase() == "tr") row = obj.parentNode.parentNode;
+		else return;
+		for (i = 0; i < row.cells.length; i++){
+		    if (row.cells[i].tagName != "TH") row.cells[i].style.backgroundColor = '#f3f3f4';
+		}
+	    }
+	}
+
+	document.getElementById("listDiv").onmouseout = function(e) {
+	    obj = Utils.srcElement(e);
+	    if (obj) {
+		if (obj.parentNode.tagName.toLowerCase() == "tr") row = obj.parentNode;
+		else if (obj.parentNode.parentNode.tagName.toLowerCase() == "tr") row = obj.parentNode.parentNode;
+		else return;
+		for (i = 0; i < row.cells.length; i++){
+		    if (row.cells[i].tagName != "TH") row.cells[i].style.backgroundColor = '#FFF';
+		}
+	    }
+	}
+    }
+
+    {/literal}
+</script>
+
+{insert_scripts files="./js/validator.js"}
+{insert_scripts files="./js/utils.js"}
+{literal}
+<script language="JavaScript">
+    <!--
+    /**
+     * 检查表单输入的内容
+     */
+    function validate()
+    {
+	var validator = new Validator('listForm');
+	validator.required('groupname', "分组名不能为空!");
+	validator.required('sort', "排序值不能为空!");
+	if( document.forms['listForm'].elements['sort'].value < 0 )
+	{
+	    validator.addErrorMsg('排序值应大于0');
+	}
+	return validator.passed();  
+    }
+    //-->
+</script>
+{/literal}
+
+
+{include file="pagefooter.html"}
+

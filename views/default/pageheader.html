@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <title>商户管理后台</title>
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.min.css" rel="stylesheet">
+    <link href="css/style.min862f.css?v=4.1.0" rel="stylesheet">
+    <link href="css/plugins/jqgrid/ui.jqgridffe4.css?0820" rel="stylesheet">
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/plugins/layer/laydate/laydate.js"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+
+    <script src="js/content.min.js?v=1.0.0"></script>
+    <script src="js/plugins/peity/jquery.peity.min.js"></script>
+    <script src="js/plugins/jqgrid/i18n/grid.locale-cnffe4.js?0820"></script>
+    <script src="js/plugins/jqgrid/jquery.jqGrid.minffe4.js?0820"></script>
+    <script src="js/plugins/jqgrid/grid.inlinedit.js"></script>
+    <script src="js/plugins/layer/layer-3.03/layer.js"></script>
+    <!-- <LINK href="./css/general.css" rel="stylesheet" type="text/css" /> -->
+   <!--  <LINK href="./css/main.css" rel="stylesheet" type="text/css" />
+    <LINK href="./css/showbox.css" rel="stylesheet" type="text/css" /> -->
+  <!--   {insert_scripts files="./js/jquery.js"}
+    {insert_scripts files="./js/common.js"} -->
+    <script src="js/common.js"></script>
+    <script>
+    $( document ).ajaxError(function( event, jqxhr, settings, thrownError ) {
+        if ('<-101>' === jqxhr.responseText) {
+            alert('您的账号长时间没有进行操作已被登出！');top.location='./';
+        } else if('<-102>' === jqxhr.responseText) {
+            alert('您的账户已从另外一个地方登录了！');top.location='./';
+        }else {
+            layer.msg('请求失败, 请刷新页面重试!', {
+                icon: 5,
+                time: 4000
+            }, function(){
+                //window.location.reload();
+            });
+        }
+    });
+
+    </script>
+</head>
+

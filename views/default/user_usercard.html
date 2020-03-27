@@ -1,0 +1,194 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" id="subbox">
+                <div class="form-group">
+                <label for="" class="sr-only">银行卡状态</label>
+                   银行卡状态：<select class="form-control" name="isdel_bank" "> 
+                   <option value="-1">全部</option>
+                   <option value="0" selected="true">正常</option>
+                   <option value="1">删除</option>
+                   </select>
+                 </div>
+
+                &nbsp;&nbsp;&nbsp;<div class="form-group">
+                <label for="" class="sr-only">卡号</label>
+                    <select class="form-control" id="select_1" name="searchType">
+                   <option value="cardno">卡号</option>
+                   <option value="username">用户名</option>
+                   </select>
+                </div>
+                 
+                <div class="form-group">
+                <label for="" class="sr-only"></label>
+                   <input type="text" placeholder="请输入账号名/卡号" id="value_1" name="cardno" class="form-control">
+                 </div>
+
+                &nbsp;&nbsp;&nbsp;<div class="form-group">
+                <label for="" class="sr-only"></label>
+                   真实姓名:<input type="text" placeholder="请输入真实姓名"  name="realname" class="form-control">
+                </div>
+
+                &nbsp;&nbsp;&nbsp;<div class="form-group">
+                <label for="" class="sr-only">累计金额</label>
+                   累计金额：<input type="text" placeholder="最小金额" name="mintotaltransfer"  class="form-control">
+                 </div>
+                 <span>~</span>
+                <div class="form-group">
+                <label for="" class="sr-only">金额查询值</label>
+                   <input type="text" placeholder="最大金额" name="maxtotaltransfer"  class="form-control">
+                </div>
+
+                &nbsp;&nbsp;<div class="form-group">
+                <label for="" class="sr-only">是否为黑名单</label>
+                   是否为黑名单：<select class="form-control" name="isblack_bank"> 
+                   <option value="-1">全部类型</option>
+                   <option value="0" selected="true">正常卡</option>
+                   <option value="1">黑名单</option>
+                   </select>
+                </div>
+
+            &nbsp;&nbsp;<button class="btn  btn-primary " type="submit">提交</button>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["ID","状态","账号名","一代名称" ,"银行","省市","卡号","支行名称","真实姓名","是否黑名单","累计金额","增加时间","操作"],
+                //表格内容
+                colModel:[
+                    {name:"entry",index:"entry",editable:true,sorttype:"int",search:true,sortable:false},
+                    {name:"isdel",index:"isdel",editable:true,formatter:'select',sortable:false,editoptions:{value:"0:正常;1:删除"}},
+                    {name:"username",index:"username",editable:true,sortable:false},
+                    {name:"topproxy",index:"topproxy",editable:true,sortable:false},
+                    {name:"bankname",index:"bankname",editable:true,sortable:false},
+                    {name:"provincename",index:"provincename",editable:true,sortable:false},
+                    {name:"cardno",index:"cardno",width:200,editable:true,sortable:false},
+                    {name:"branch",index:"branch",align:'center',editable:true,sortable:false},
+                    {name:"realname",index:"realname",editable:true,sortable:false},
+                    {name:"isblack",index:"isblack",editable:true,formatter:'select', sortable:false,editoptions:{value:"0:否;1:是"}},
+                    {name:"totaltransfer",index:"totaltransfer",editable:true,sorttype:"float",sortable:false},
+                    {name:"addtime",index:"addtime",editable:true,width:200,sortable:false},
+                    {name:"operate",index:"operate",align:'center',width:200,sortable:false,formatter:operate},/*格式化本列为超链接*/ 
+                ],
+                //data:mydata,
+                height:700, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:30,       //每页展示的记录数
+                rowList:[30,50,80], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                $("#table_list_2").jqGrid("setGridParam", {
+                    page: 1,
+                    mtype: "post",
+                    datatype: 'json',
+                }).trigger('reloadGrid');
+                return false;
+            });
+
+
+            // 搜索用户名下拉框
+            $(":input[id=select_1]").change(function(){
+
+                $("#value_1").attr('name', $(this).val());
+            });
+
+            //自定义操作表格
+            function operate(cellValue, options, rowObject) {  
+                var html ="";  
+                html += "<a title='修改' class='mgr15' onclick='updatebank("+rowObject.entry+","+rowObject.userid+")'  >";  
+                html += "修改</a>"; 
+                if(rowObject.isdel == 0) {
+                    html += "<a title='删除' class='mgr15' onclick='delbank("+rowObject.entry+")'  >";  
+                    html += "删除</a>";    
+                }
+                if(rowObject.isblack==0) {
+                    html += "<a title='' onclick='setblack("+rowObject.entry+",1)' >";  
+                    html += "<span>设为黑名单</span></a>";    
+                } else {
+                    html += "<a title='' onclick='setblack("+rowObject.entry+",0)' >";  
+                    html += "<span style='color:#1ab394'>恢复银卡</span></a>&nbsp;";    
+                }    
+                return html; 
+                
+            }   
+
+        });
+        //修改用户银行卡
+        function updatebank(id,userid){
+             layer.open({
+                  type: 2,
+                  title: '修改银行卡',
+                  shadeClose: true,
+                  shade: [0.7,'#000'],
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '450px'],
+                   content: ['user_updatebank.shtml?id='+id+"&userid="+userid],
+            });
+        }
+        //删除银行卡
+        function delbank(bankid) {
+            layer.confirm('确定操作吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="user_delbank.shtml?id="+bankid;
+            })
+            return false;
+        }
+        //删除商户组
+        function setblack(bankid,type) {
+            layer.confirm('确定操作吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="user_blackusercard.shtml?id="+bankid+"&type="+type+"";
+            })
+            return false;
+        }
+    
+        </script>
+</body>
+
+
+</html>

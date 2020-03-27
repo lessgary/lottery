@@ -1,0 +1,113 @@
+{include file="pageheader.html"}
+<link rel="stylesheet" href="./css/systemconfig_set.css">
+
+<body class="gray-bg">
+<div class="ibox-content" style="padding: 10px;">
+    <div class="jqGrid_wrapper">
+        <div class="ui-jqgrid-hdiv">
+            <div class="ui-jqgrid-hbox">
+                <table class="ui-jqgrid-htable ui-common-table table table-bordered"  role="presentation" aria-labelledby="gbox_table_list" >
+                    <tr>
+                        <td class="center">会员账号
+                        </td>
+                        <td class="center">
+                            <span id="username">{$userbankinfo.username}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="username" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">会员姓名
+                        </td>
+                        <td class="center">
+                            <span id="realname">{$userbankinfo.realname}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="realname" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">银行名称
+                        </td>
+                        <td class="center">
+                            <span id="aliasname">{$userbankinfo.bankname}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="aliasname" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">银行账号
+                        </td>
+                        <td class="center">
+                            <span id="bankid">{$userbankinfo.cardno}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="bankid" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">开户行
+                        </td>
+                        <td class="center">
+                            <span id="branck">{$userbankinfo.branch}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="branck" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">申请金额
+                        </td>
+                        <td class="center">
+                            <span id="apply_amount">{$apply_amount}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="apply_amount" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">手续费
+                        </td>
+                        <td class="center">
+                            <span id="totalCharge">{$totalCharge}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="totalCharge" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">实际金额
+                        </td>
+                        <td class="center">
+                            <span id="real_amount">{$real_amount}</span>
+                        </td>
+                        <td class="center">
+                            <a data-id="real_amount" class="copy">复制</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="center">会员备注</td>
+                        <td colspan="2" class="center">
+                            <span>{$userbankinfo.remark}</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    $(".copy").click(function(){
+        var copy_text = $("#" + $(this).data("id")).html();
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(copy_text).select();
+        document.execCommand("copy");
+        $temp.remove();
+        layer.msg('复制成功');
+    });
+</script>
+</html>

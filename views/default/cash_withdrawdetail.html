@@ -1,0 +1,611 @@
+{include file="pageheader.html"}
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+        * {
+            padding: 0;
+            margin: 0;
+        }
+        .head-box {
+            width: inherit;
+            height: 60px;
+        }
+        .head-box-top-box {
+            width: inherit;
+            height: 30px;
+            line-height: 30px;
+            margin-top: 10px;
+            position: relative;
+        }
+        .first-box {
+            display: inline-block;
+            width: 160px;
+            padding-left: 20px;
+        }
+        .head-box-top-box .second-box {
+            display: inline-block;
+            width: 280px;
+            padding-left: 20px;
+        }
+        .no-padding-left {
+            padding-left: 0 !important;
+        }
+        .padding-left {
+            padding-left: 20px;
+        }
+        .text {
+            font-size: 13px;
+        }
+        .close-btn {
+            position: absolute;
+            right: 5px;
+            top: 0;
+            width: 40px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 27px;
+            background-color: #4798D2;
+            border-radius: 4px;
+        }
+        .close-btn2 {
+            position: absolute;
+            right: 50px;
+            bottom: -30px;
+            width: 60px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            line-height: 27px;
+            background-color: #4798D2;
+            border-radius: 4px;
+        }
+        .out-second-box {
+            width: inherit;
+            height: 60px;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        h3 {
+            display: inline-block;
+        }
+        .blue-text-color {
+            color: #8BC8CF;
+            cursor: pointer;
+        }
+        .span-one {
+            color: #4949A1;
+            margin-left: 20px;
+        }
+        .span-two {
+        }
+        .span-three {
+            color: #AA7178;
+        }
+        .out-three-box {
+            width: inherit;
+            height: 120px;
+            padding-left: 20px;
+            margin-top: 30px;
+        }
+        .out-three-box-top-box {
+            height: 30px;
+            line-height: 30px;
+        }
+        .out-three-box-two-box {
+            width: inherit;
+            height: 20px;
+            margin-top: 20px;
+        }
+        .table-top {
+            height: 30px;
+            width: inherit;
+            padding-left: 20px;
+
+        }
+        .table-item {
+            width: 90px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            display: inline-block;
+            float: left;
+            font-size: 10px;
+            border-top: 1px solid #D0C5C6;
+            /*border-bottom: 1px solid #D0C5C6;*/
+            border-left: 1px solid #D0C5C6;
+        }
+        .table-item-border-btom {
+            border-bottom: 1px solid #D0C5C6;
+        }
+        .table-item-border-right {
+            border-right: 1px solid #D0C5C6;
+        }
+        .clear-foalt-left {
+            width: 0;
+            height: 0;
+            clear: both;
+        }
+        .pink-bg {
+            background-color: rgba(26, 179, 148, 0.1);
+        }
+        .out-four-box {
+            width: inherit;
+            margin-top: 40px;
+            height: 120px;
+            padding-left: 20px;
+        }
+        .out-four-box-item-box {
+            width: inherit;
+            height: 30px;
+        }
+        .four-box-one {
+            display: inline-block;
+            width: 220px;
+            height: inherit;
+            line-height: 30px;
+        }
+        .four-box-two {
+            display: inline-block;
+            width: 250px;
+            height: inherit;
+            line-height: 30px;
+        }
+        .four-box-three {
+            display: inline-block;
+            width: 300px;
+            height: inherit;
+            line-height: 30px;
+        }
+        .table2 {
+            width: 900px;
+            height: 30px;
+            margin-left: 30px;
+            border-bottom: 1px solid grey;
+            margin-top: 20px;
+            padding-left: 20px;
+        }
+        .table2-item-100 {
+            display: inline-block;
+            width: 100px;
+            height: 30px;
+            font-size: 10px;
+            line-height: 30px;
+            text-align: center;
+        }
+        .table2-item-300 {
+            display: inline-block;
+            width: 300px;
+            height: 30px;
+            font-size: 10px;
+            line-height: 30px;
+            text-align: center;
+        }
+        .table-middle {
+            width: 900px;
+            height: auto;
+            margin-left: 30px;
+            padding-left: 20px;
+        }
+        .table3 {
+            width: 900px;
+            height: 0;
+            border-bottom: 1px solid grey;
+            margin-top: 20px;
+            margin-left: 30px;
+            padding-left: 20px;
+        }
+        .table4 {
+            width: 895.5px;
+            height: auto;
+            margin-left: 30px;
+            margin-top: 20px;
+
+        }
+        .table4-item {
+            width: inherit;
+            height: auto;
+        }
+        .table4-item-item {
+            display: inline-block;
+            width: 149px;
+            height: inherit;
+            text-align: center;
+            line-height: 30px;
+            font-size: 10px;
+            float: left;
+            border-left: 1px solid #D0C5C6;
+        }
+        .tabel4-top-border {
+            border-top: 1px solid #D0C5C6;
+        }
+        .tabel4-btm-border {
+            border-bottom: 1px solid #D0C5C6;
+        }
+        .tabel4-right-border {
+            border-right: 1px solid #D0C5C6;
+        }
+        .cash-withdraw-btn-center {
+           text-align: center;
+            width: inherit;
+            margin-top: 10px;
+            /*padding-top: 10px;*/
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="box">
+    <div class="head-box">
+        <div class="head-box-top-box">
+            <div class="first-box">
+                <span class="text">会员账号:</span>
+                <span>{$userInfo.username}</span>
+            </div>
+
+            <div class="second-box no-padding-left">
+                <span class="text">注册时间:</span>
+                <span class="text">{$userInfo.registertime}</span>
+            </div>
+            <div class="second-box no-padding-left">
+                <span class="text">绑卡时间:</span>
+                <span class="text">{$userBankInfo.addtime}</span>
+            </div>
+        </div>
+        <div class="head-box-top-box">
+            <style>
+                #imporant-box-large-width {
+                    width: auto;
+                    margin-left: 20px;
+                }
+            </style>
+            <div class="first-box no-padding-left" id="imporant-box-large-width">
+                <span class="text">所在层级:</span>
+                <span class="text">{$levelName}</span>
+            </div>
+            <div class="first-box" style="width: auto;">
+                <span class="text">会员备注:</span>
+                <span class="text">{$userInfo.remark}</span>
+            </div>
+        </div>
+
+    </div>
+    <div class="out-three-box">
+        <div class="out-three-box-top-box">
+            <h3>资金总概况:</h3>
+            <span class="text">（上一次确定出款之后情况）</span>
+        </div>
+        <div class="out-three-box-two-box">
+            <div class="table-top">
+                <div class="table-item pink-bg"></div>
+                <div class="table-item pink-bg">
+                    总出款
+                </div>
+                <div class="table-item pink-bg">
+                    总入款
+                </div>
+                <div class="table-item pink-bg">
+                    余额
+                </div>
+                <div class="table-item pink-bg">
+                    总返点
+                </div>
+                <div class="table-item pink-bg">
+                    总优惠
+                </div>
+                <div class="table-item pink-bg">
+                    总打码量
+                </div>
+                <div class="table-item pink-bg">
+                    总派奖
+                </div>
+                <div class="table-item pink-bg">
+                    打码倍数
+                </div>
+                <div class="table-item pink-bg table-item-border-right">
+                    总盈利
+                </div>
+                <div class="clear-foalt-left"></div>
+            </div>
+            <div class="table-top">
+                <div class="table-item">
+                    上次至今
+                </div>
+                <div class="table-item">0.00</div>
+                <div class="table-item">{$aLastTimesInfo.deposit}</div>
+                <div class="table-item">{$userFund.availablebalance}</div>
+                <div class="table-item">{$aLastTimesInfo.points}</div>
+                <div class="table-item">{$aLastTimesInfo.favor}</div>
+                <div class="table-item">{$iRealBets}</div>
+                <div class="table-item">{$aLastTimesInfo.bonus}</div>
+                <div class="table-item">0</div>
+                <div class="table-item table-item-border-right">{$aLastTimesInfo.profit}</div>
+                <div class="clear-foalt-left"></div>
+            </div>
+            <div class="table-top">
+                <div class="table-item table-item-border-btom">
+                    历史总汇
+                </div>
+                <div class="table-item table-item-border-btom">{$userInfo.totalwithdrawal}</div>
+                <div class="table-item table-item-border-btom">{$userInfo.loadmoney}</div>
+                <div class="table-item table-item-border-btom">{$userFund.availablebalance}</div>
+                <div class="table-item table-item-border-btom">{$userInfo.totalpoint}</div>
+                <div class="table-item table-item-border-btom">{$userInfo.totalactivity}</div>
+                <div class="table-item table-item-border-btom">{$iRealBets}</div>
+                <div class="table-item table-item-border-btom">{$userInfo.totalbonus}</div>
+                <div class="table-item table-item-border-btom">{$iBetsMultiple}</div>
+                <div class="table-item table-item-border-right table-item-border-btom">{$userInfo.totalprofit}</div>
+                <div class="clear-foalt-left"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="out-four-box">
+        <div class="out-four-box-item-box">
+            <div class="four-box-one">
+                <span class="text">当前末结算金额:</span>
+                <span class="text">{$userFund.holdbalance}</span>
+            </div>
+            <div class="four-box-one">
+                <span class="text">人工入款金额:</span>
+                <span class="text">{$artificial}</span>
+            </div>
+            <div class="four-box-one">
+                <span class="text">三方人工补单金额:</span>
+                <span class="text">{$real_amount}</span>
+            </div>
+        </div>
+        <div class="out-four-box-item-box">
+            <div class="four-box-three">
+                <span class="text">最后一笔充值时间:</span>
+                <span class="text">{$lastRecharge}</span>
+                <!--<span class="text span-three">【4天前】</span>-->
+            </div>
+            <div class="four-box-three">
+                <span class="text">上一笔提款时间:</span>
+                <span class="text">{$lastWithdraw}</span>
+                <!--<span class="text span-three">【4天前】</span>-->
+            </div>
+        </div>
+        <div class="out-four-box-item-box">
+            <div class="four-box-three">
+                <span class="text">是否首次出款:</span>
+                {if $userInfo.totalwithdrawal <= 0}
+                <span class="text" style="color: red">是</span>
+                {else}
+                <span class="text">否</span>
+                {/if}
+            </div>
+        </div>
+        <div class="out-four-box-item-box">
+            <div class="four-box-three">
+                <span class="text">该出款卡是否在黑名单中:</span>
+                {if $isThisBlack == "是"}
+                <span class="text" style="color: red">{$isThisBlack}</span>
+                {else}
+                <span class="text">{$isThisBlack}</span>
+                {/if}
+            </div>
+            <div class="four-box-three">
+                <span class="text">用戶是否有卡在銀行卡黑名單中:</span>
+                {if $iBankCard == "是"}
+                <span class="text" style="color: red">{$iBankCard}</span>
+                {else}
+                <span class="text">{$iBankCard}</span>
+                {/if}
+            </div>
+            <div class="four-box-three">
+                <span class="text">用戶银行卡是否被修改过:</span>
+                {if $isupdate == "是"}
+                <span class="text" style="color: red">{$isupdate}</span>
+                {else}
+                <span class="text">{$isupdate}</span>
+                {/if}
+            </div>
+        </div>
+    </div>
+
+
+    <div class="out-second-box" style="height: 30px;">
+        <div>
+            <h3>IP情况（最近一百天登录，显示前10个ip的使用次数）</h3>
+            <span class="text blue-text-color" onclick="loginIp('{$userInfo.username}')">IP稽核情况</span>
+        </div>
+
+    </div>
+
+    <div class="table2">
+        <div class="table2-item-100">
+            ip
+        </div>
+        <div class="table2-item-100">
+            使用次数
+        </div>
+        <div class="table2-item-100">
+            使用比例
+        </div>
+        <div class="table2-item-100">
+            同IP人数
+        </div>
+        <div class="table2-item-100">
+            详情
+        </div>
+        <div class="table2-item-300">
+            IP最多账号前3个会员
+        </div>
+    </div>
+    <div class="table-middle">
+        {foreach from=$list item=list key=k}
+        <div class="table2-item-100">
+            {$list.clientip}
+        </div>
+        <div class="table2-item-100">
+            {$list.clientiptimes}
+        </div>
+        <div class="table2-item-100">
+            {$list.bili}%
+        </div>
+        <div class="table2-item-100">
+            {$list.countUser}
+        </div>
+        <div class="table2-item-100 blue-text-color">
+            <span class="text blue-text-color" onclick="ipDetail('{$list.clientip}')">查看详情</span>
+        </div>
+        <div class="table2-item-300">
+            {$list.maxUsername}
+        </div>
+        {/foreach}
+    </div>
+    <div class="table3"></div>
+
+
+    <div class="out-second-box" style="height: 30px;">
+        <div>
+            <h3>游戏情况</h3><span class="text">(最近2000笔已经结算注单及前10种中奖金额最多的玩法):</span>
+            <span class="text blue-text-color" onclick="gameList('{$userInfo.username}')" style="margin-left: 10px;">查看注单</span>
+            <span class="text blue-text-color" onclick="taskList('{$userInfo.username}')" style="margin-left: 10px;">查看追号</span>
+        </div>
+
+    </div>
+
+
+    <div class="table4" style="margin-bottom: 60px;">
+        <div class="table4-item">
+            <div class="table4-item tabel4-top-border">
+                <div class="table4-item-item pink-bg">下注彩种</div>
+                <div class="table4-item-item pink-bg">玩法</div>
+                <div class="table4-item-item pink-bg">下注次数</div>
+                <div class="table4-item-item pink-bg">下注金额</div>
+                <div class="table4-item-item pink-bg">中奖金额</div>
+                <div class="table4-item-item pink-bg tabel4-right-border">用户盈亏</div>
+                <div class="clear-foalt-left"/>
+            </div>
+            <div class="table4-item tabel4-btm-border">
+                {foreach from=$res item=res key=k}
+                <div class="table4-item-item">{$res.ccname}</div>
+                <div class="table4-item-item">{$res.methodname}</div>
+                <div class="table4-item-item">{$res.times}</div>
+                <div class="table4-item-item">{$res.totalprices}</div>
+                <div class="table4-item-item">{$res.totalbonus}</div>
+                <div class="table4-item-item tabel4-right-border">{$res.profit}</div>
+                {/foreach}
+                <div class="clear-foalt-left"/>
+            </div>
+        </div>
+    </div>
+    <div align="center" class="cash-withdraw-btn-center" style="    position: fixed;bottom: 0;background: #fff;margin-left: -10px;width: 950px;height: 50px;line-height: 50px;">
+    {if ($iVerify_status == 0)}
+        <span class="btn btn-primary" onclick="review('{$iId}',1,'{$userInfo.userid}')">通过</span>
+        <span class="btn btn-primary" onclick="review('{$iId}',2,'{$userInfo.userid}')">拒绝</span>
+    {/if}
+    </div>
+</div>
+<script>
+    function closeAll() {
+        parent.layer.closeAll();
+    }
+    function parentRefresh() {
+        parent.myrefresh();
+    }
+    function review(id,status,userid) {
+        if (status == 1){
+            layer.confirm('确定通过风控审核？', {icon: 3, title:'提示'}, function(){
+                $.ajax({
+                    type: 'POST',
+                    url: 'cash_review.shtml',
+                    dataType: 'json',
+                    data: {id: id,verify_status:status,userid:userid},
+                    success: function (data) {
+                        if (data.error !== undefined) {
+                            layer.msg(data.msg, {
+                                time:1000
+                            }, function () {
+                                if (data.error == 0) {
+                                    closeAll();
+                                    parentRefresh();
+                                }
+                            });
+                        } else {
+                            layer.msg('没有修改权限！');
+                        }
+                    }
+                });
+            });
+        }else if(status == 2){
+            layer.open({
+                type: 2,
+                shadeClose: false,
+                shade: [0.3,'#000'],
+                area: ['360px', '320px'],
+                content: ['cash_refuse.shtml?id='+id+'&verify_status=2&status=3&userid='+userid, 'no']
+            });
+        }
+    }
+    function loginIp(username) {
+        var sDate = GetDateStr(-100)+" 03:00:00";
+        layer.open({
+            type: 2,
+            title: 'ip稽核情况',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['96%', '96%'],
+            content: ['log_loginlog.shtml?keyword='+username+'&search_type=1&is_check=1&sdate='+sDate]
+        });
+    }
+    function gameList(username) {
+        var sDate = GetDateStr(-100)+" 03:00:00";
+        console.log(sDate);
+        layer.open({
+            type: 2,
+            title: '下注记录',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['96%', '96%'],
+            content: ['pgame_playlist.shtml?username='+username+'&sTime='+sDate]
+        });
+    }
+    function taskList(username) {
+        var sDate = GetDateStr(-100)+" 03:00:00";
+        layer.open({
+            type: 2,
+            title: '追单记录',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['96%', '96%'],
+            content: ['pgame_tasklist.shtml?username='+username+'&sTime='+sDate]
+        });
+    }
+    function ipDetail(ip) {
+        var sDate = GetDateStr(-100)+" 03:00:00";
+        layer.open({
+            type: 2,
+            title: 'ip稽核情况',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['96%', '96%'],
+            content: ['log_loginlog.shtml?keyword='+ip+'&search_type=2&is_check=1&sdate='+sDate]
+        });
+    }
+    function GetDateStr(AddDayCount) {
+        var dd = new Date();
+        dd.setDate(dd.getDate()+AddDayCount);//获取AddDayCount天后的日期
+        var y = dd.getFullYear();
+        var m = (dd.getMonth()+1)<10?"0"+(dd.getMonth()+1):(dd.getMonth()+1);//获取当前月份的日期，不足10补0
+        var d = dd.getDate()<10?"0"+dd.getDate():dd.getDate();//获取当前几号，不足10补0
+        return y+"-"+m+"-"+d;
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,499 @@
+{include file="pageheader.html"}
+
+<body class="white-bg">
+<style>
+    td[title^='尚未结算'],td[title^='尚未结算'] span{
+        color:red;
+    }
+</style>
+<div id ="companyMoney"  style="display: none;">
+    <table  tabindex="0" role="presentation" aria-multiselectable="false" aria-labelledby="gbox_table_list_2" class="ui-jqgrid-btable ui-common-table table table-bordered" style="margin:auto;"cellspacing="0"  border="1px"  >
+        <tbody>
+        <tr> <th>入款类型</th> <th>金额</th> </tr>
+        <tr>
+            <td><span >银行卡入款</span></td>
+            <td><span id="bankPayment" dateKey = ""  onclick="showCompanyCategory(1)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        <tr>
+            <td><span >微信支付</span></td>
+            <td><span id="WeChatPayment"  dateKey = "" onclick="showCompanyCategory(2)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        <tr>
+            <td><span >支付宝支付</span></td>
+            <td><span id="aliPayment"  dateKey = "" onclick="showCompanyCategory(3)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        <tr>
+            <td><span >QQ钱包</span></td>
+            <td><span id="qqPayment"  dateKey = "" onclick="showCompanyCategory(4)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div id ="discountMoney"  style="display: none;">
+    <table  tabindex="0" role="presentation" aria-multiselectable="false" aria-labelledby="gbox_table_list_2" class="ui-jqgrid-btable ui-common-table table table-bordered" style="margin:auto;"cellspacing="0"  border="1px"  >
+        <tbody>
+        <tr> <th>项目</th> <th>金额</th> </tr>
+        <tr>
+            <td><span >公司入款</span></td>
+            <td><span id="companyPaymentDiscount" dateKey = ""  onclick="showDiscount(1)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        <tr>
+            <td><span >三方入款</span></td>
+            <td><span id="fastpayPaymentDiscount"  dateKey = "" onclick="showDiscount(2)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        <tr>
+            <td><span >存款存入</span></td>
+            <td><span id="depositDiscount"  dateKey = "" onclick="showDiscount(3)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        <tr>
+            <td><span >优惠活动</span></td>
+            <td><span id="activityDiscount"  dateKey = "" onclick="showDiscount(4)" style="color: red; cursor:pointer"></span></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+    <div id ="withdrawfee"  style="display: none;">
+           <table  tabindex="0" role="presentation" aria-multiselectable="false" aria-labelledby="gbox_table_list_2" class="ui-jqgrid-btable ui-common-table table table-bordered" style="margin:auto;"cellspacing="0"  border="1px"  >
+           <tbody>
+             <tr> <th>项目</th> <th>金额</th> </tr>
+             <tr>
+               <td><span >取款手续费扣除</span></td>
+               <td><span id="charge" dateKey = ""  onclick="showWithdrawInfo(1)" style="color: red; cursor:pointer"></span></td>
+             </tr>
+             <tr>
+               <td><span >行政费扣除</span></td>
+               <td><span id="admin_fee"  dateKey = "" onclick="showWithdrawInfo(2)" style="color: red; cursor:pointer"></span></td>
+             </tr>
+             </tbody>
+           </table>
+    </div>
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" id="subbox" onsubmit="return false;">
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">开始时间</label>
+                    开始时间:<input name="startdt" id="startdt" class="form-control layer-date" value="{$sdate}" placeholder="" onclick="laydate({istime: false})">
+                 </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+                    结束时间:<input name="enddt" id="enddt" class="form-control layer-date" value="{$edate}" placeholder="" onclick="laydate({istime: false,max:'{$edate}'})">
+                </div>
+                <!-- <a class="btn btn-primary pull-right mgr15" onclick="exportUser()">导出报表</a> -->
+                <button class="btn btn-primary mgr15 " type="submit">查询</button>
+            <span class="help-block m-b-none" style="color: red">(*此报表最多统计30天数据，统计日期最大值为{$edate})<br>(*总计不记录当天数据)</span>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <!-- <div id="pager_list_2"></div> --><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["日期","公司入款","第三方存入","存款存入","普通存入","给予优惠","总返点","银行卡出款","三方出款","会员出款被扣除金额","人工取款","小计"],
+                //表格内容
+                colModel:[
+                    {name:"dateKey",index:"dateKey",editable:true,sorttype:"int",search:true,sortable:false},
+                    {name:"company_money",index:"company_money",editable:true,align:"right",sortable:false,formatter:getCompanyMoney},
+                    {name:"fastpay_money",index:"fastpay_money",align:"right",editable:true,sortable:false,formatter:getFastpayMoney},
+                    {name:"manuapay_money",index:"manuapay_money",align:"right",editable:true,sortable:false,formatter:manuapay},
+                    {name:"manuaordinarypay_money",index:"manuaordinarypay_money",align:"right", sortable:false,formatter:manuaordinarypay},
+                    {name:"total_favor",index:"total_favor",align:"right",editable:true,sorttype:"float",formatter:getDiscount},
+                    {name:"selfpoints",index:"selfpoints",align:"right",editable:true,sortable:false},
+                    // {name:"parentspoints",index:"parentspoints",align:"right",sortable:false},
+                    {name:"bank_withdraw_money",index:"bank_withdraw_money",sortable:false,align:"right",editable:true,formatter:bankwithdrawmoney},
+                    {name:"fast_withdraw_money",index:"fast_withdraw_money",sortable:false,align:"right",editable:true,formatter:fastwithdrawmoney},
+                    {name:"withdraw_fee",index:"withdraw_fee",sortable:false,width:"180", align:"right",formatter:withdrawfee},
+                    {name:"manuadraw_money",index:"manuadraw_money",sortable:false,align:"right", editable:true,formatter:manuadraw},
+                    {name:"onedaydata",index:"onedaydata",align:"right",sortable:false,formatter:colorformat}
+                ],
+                //data:mydata,
+                height:"auto", //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:35,       //每页展示的记录数
+                footerrow: true , // 分页上添加一行，用于显示统计信息
+                rowList:[30,50,100], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                },
+                loadComplete: function (data) {
+                  if(data.code !== 'undefined' && data.code !=0) {
+                      var $this = $(this), 
+                      footerData = {},
+                      titleField = 'dateKey', //头对应字段位置
+                      $newFooterRow;
+                      $newFooterRow = $(this.grid.sDiv).find("tr.footrow");
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_dateKey]").text("总计:");
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_company_money]").text(data.extend.total_company);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_fastpay_money]").text(data.extend.total_fastpay);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_manuapay_money]").text(data.extend.total_manuapay);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_manuaordinarypay_money]").text(data.extend.total_manuaordinarypay);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_total_favor]").text(data.extend.total_favor);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_selfpoints]").text(data.extend.total_selfpoints);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_parentspoints]").text(data.extend.total_parentspoints);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_bank_withdraw_money]").text(data.extend.total_bank_withdraw);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_fast_withdraw_money]").text(data.extend.total_fast_withdraw);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_withdraw_fee]").text(data.extend.total_withdraw_fee);
+                      $newFooterRow.find(">td[aria-describedby=table_list_2_manuadraw_money]").text(data.extend.total_manuadraw);
+                      if (data.extend.total_data > 0) {
+                          $newFooterRow.find(">td[aria-describedby=table_list_2_onedaydata]").text(data.extend.total_data).css("color","green");
+                      }else {
+                          $newFooterRow.find(">td[aria-describedby=table_list_2_onedaydata]").text(data.extend.total_data).css("color","red");
+                      }
+                  }else {
+                    layer.msg(data.msg);
+                  }
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            //$("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                $("#table_list_2").jqGrid("setGridParam", {page: 1 }).trigger('reloadGrid');
+                return false;
+            });
+        });
+        //用户公司入款
+        function getCompanyMoney(cellValue, options, rowObject) {
+            var html ="";
+            html += '<a class  onclick="showCompanyPayment(\''+rowObject.dateKey+'\')">';
+            html += "<span >"+rowObject.company_money+"</span></a>&nbsp;&nbsp;";
+            return html;
+        }
+        function getFastpayMoney(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title=\"三方入款列表\"  onclick=\"fastpay('"+rowObject.dateKey+"')\">";
+            html += "<span>"+rowObject.fastpay_money+"</span></a>&nbsp;";
+            return html;
+        }
+        function getDiscount(cellValue, options, rowObject) {
+            var html ="";
+            html += "<a title=\"给予优惠\"  onclick=\"discount('"+rowObject.dateKey+"')\">";
+            html += "<span>"+rowObject.total_favor+"</span></a>&nbsp;";
+            return html;
+        }
+        function mulmaxpoint(cellValue, options, rowObject) {
+          return (rowObject.maxpoint * 100).toFixed(1);
+        }
+
+        //人工存款 存款存入
+        function manuapay(cellValue, options, rowObject) {
+            var html ="";  
+                html += '<a class  onclick="showmanuapay(0,1,\''+rowObject.dateKey+'\')">';  
+                html += "<span >"+rowObject.manuapay_money+"</span></a>&nbsp;&nbsp;";    
+            return html; 
+        }
+         //人工存款 普通存入
+        function manuaordinarypay(cellValue, options, rowObject) {
+            var html ="";  
+                html += '<a class  onclick="showmanuapay(0,0,\''+rowObject.dateKey+'\')">';  
+                html += "<span >"+rowObject.manuaordinarypay_money+"</span></a>&nbsp;&nbsp;";    
+            return html; 
+        }
+        //人工提款
+         function manuadraw(cellValue, options, rowObject) {
+            var html ="";  
+                html += '<a class  onclick="showmanuapay(1,4,\''+rowObject.dateKey+'\')">';  
+                html += "<span >"+rowObject.manuadraw_money+"</span></a>&nbsp;&nbsp;";    
+            return html; 
+        }
+        //银行卡取款
+         function bankwithdrawmoney(cellValue, options, rowObject) {
+            var html ="";  
+                html += '<a class  onclick="showbankwithdraw(\''+rowObject.dateKey+'\')">';
+                html += "<span >"+rowObject.bank_withdraw_money+"</span></a>&nbsp;&nbsp;";
+            return html; 
+        }
+        //三方取款
+         function fastwithdrawmoney(cellValue, options, rowObject) {
+            var html ="";
+                html += '<a class  onclick="showfastwithdraw(\''+rowObject.dateKey+'\')">';
+                html += "<span >"+rowObject.fast_withdraw_money+"</span></a>&nbsp;&nbsp;";
+            return html;
+        }
+        //用户取款手续费
+         function withdrawfee(cellValue, options, rowObject) {
+            var html ="";  
+                html += '<a class  onclick="showwithdrawfee(\''+rowObject.dateKey+'\')">';  
+                html += "<span >"+rowObject.withdraw_fee+"</span></a>&nbsp;&nbsp;";    
+            return html; 
+        }
+        //公司入款类型统计
+        function showCompanyPayment(dateKey) {
+            $.ajax({
+                type: "POST",
+                url:"finance_companypayment.shtml",
+                data:{dateKey:dateKey},
+                success: function(data) {
+                    var data = eval("("+data+")");
+                    if(data.code==1) {
+                        $("#bankPayment").text(data.bank.apply_amount + '(' + data.bank.user_count + ')人');
+                        $("#bankPayment").attr("dateKey", dateKey);
+                        $("#WeChatPayment").text(data.wechat.apply_amount + '(' + data.wechat.user_count + ')人');
+                        $("#WeChatPayment").attr("dateKey", dateKey);
+                        $("#aliPayment").text(data.alipay.apply_amount + '(' + data.alipay.user_count + ')人');
+                        $("#aliPayment").attr("dateKey", dateKey);
+                        $("#qqPayment").text(data.qqpay.apply_amount + '(' + data.qqpay.user_count + ')人');
+                        $("#qqPayment").attr("dateKey", dateKey);
+                    }
+                }
+            });
+            layer.open({
+                type: 1,
+                title: '公司入款列表',
+                closeBtn: 1,
+                offset:'90px',
+                area: ['300px', '250px'],
+                shadeClose: false,
+                content: $('#companyMoney')
+            });
+        }
+        //公司入款类型统计
+        function discount(dateKey) {
+            $.ajax({
+                type: "POST",
+                url:"finance_discount.shtml",
+                data:{dateKey:dateKey},
+                success: function(data) {
+                    var data = eval("("+data+")");
+                    if(data.code==1) {
+                        $("#companyPaymentDiscount").text(data.company.discount + '(' + data.company.user_count + ')人');
+                        $("#companyPaymentDiscount").attr("dateKey", dateKey);
+                        $("#fastpayPaymentDiscount").text(data.fastpay.discount + '(' + data.fastpay.user_count + ')人');
+                        $("#fastpayPaymentDiscount").attr("dateKey", dateKey);
+                        $("#depositDiscount").text(data.deposit.discount + '(' + data.deposit.user_count + ')人');
+                        $("#depositDiscount").attr("dateKey", dateKey);
+                        $("#activityDiscount").text(data.activity.discount + '(' + data.activity.user_count + ')人');
+                        $("#activityDiscount").attr("dateKey", dateKey);
+                    }
+                }
+            });
+            layer.open({
+                type: 1,
+                title: '给予优惠',
+                closeBtn: 1,
+                offset:'90px',
+                area: ['300px', '250px'],
+                shadeClose: false,
+                content: $('#discountMoney')
+            });
+        }
+        //用户详细资金统计页面
+        function showmanuapay(optype,order_type,dateKey) {
+              if(order_type == 1 && optype == 0){
+                var title = '存款存入';
+              } else if(order_type == 0 && optype == 0){
+                var title = '普通存入';
+              } else {
+                var title = '人工取款';
+              }       
+             layer.open({
+                  type: 2,
+                  title: title,
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ["60%", '800px'],
+                   content: ['finance_manuainfo.shtml?optype='+optype+'&order_type='+order_type+'&dateKey='+dateKey],
+            });
+        }
+        //用户详细资金统计页面
+        function showbankwithdraw(dateKey) {
+            var withdraw_type = 0;
+             layer.open({
+                  type: 2,
+                  title: '银行卡取款',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ["60%", '800px'],
+                   content: ['finance_withdraw.shtml?dateKey='+dateKey+'&withdraw_type='+withdraw_type],
+            });
+        }
+        //用户详细资金统计页面
+        function showfastwithdraw(dateKey) {
+            var withdraw_type = 1;
+             layer.open({
+                  type: 2,
+                  title: '三方取款',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ["60%", '800px'],
+                   content: ['finance_withdraw.shtml?dateKey='+dateKey+'&withdraw_type='+withdraw_type],
+            });
+        }
+        //手续费类型统计
+         function showwithdrawfee(dateKey) {
+              $.ajax({
+                    type: "POST",
+                    url:"finance_withdrawfee.shtml",
+                    data:{dateKey:dateKey}, 
+                    success: function(data) {
+                        var data = eval("("+data+")");
+                        if(data.code==1) {
+                            $("#admin_fee").text(data.admin_fee+'('+data.adminfee_user+')人');
+                            $("#admin_fee").attr("dateKey",dateKey);
+                            $("#charge").text(data.charge+'('+data.charge_user+')人');
+                            $("#charge").attr("dateKey",dateKey);
+                        }
+                    }
+                });
+                layer.open({
+                  type: 1,
+                  title: '会员出款被扣除金额',
+                  closeBtn: 1,
+                  offset:'90px',
+                  area: ['300px', '250px'],
+                  shadeClose: false,
+                  content: $('#withdrawfee')
+                });
+            }
+
+            //手续费详情
+            function showWithdrawInfo(type) {
+                 if(type==1){
+                     var dateKey = $("#charge").attr("dateKey");
+                     var title = '手续费扣除';
+                  }else{
+                     var dateKey = $("#admin_fee").attr("dateKey");
+                     var title = '行政费扣除';
+                 } 
+                layer.open({
+                    type: 2,
+                    title: title,
+                    shadeClose: true,
+                    shade: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ["60%", '800px'],
+                    content: ['finance_withdrawinfo.shtml?dateKey='+dateKey+'&type='+type],
+                });
+            }
+        //公司入款分类列表
+        function showCompanyCategory(type) {
+            if(type == 1){
+                var dateKey = $("#bankPayment").attr("dateKey");
+                var title = '公司入款/银行卡入款';
+            }else if (type == 2){
+                var dateKey = $("#WeChatPayment").attr("dateKey");
+                var title = '公司入款/微信入款';
+            }else if (type == 3){
+                var dateKey = $("#aliPayment").attr("dateKey");
+                var title = '公司入款/支付宝入款';
+            }else if (type == 4){
+                var dateKey = $("#qqPayment").attr("dateKey");
+                var title = '公司入款/QQ钱包入款';
+            }
+            layer.open({
+                type: 2,
+                title: title,
+                shadeClose: true,
+                shade: false,
+                maxmin: true, //开启最大化最小化按钮
+                area: ["60%", '800px'],
+                content: ['finance_companycategory.shtml?inserdate='+dateKey+'&category='+type]
+            });
+        }
+        //给予优惠
+        function showDiscount(type) {
+            if(type == 1){
+                var dateKey = $("#companyPaymentDiscount").attr("dateKey");
+                var title = '给予优惠/公司入款';
+            }else if (type == 2){
+                var dateKey = $("#fastpayPaymentDiscount").attr("dateKey");
+                var title = '给予优惠/三方入款';
+            }else if (type == 3){
+                var dateKey = $("#depositDiscount").attr("dateKey");
+                var title = '给予优惠/存款存入入款';
+            }else if (type == 4){
+            var dateKey = $("#activityDiscount").attr("dateKey");
+            var title = '给予优惠/活动优惠';
+        }
+            layer.open({
+                type: 2,
+                title: title,
+                shadeClose: true,
+                shade: false,
+                maxmin: true, //开启最大化最小化按钮
+                area: ["60%", '800px'],
+                content: ['finance_discountcategory.shtml?inserdate='+dateKey+'&category='+type]
+            });
+        }
+        //格式化总金额颜色
+        function colorformat(cellValue, options, rowObject){
+          var html ="";  
+          if(rowObject.onedaydata < 0){
+              html += "<a class=''  style='color:red'>";  
+              html += "<span >"+rowObject.onedaydata+"</span></a>&nbsp;&nbsp;";  
+          }else if(rowObject.onedaydata > 0){
+              html += "<a class=''  style='color:green'>";  
+              html += "<span >"+rowObject.onedaydata+"</span></a>&nbsp;&nbsp;";    
+          }else {
+              html += "<a class=''  style='color:black'>";  
+              html += "<span >"+rowObject.onedaydata+"</span></a>&nbsp;&nbsp;";   
+          }
+            return html; 
+        }
+
+        //自定义操作表格
+        function showlink(cellValue, options, rowObject) {  
+            //console.info([cellValue, options, rowObject]);
+            var html ="";  
+                html += "<a class=''  onclick='useredit("+rowObject.userid+");'>";  
+                html += "<span >修改</span></a>&nbsp;&nbsp;";    
+               
+            return html; 
+            }   
+        function exportUser(){
+          var postData = {};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    var data = JSON.stringify(postData);
+          window.location.href="user_exportusers.shtml?getData="+data;
+        }
+        //三方入款
+        function fastpay(dateKey){
+            layer.open({
+                type: 2,
+                title: '三方入款列表',
+                shadeClose: true,
+                shade: [0.7,'#000'],
+                maxmin: false, //开启最大化最小化按钮
+                area: ['60%', '800px'],
+                content: ['finance_fastpaypayment.shtml?inserdate='+dateKey]
+            });
+        }
+        </script>
+</body>
+</html>

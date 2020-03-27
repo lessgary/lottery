@@ -1,0 +1,382 @@
+{include file="pageheader.html"}
+<head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 800px;
+            height: 500px;
+            overflow: hidden;
+        }
+        .show-page-box {
+            width: 800px;
+            height: 500px;
+            background-color: white;
+            overflow: hidden;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+        .top-bar {
+            width: 100%;
+            height: 25px;
+            background-color: #B2D160;
+            position: relative;
+        }
+        .top-bar-left-text {
+            position: absolute;
+            line-height: 27px;
+            color: white;
+            font-size: 14px;
+            left: 10px;
+        }
+        .top-bar-right-close-text {
+            position: absolute;
+            line-height: 27px;
+            color: white;
+            font-size: 14px;
+            right: 10px;
+            cursor: pointer;
+        }
+        .page-info-box {
+            width: 100%;
+            height: 270px;
+            position: relative;
+        }
+        .page-info-box>div {
+            display: inline-block;
+        }
+        .page-info-box span {
+            font-size: 12px;
+            color: #373737;
+        }
+        .info-1-box {
+            width: 260px;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+            left: 0;
+        }
+        .info-2-box {
+            width: 260px;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+            left: 260px;
+        }
+        .info-3-box {
+            width: 260px;
+            height: 100%;
+            position: absolute;
+            top: 20px;
+            left: 520px;
+        }
+        .info-item-box {
+            width: 100%;
+            height: 40px;
+            border-right: 1px solid #373737;
+            position: relative;
+        }
+        .item-left-text {
+            position: absolute;
+            text-align: left;
+            left: 10px;
+            line-height: 40px;
+        }
+        .item-right-text {
+            position: absolute;
+            text-align: right;
+            line-height: 40px;
+            right: 10px;
+        }
+        .info-item-box-no-border {
+            border: 0px solid #373737;
+        }
+
+        .page-middle-content {
+            margin: auto;
+            width: 730px;
+            height: 60px;
+            background-color: #18a689;
+            border-radius: 5px;
+        }
+        .content-left-box {
+            display: inline-block;
+            width: 200px;
+            height: 56px;
+            margin-top: 2px;
+            border-right: 1px solid #FFFFFF;
+            font-size: 14px;
+            color: #373737;
+            text-align: center;
+            line-height: 56px;
+        }
+        .content-right-box {
+            display: inline-block;
+            width: 480px;
+            height: 56px;
+            margin-top: 2px;
+            font-size: 14px;
+            color: #373737;
+            text-align: left;
+        }
+        .page-middle-tip {
+            width: 100%;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            font-size: 12px;
+            color: #373737;
+        }
+        .page-btm-box {
+            margin: auto;
+            width: 730px;
+            height: 80px;
+            border: 0px solid rgb(223, 240, 216);
+        }
+        .btm-top-box {
+            width: 100%;
+            height: 40px;
+            background-color: rgb(223, 240, 216);
+        }
+        .btm-btm-box {
+            width: 100%;
+            height: 40px;
+        }
+        .btm-box-item-box {
+            display: inline-block;
+            width: 24%;
+            height: 50%;
+        }
+
+        .btm-box-item-box-top {
+            width: 100%;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 12px;
+            color: #373737;
+        }
+        .btm-box-item-box-btm {
+            width: 100%;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 12px;
+            color: #373737;
+        }
+        .btm-bar-box {
+            position: absolute;
+            bottom: 0px;
+            width: 100%;
+            height: 35px;
+            background-color: #F6F6F6;
+            border-top: 1px solid #DDDDDD;
+        }
+        .sure-btn {
+            position: absolute;
+            width: 50px;
+            height: 25px;
+            background-color: #B2D160;
+            font-size: 12px;
+            text-align: center;
+            line-height: 25px;
+            right: 10px;
+            top: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            color: white;
+            box-shadow: 3px 2px 3px grey;
+        }
+        .underLine {
+            border-bottom: 1px solid  #DDDDDD;
+            border-right: 1px solid  #DDDDDD;
+            border-left: 1px solid  #DDDDDD;
+        }
+        .myPadding {
+            width: inherit;
+            height:80px;
+        }
+    </style>
+</head>
+<body>
+<script>
+    jQuery(document).ready(function(){
+        $("#checkall").change(function(){
+            $(".check").each(function(){
+                if($(this).prop("checked")){
+                    $(this).prop("checked",false);
+                }else{
+                    $(this).prop("checked",true);
+                }
+            });
+        });
+    });
+    function cancel()
+    {
+        var size= 0;
+        var inputs = document.getElementsByTagName('input');
+        for (var i = 0; i < inputs.length; i ++) {
+            if (inputs[i].name == 'taskid[]' && inputs[i].checked == true) {
+                size += 1;
+            }
+        }
+        if(size==0)
+        {
+            alert("您没有选择选择彩种期数.");
+            return false;
+        }
+        else
+        {
+            layer.prompt({title: '撤单备注', formType: 2}, function(text, index){
+                $("#remark").val(text);
+                $("#Form").submit();
+                layer.close(index);
+            });
+        }
+    }
+</script>
+<div class="show-page-box">
+    <div class="page-info-box">
+        <div class="info-1-box">
+            <div class="info-item-box">
+                <span class="item-left-text">会员名:</span>
+                <span class="item-right-text">{$task.username|escape:html}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">追号编号:</span>
+                <span class="item-right-text">{$task.taskid|escape:html}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">追号时间:</span>
+                <span class="item-right-text">{$task.begintime|escape:html}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">追号期数:</span>
+                <span class="item-right-text">{$task.issuecount|escape:html}期</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">追号总金额:</span>
+                <span class="item-right-text">{$task.taskprice|escape:money:4}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">中奖后停止追号:</span>
+                <span class="item-right-text">{if $task.stoponwin==1}是{else}否{/if}</span>
+            </div>
+        </div>
+        <div class="info-2-box">
+            <div class="info-item-box">
+                <span class="item-left-text">游戏:</span>
+                <span class="item-right-text">{$task.cnname|escape:html}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">追号状态:</span>
+                <span class="item-right-text">{if $task.status==0}进行中{elseif $task.status==1}已取消{elseif $task.status==2}已完成{/if}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">完成期数:</span>
+                <span class="item-right-text">{$task.finishedcount|escape:html}期</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">完成金额:</span>
+                <span class="item-right-text">{$task.finishprice|escape:money:4}</span>
+            </div>
+            <div class="info-item-box">
+                <span class="item-left-text">奖金返点:</span>
+                <span class="item-right-text">{if empty($task.dypointdec)}--{else}{$task.dypointdec}{/if}
+                    <p>[本人返点：{$task.userdefaultpoint}，动态返点：{$task.userpoint}%]</p>
+                </span>
+            </div>
+            <div class="info-item-box">
+            </div>
+        </div>
+        <div class="info-3-box">
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">玩法:</span>
+                <span class="item-right-text">{$task.methodname|escape:html}</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">模式:</span>
+                <span class="item-right-text">{if $task.modes>0}{assign var=tmp value=$modes[$task.modes]}{$tmp.name}{else}&nbsp;{/if}</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">开始期号:</span>
+                <span class="item-right-text">{$task.beginissue|escape:html}</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">取消期数:</span>
+                <span class="item-right-text">{$task.cancelcount|escape:html}期</span>
+            </div>
+            <div class="info-item-box info-item-box-no-border">
+                <span class="item-left-text">取消金额:</span>
+                <span class="item-right-text">{$task.cancelprice|escape:money:4}</span>
+            </div>
+            {if $task.status==0}
+            <div class="info-item-box info-item-box-no-border">
+                <div class="btn btn-sm btn-outline btn-primary pull-right" onclick="cancel()">追号终止</div>
+            </div>
+            {/if}
+        </div>
+    </div>
+    <div class="page-middle-content">
+        <div class="content-left-box">
+            追号内容
+        </div>
+        <div class="content-right-box">{$task.codes}</div>
+    </div>
+    <div class="page-middle-tip">可能中奖情况</div>
+    <form id="Form" action="./pgame_taskcancel.shtml" method="post">
+        <input type="hidden" name="uid" value="{$task.userid}"/>
+        <input type="hidden" name="id" value="{$task.taskid}" />
+        <input type="hidden" name="remark" id="remark" value="" />
+        <div class="page-btm-box">
+            <div class="btm-top-box">
+                <div class="btm-box-item-box">
+                    <div class="btm-box-item-box-top"><input type="checkbox" id="checkall">奖期</div>
+                </div>
+                <div class="btm-box-item-box">
+                    <div class="btm-box-item-box-top">追号倍数</div>
+                </div>
+                <div class="btm-box-item-box">
+                    <div class="btm-box-item-box-top">追号状态</div>
+                </div>
+                <div class="btm-box-item-box">
+                    <div class="btm-box-item-box-top">详情</div>
+                </div>
+            </div>
+            {foreach from=$aTaskdetail item=taskdetail key=k}
+            <div class="btm-btm-box underLine">
+                <div class="btm-box-item-box">
+                    <div class="btm-box-item-box-btm">
+                        {if $taskdetail.status<2}
+                            {if strtotime($taskdetail.canneldeadline)>time()}
+                            <input class="check" type="checkbox" name="taskid[]" value="{$taskdetail.entry}">
+                            {/if}
+                        {/if}{$taskdetail.issue|escape:html}
+                    </div>
+                </div>
+                <div class="btm-box-item-box">
+                    <div class="btm-box-item-box-btm">{$taskdetail.multiple|escape:html}倍</div>
+                </div>
+                <div class="btm-box-item-box ">
+                    <div class="btm-box-item-box-btm">{if $taskdetail.status==0}进行中{elseif $taskdetail.status==1}已完成{elseif $taskdetail.status==2}已取消{/if}</div>
+                </div>
+                <div class="btm-box-item-box ">
+                    <div class="btm-box-item-box-btm">{if $taskdetail.projectid}<a href="./pgame_playdetail.shtml?id={$taskdetail.projectid}">详情</a>{/if}</div>
+                </div>
+            </div>
+            {/foreach}
+            <div class="myPadding"/>
+        </div>
+
+    <!--<div class="btm-bar-box">-->
+
+        <!--<div class="btn btn-sm btn-outline btn-primary pull-right">确定</div>-->
+    <!--</div>-->
+    </form>
+</div>
+
+</body>
+</html>

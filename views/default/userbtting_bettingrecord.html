@@ -1,0 +1,332 @@
+{include file="pageheader.html"}
+<body class="gray-bg">
+<div class="ibox-content zom border-bottom">
+    <button type="button" class="btn btn-w-m btn-white">彩票</button>
+    <button type="button" class="btn btn-w-m  btn-primary">开元棋牌</button>
+    <a href="#" onclick="profitUrl()"><button type="button" style="float: right" class="btn btn-w-m btn-white">平台报表查询</button></a>
+</div>
+
+
+<div class="ibox-content border-bottom">
+    <form role="form" class="form-inline" id="subbox">
+        <input type="hidden" name="vendorId" id="vendorId" value="{$smarty.get.vendorId}">
+        <div class="form-group" style="">
+            用户名:<input type="text" placeholder="请输入用户名" name="username" id="username" class="form-control"
+                      value="{$smarty.get.username}">
+        </div>
+        <div class="form-group" style="margin-left: 50px">
+            游戏名称:<input type="text" placeholder="游戏名称" name="gameName" class="form-control"
+                       value="{$username|escape:html}">
+        </div>
+        <div class="form-group" style="margin-left: 50px">
+            注单号:<input type="text" placeholder="注单号" name="gamePeriod" class="form-control"
+                        value="{$username|escape:html}">
+        </div>
+        <!--<div class="form-group" style="margin-left: 50px">-->
+            <!--游戏类型:-->
+            <!--<select class="form-control" name="gameType" >-->
+                <!--<option value="0" {if $smarty.get.gameType=='0'}selected{/if}>全部</option>-->
+                <!--<option value="1" {if $smarty.get.gameType=='1'}selected{/if}>彩票</option>-->
+                <!--<option value="2" {if $smarty.get.gameType=='2'}selected{/if}>真人娱乐</option>-->
+                <!--<option value="3" {if $smarty.get.gameType=='3'}selected{/if}>电子游戏</option>-->
+                <!--<option value="4" {if $smarty.get.gameType=='4'}selected{/if}>体育</option>-->
+                <!--<option value="5" {if $smarty.get.gameType=='5'}selected{/if}>棋牌</option>-->
+            <!--</select>-->
+        <!--</div>-->
+        <div style="margin-top: 20px">
+            <div class="form-group" >
+                <label class="sr-only">投注时间 </label>
+                投注时间: <input name="startStime" id="sTime" class="form-control layer-date" value="{$startDate}"
+                             placeholder="YYYY-MM-DD hh:mm:ss" autocomplete="off" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+            <div class="form-group" style="margin-left: 10px;">
+                <label class="sr-only">到 </label>
+                到: <input name="startEtime" id="eTime" class="form-control layer-date" value="{$endDate}"
+                          placeholder="YYYY-MM-DD hh:mm:ss" autocomplete="off" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+
+            <div class="form-group" style="margin-left: 50px">
+                <label class="sr-only">开奖时间 </label>
+                开奖时间: <input name="endStime" id="endStime" autocomplete="off" class="form-control layer-date" value="{$smarty.get.endStime}"
+                             placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+            <div class="form-group" style="margin-left: 10px;">
+                <label class="sr-only">到 </label>
+                到: <input name="endEtime" id="endEtime" class="form-control layer-date" value="{$smarty.get.endEtime}"
+                          placeholder="YYYY-MM-DD hh:mm:ss" autocomplete="off" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+            </div>
+
+
+        </div>
+        <div style="margin-top: 20px;display: none" class="advanced" >
+            <div class="form-group" >
+                <div class="form-group" style="">
+                    投注额:<input type="text"  name="bettingSmall" id="bettingSmall" class="form-control">
+                </div>
+                <div class="form-group" style="">
+                    到:<input type="text"  name="bettingBig" id="bettingBig" class="form-control">
+                </div>
+
+                <div class="form-group" style="margin-left: 20px">
+                    盈亏:<input type="text"  name="ProfitSmall" id="ProfitSmall" class="form-control">
+                </div>
+                <div class="form-group" style="">
+                    到:<input type="text"  name="ProfitBig" id="ProfitBig" class="form-control">
+                </div>
+            </div>
+            <br>
+
+            <div class="form-group" style="margin-top: 20px">
+                <div class="radio i-checks">
+                    <label class="sr-only">来源终端 </label>
+                    来源终端：
+                    <label>
+                        <input type="radio" value="0" name="terminal"  checked="checked"> <i></i> 全部
+                    </label>
+                    <label>
+                        <input type="radio" value="2" name="terminal"> <i></i> 移动端
+                    </label>
+                    <label>
+                        <input type="radio" value="1" name="terminal"> <i></i> pc端
+                    </label>
+                </div>
+
+                <div class="radio i-checks" style="margin-left: 100px">
+                    <label class="sr-only">中奖结果 </label>
+                    中奖结果：
+                    <label>
+                        <input type="radio" value="0" name="result"  checked="checked"> <i></i> 全部
+                    </label>
+                    <label>
+                        <input type="radio" value="1" name="result"> <i></i> 赢
+                    </label>
+                    <label>
+                        <input type="radio" value="2" name="result"> <i></i> 亏
+                    </label>
+                    <label>
+                        <input type="radio" value="3" name="result"> <i></i> 和
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="float: right">
+            <button class="btn btn-primary" type="submit" id="searchBtn" style="margin-left: 30px">查询</button>
+            <button type="button" class="btn btn-outline btn-default" onclick="fomrReset()">重置</button>
+            <button type="button" class="btn btn-outline btn-default" id = "advanced">高级筛选</button>
+        </div>
+        <div style="overflow: auto;height: 1px;width: 100%"></div>
+
+
+    </form>
+
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight" id="profit">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div>
+                    <div class="jqGrid_wrapper bgcol-white">
+                        <table id="table_list_2"></table><!--初始化表格必须-->
+                        <div id="pager_list_2"></div><!--分页展示必须-->
+                    </div>
+                    <div style="background-color: #e8f2fa;height: 30px;line-height: 30px">
+                        <span style="margin: 20px">区间统计: </span>
+                        <span style="margin: 50px">总投注用户：<span  style="color: red;" id="overall"></span></span>
+                        <span style="margin: 50px">总投注额：<span  style="color: red;" id="bets"></span></span>
+                        <span style="margin: 50px">总抽水：<span  style="color: red;" id="points"></span>元</span>
+                        <span style="margin: 50px">总有效投注：<span  style="color: red;"  id="realbets"></span>元</span>
+                        <span style="margin: 50px">总盈亏：<span  style="color: red;" id="bonus"></span>元</span>
+                        <span style="margin: 50px;text-align: right">时间范围：<span  style="color: red;" class="sTime"></span>到 <span style="color: red;" class="eTime"></span> </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="./js/dataken.js"></script>
+<script>
+    $(document).ready(function () {
+        $.jgrid.defaults.styleUI = "Bootstrap";
+        $("#table_list_2").jqGrid({
+            //表格头
+            colNames: ["用户名", "注单号", "游戏名称", "投注额", "有效投注", "盈亏", "投注时间", "开奖时间"],
+            //表格内容
+            colModel: [
+                {
+                    name: "username",
+                    index: "username",
+                    align: "center",
+                    formatter: searchUserName,
+                    search: true,
+                    sortable:false
+                },
+                {name: "game_period", index: "game_period", align: "center", sortable: false, search: false},
+                {name: "game_name", index: "game_name", align: "center", sortable: false},
+                {name: "bets", index: "bets", align: "right", sorttype: "int",  },
+                {name: "realbets", index: "realbets", align: "right", sorttype: "int",},
+                {name: "profit", index: "profit", align: "right", sorttype: "float", },
+                {name: "start_time", index: "start_time", align: "right"},
+                {name: "end_time", index: "end_time", align: "right", sorttype: "float"},
+                // {name: "operation", index: "operation", align: 'center', formatter: showlink, sortable:false}
+            ],
+            //data:mydata,
+            height: "auto", //默认高度
+            mtype: "post", //提交方式
+            datatype: "local",   //数据类型
+            page: 1,            //当前页码
+            autowidth: true,    //表格自适应宽度
+            shrinkToFit: true,   //自适应列宽
+            rowNum: 1000,       //每页展示的记录数
+            rowList: [1000, 2000, 3000, 5000, 10000], //每页展示的记录数
+            pager: "#pager_list_2", viewrecords: true,
+            loadonce : true,
+            beforeRequest:function () {
+                var postData = {};
+                $.each($("#subbox").serializeArray(), function (i, n) {
+                    postData[n.name] = n.value;
+                });
+                $("#table_list_2").jqGrid("setGridParam", {
+                    postData: postData,
+                    loadComplete: function (data) {
+                        if(data.length == 0){
+                            $(".ui-jqgrid-sdiv").hide();
+                            // layer.confirm("查询不到数据");
+                            return false;
+                        }
+                        if (data.code === 0){
+                            $(".ui-jqgrid-sdiv").hide();
+                            layer.confirm(data.msg);
+                            return false;
+                        }
+                        console.log(data);
+                        $(".ui-jqgrid-sdiv").show();
+
+                    }
+                });
+            }
+        });
+        //窗口自适应
+        $(window).bind("resize", function () {
+            var width = $(".jqGrid_wrapper").width();
+            $("#table_list_1").setGridWidth(width);
+            $("#table_list_2").setGridWidth(width);
+        });
+        //查询按钮事件
+        $("#searchBtn").off().on("click", function () {
+
+            $("#table_list_2").jqGrid("setGridParam", {
+                url: "userbetting_bettingrecord.shtml",
+                page: 1,
+                datatype: 'json'
+            }).trigger('reloadGrid');
+            getOtal();
+            return false;
+        });
+
+        // 获取总投注信息
+        function getOtal() {
+            var postData = {};
+            $.each($("#subbox").serializeArray(), function (i, n) {
+                postData[n.name] = n.value;
+            });
+            $.ajax({
+                url : "userbetting_bettingrecordtotal.shtml",
+                type : "POST",
+                data : postData,
+                dataType : "json",
+                success : function(result) {
+                    $("#bets").text(result.bets);
+                    $("#bonus").text(result.profit);
+                    $("#points").text(result.points);
+                    $("#realbets").text(result.realbets);
+                    $("#overall").text(result.overall);
+                    $(".sTime").text(result.sTime);
+                    $(".eTime").text(result.eTime);
+
+                },
+                error:function(msg){
+                    $(".notice").html('Error:'+msg);
+                }
+            })
+        }
+
+        //显示高级筛选
+        var advancedShow = 0
+        $("#advanced").click(function () {
+            if (advancedShow === 0){
+                $(".advanced").show();
+                advancedShow = 1
+            }else {
+                $(".advanced").hide();
+                advancedShow = 0
+            }
+        })
+
+        $("#searchBtn").click();
+
+    });
+    var queue = new Array();
+    // //自定义操作表格
+    // function showlink(cellValue, options, rowObject) {
+    //     var html = "";
+    //     html += "<a title='" + rowObject.username + "' onclick='seeDetails(222)' href='#' >";
+    //     html += "<span >查看详情</span></a>&nbsp;&nbsp;";
+    //     return html;
+    // }
+
+    // //查看详情
+    // function seeDetails(name) {
+    //     console.log(name)
+    // }
+
+    //重置按钮
+    function fomrReset() {
+        $("#subbox").find('input').each(
+            function(){
+                $(this).val('');
+            }
+        );
+        $ (":radio:eq(0)").prop ("checked", true);
+        $ (":radio:eq(3)").prop ("checked", true);
+    }
+
+    function searchUserName(cellValue, options, rowObject) {
+        var html = "";
+        html += "<a title='" + rowObject.username + "' onclick='clickByName(this)' >";
+        html += "<span style='color:#CE0000'>" + rowObject.username + "</span></a>";
+        return html;
+    }
+    function clickByName(name) {
+        var name = name.text;
+
+        if (name == "小计:"){
+            return false;
+        }else if (name == $('#username').val()){
+            queue.pop();
+            name = queue.pop();
+            if (!name) {
+                name = '';
+            }
+            document.getElementById('username').value = name;
+            document.getElementById('searchBtn').click();
+            queue.push(name);
+        }else {
+            document.getElementById('username').value = name;
+            document.getElementById('searchBtn').click();
+            queue.push(name);
+        }
+    }
+
+    //跳转注单记录
+    function profitUrl() {
+        var vendorId = $("#vendorId").val();
+        url = "userbetting_profit.shtml?vendorId="+vendorId;
+        open(url,"_self");
+    }
+
+
+</script>
+</body>
+
+
+</html>

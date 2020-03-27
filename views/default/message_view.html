@@ -1,0 +1,57 @@
+{include file="pageheader.html"}
+<!--<style type="text/css">-->
+	<!--td {-->
+		<!--max-width:500px;-->
+		<!--overflow: hidden;-->
+		<!--text-overflow: ellipsis;-->
+		<!--display: -webkit-box;-->
+		<!--line-height: 16px;     /* fallback */-->
+		<!--max-height: 48px;      /* fallback */-->
+		<!-- -webkit-line-clamp: 3; /* number of lines to show */-->
+		<!-- -webkit-box-orient: vertical;-->
+	<!--}-->
+<!--</style>-->
+<body class="gray-bg">
+<div ></div>
+<div class="" style="padding:20px;">
+	<div>
+	<table class="table table-bordered">
+		<tr>
+			<th>消息编号：</th>
+			<th>阅读状态：</th>
+			<th>删除状态：</th>
+			<th>消息类型：</th>
+			<th>发送时间：</th>
+			<th>消息主题：</th>
+			<th>消息内容</th>
+		</tr>
+		<tr>
+		<td>
+			{$detailMsg.entry}
+		</td>
+			<td>
+				{$detailMsg.readtime}
+			</td>
+			<td>
+				{$detailMsg.deltime}
+			</td>
+			<td>
+				{$detailMsg.title}
+			</td>
+			<td>
+				{$detailMsg.sendtime}
+			</td>
+			<td>
+				{$detailMsg.subject}
+			</td>
+			<td>
+				<span style="word-wrap:break-word;display: inline-block;width: 300px;overflow: hidden;">{$detailMsg.content}</span>
+			</td>
+		</tr>
+	</table>
+	</div>
+</div>
+
+
+</body>
+</html>

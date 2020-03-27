@@ -1,0 +1,210 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <style>
+        #account{
+            height:500px;
+            width:600px;
+            display:none;
+        }
+        #account .myrow{
+            margin:4px auto;
+            width:500px;
+        }
+        #account .myrow textarea{
+            height:100%;
+            width:100%;
+        }
+        #account .text-content{
+            height:460px;
+        }
+    </style>
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" id="subbox" onsubmit="return false;">
+                <div class="form-group">
+                    日期:&nbsp; <label for="exampleInputPassword2" class="sr-only">日期</label>
+                    <input name="starttime" class="form-control layer-date" autocomplete="off" value='{$getDataArray.starttime}' placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                </div>
+                <span>~</span>
+                <div class="form-group">
+                    <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+                     <input name="endtime" class="form-control layer-date" autocomplete="off" value="{$getDataArray.endtime}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                </div>
+                &nbsp;&nbsp;
+                <div class="form-group">
+                金额:&nbsp; <label for="" class="sr-only">金额</label>
+                   <input type="text" placeholder="最小金额" name="minAmount" id="value_2" class="form-control">
+                 </div>
+                 <span>~</span>
+                <div class="form-group">
+                <label for="" class="sr-only">金额</label>
+                   <input type="text" placeholder="最大金额" name="maxAmount" id="value_3" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="" class="sr-only"></label>
+                    <select class="form-control"  name="searchtype">
+                        <option value="1" selected="selected">用户名</option>
+                        <option value="2" >订单编号</option>
+                    </select>
+                    <input type="text"  name="searchwords" class="form-control">
+                </div>
+
+
+                <label for="" class="sr-only">转账平台</label>
+                    &nbsp;&nbsp;转账平台:<select class="form-control"  name="type">
+                    <option value="99" >全部</option>
+                    <option value="0">主账户</option>
+                    <option value="1" >KY棋牌</option>
+                </select>
+
+
+            <div class="form-group">
+                    <label for="" class="sr-only">状态</label>
+                    &nbsp;&nbsp;状态:<select class="form-control"  name="status">
+                    <option value="99" >全部</option>
+                    <option value="2" >成功</option>
+                    <option value="1" >失败</option>
+                    <option value="0" >未处理</option>
+                </select>
+                </div>
+
+                <button class="btn btn-primary pull-right mgr15 " type="submit">查询</button>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('#bt_account').click(function(){
+                layer.open({
+                    type: 1,
+                    area : ['600px', '600px'],
+                    title : '批量账号查询',
+                    resize : false,
+                    id : 'ufather',
+                    anim : 4,
+                    content:$('#account')
+                });
+            });
+            $('.close-all').click(function(){
+                layer.closeAll();
+            });
+            $('#search-all').click(function(){
+                layer.closeAll();
+                let uSearchAll = $.trim($('#u-search-all').val());
+                $("#table_list_2").jqGrid("setGridParam", {page: 1, postData:{usernamea:uSearchAll}}).trigger('reloadGrid');
+            });
+
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:['订单号','时间','会员账户','转账平台','转账金额','主账户余额(前)','主账户余额(后)','平台金额(前)','平台金额(后)','状态','操作'],
+                //表格内容
+                colModel:[
+                    {name:"transfer_order_number",index:"transfer_order_number"},
+                    {name:"insert_time",index:"insert_time"},
+                    {name:"username",index:"username"},
+                    {name:"type",index:"type"},
+                    {name:"amount",index:"amount",align:"right", editable:true,sorttype:"int"},
+                    {name:"preavailable",index:"preavailable"},
+                    {name:"availablebalance",index:"availablebalance"},
+                    {name:"vendor_preavailable",index:"vendor_preavailable",align:"right",},
+                    {name:"vendor_availablebalance",index:"vendor_availablebalance",align:"right",},
+                    {name:"status",index:"status"},
+                    {name:"operate",index:"operate",align:'left',sortable:false,formatter:showlink},
+                ],
+                //data:mydata,
+                height:650, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rows:30,       //每页展示的记录数
+                rowList:[30,50,100], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {ufather:''};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                },
+                loadComplete: function(){
+                    $(this).jqGrid("setGridParam", {
+                        postData: {usernamea:''}
+                    });
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                $("#table_list_2").jqGrid("setGridParam", {page: 1 }).trigger('reloadGrid');
+                return false;
+            });
+
+
+            // 搜索用户名下拉框
+            $(":input[id=select_1]").change(function(){
+                var id = 1; //$(this).attr('id');
+                $("#value_" + id).attr('name', $(this).val());
+            });
+            // 搜索金额下拉框
+            /*$(":input[id=select_2]").change(function() {
+                $("#value_2" ).attr('name', 'min'+$(this).val());
+                $("#value_3" ).attr('name', 'max'+$(this).val());
+
+            });*/
+
+        });
+        function mulmaxpoint(cellValue, options, rowObject) {
+          return (rowObject.maxpoint * 100).toFixed(1);
+        }
+
+        function showlink(cellValue, options, rowObject) {
+            var html ="";
+            if(rowObject.status_type == 0){
+                html += "<a  onclick=useredit("+rowObject.userid+",'"+rowObject.transfer_order_number+"')>重试</a>";
+            }
+            return html;
+        }
+
+        function useredit(uid,torder){
+            var lay=layer.msg('努力中处理中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+
+            $.get("vendors_retry.shtml?userid="+uid+"&torder="+torder+"",function(data){
+                alert(data);
+                layer.close(lay);
+                location=location;
+            });
+
+        }
+
+  
+        </script>
+</body>
+</html>

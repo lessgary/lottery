@@ -1,0 +1,214 @@
+{include file="pageheader.html"}
+<style type="text/css">
+</style>
+<body class="gray-bg">
+<div class="ibox-content">
+    <div>
+        <button class="btn btn-success">人工存入</button>
+        <button class="btn btn-success">人工提款</button>
+        <button class="btn btn-success">批量存入</button>
+    </div>
+</div>
+
+<div class="container">
+    <div>
+        <!--根据用户名查找用户-->
+        <form action="manualpay_save.shtml?act=getUser" method="POST">
+            <input type="text" name="username" placeholder="请输入用户名...">
+            <input type="submit" value="查询" >
+        </form>
+    </div>
+    <br>
+    <br>
+    <div>
+        <!--提交表单 触发审核-->
+        <form action="manualpay_save.shtml?act=putData" method="POST">
+            <table class="table table-bordered table1-hover">
+                <tr>
+                    <th colspan="2" style="text-align: center">人工存入</th>
+                </tr>
+                <tr>
+                    <td>账号：</td>
+                    <td>{$userpro.username}</td>
+                </tr>
+                <tr>
+                    <td>姓名：</td>
+                    <td>{$userpro.nickname}</td>
+                </tr>
+                <tr>
+                    <td>系统余额：</td>
+                    <td>{$userpro.channelbalance}</td>
+                </tr>
+                <tr>
+                    <td>存入项目：</td>
+                    <td>
+                        <select name="" id="">
+                            <option value="">普通存入</option>
+                            <option value="">人工优惠</option>
+                            <option value="">活动优惠</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>存入金额：</td>
+                    <td>
+                        <input type="text" id="inputM" required="required" placeholder="请填写金额，只能填写数字..." onkeyup="copyV()"> *必填
+                    </td>
+                </tr>
+                <tr>
+                    <td>存款优惠：</td>
+                    <td>
+                        <input type="text" id="offerM">
+                    </td>
+                </tr>
+                <tr>
+                    <td>综合打码量稽核：</td>
+                    <td>
+                        <input type="text" id="nvalue">
+                        <input type="button" value=3 id="three">倍&nbsp;&nbsp;|
+                        <input type="button" value=5 id="five">倍&nbsp;&nbsp;|
+                        <input type="button" value=0 id="zero">倍&nbsp;&nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <td>常态性稽核：</td>
+                    <td>
+                        <label for=""><input type="checkbox">写入</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td>
+                        <input type="text">
+                    </td>
+                </tr>
+                <tr>
+                    <td>会员备注：</td>
+                    <td>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <input type="submit" value="确定" class="btn btn-success">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="reset" value="取消" class="btn btn-warning">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function() {
+        //同步输入
+        $("#nvalue").click(function () {
+            var ov = document.getElementById("inputM").value;
+            var to = document.getElementById("offerM").value;
+            if (to == "" || to == null) {
+                to = 0;
+            }
+            var sum = (parseFloat(ov)+parseFloat(to));
+            $("#nvalue:text").val(sum);
+        });
+
+
+        // @TODO 后期更改成一个函数计算式
+        $("#three").click(function () {
+            var v = document.getElementById("three").value;
+            // 整理数据
+            var ov = document.getElementById("inputM").value;
+            var to = document.getElementById("offerM").value;
+            if (ov == "" || ov == null) {
+                alert('存入金额不能为空');
+                onfocus("#inputM");
+                return false;
+            }
+            if (to == "" || to == null) {
+                to = 0;
+            }
+            var sum = (parseFloat(ov)+parseFloat(to))*v;
+            $("#nvalue:text").val(sum);
+        });
+
+        // @TODO 后期更改成一个函数计算式
+        $("#five").click(function () {
+            var v = document.getElementById("five").value;
+            // 整理数据
+            var ov = document.getElementById("inputM").value;
+            var to = document.getElementById("offerM").value;
+            if (ov == "" || ov == null) {
+                alert('存入金额不能为空');
+                onfocus("#inputM");
+                return false;
+            }
+            if (to == "" || to == null) {
+                to = 0;
+            }
+            var sum = (parseFloat(ov)+parseFloat(to))*v;
+            $("#nvalue:text").val(sum);
+        });
+
+        // @TODO 后期更改成一个函数计算式
+        $("#zero").click(function () {
+            var v = document.getElementById("zero").value;
+            // 整理数据
+            var ov = document.getElementById("inputM").value;
+            var to = document.getElementById("offerM").value;
+            if (ov == "" || ov == null) {
+                alert('存入金额不能为空');
+                onfocus("#inputM");
+                return false;
+            }
+            if (to == "" || to == null) {
+                to = 0;
+            }
+            var sum = (parseFloat(ov)+parseFloat(to))*v;
+            $("#nvalue:text").val(sum);
+        });
+
+
+    });
+
+    // 人工存入页面
+    function psave() {
+        layer.open({
+            type: 2,
+            title: false,
+            closeBtn: 1,
+            //offset: '100px',
+            area: ['900px','700px'],
+            skin: 'layui-layer-lan', // 白色背景色
+            shadeClose: true,
+            content: 'manualpay_save.shtml',
+        });
+    }
+
+    // 人工提款页面
+    function pout() {
+        layer.open({
+            type: 2,
+            title: false,
+            closeBtn: 1,
+            area: ['900px','700px'],
+            skin: 'layui-layer-lan', // 白色背景色
+            shadeClose: false,
+            content: 'manualpay_out.shtml'
+        });
+    }
+
+    // 批量存入页面
+    function batch() {
+        layer.open({
+            type: 2,
+            title: false,
+            closeBtn: 0,
+            area: ['900px','700px'],
+            skin: 'layui-layer-lan', // 白色背景色
+            shadeClose: true,
+            content: 'manualpay_batch.shtml'
+        });
+    }
+</script>
+</body>
+</html>

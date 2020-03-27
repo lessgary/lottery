@@ -1,0 +1,467 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+    <style>
+        #account{
+            height:500px;
+            width:600px;
+            display:none;
+        }
+        #account .myrow{
+            margin:4px auto;
+            width:500px;
+        }
+        #account .myrow textarea{
+            height:100%;
+            width:100%;
+        }
+        #account .text-content{
+            height:460px;
+        }
+    </style>
+    <div id="account">
+        <div class="myrow">
+            <span>批量查询账号，一个账号一行：</span>
+        </div>
+        <div class="myrow text-content">
+            <textarea name="" id="u-search-all"></textarea>
+        </div>
+        <div class="myrow">
+            <a class="btn btn-primary pull-left mgr15" href="javascript:void(0);" id="search-all">提交</a>
+            <a href="javascript:void(0);" class="btn btn-primary pull-left mgr15 close-all">取消</a>
+        </div>
+    </div>
+    <div class="ibox-content border-bottom">
+        <form role="form" class="form-inline" id="subbox" method="post">
+            <div class="form-group">
+                <label for="" class="sr-only">查询参数</label>
+                   <select class="form-control" id="select_1" name="searchType">
+                   <option value="username">用户名</option>
+                   <option value="ufather">所属上级</option>
+                   </select>
+                 </div>
+                 
+                <div class="form-group">
+                <label for="" class="sr-only">查询值</label>
+                   <input type="text" placeholder="请输入用户名" id="value_1" name="username" class="form-control">
+                 </div>
+
+                 <div class="form-group">
+                 <label for="" class="sr-only">所属组</label>
+                   &nbsp;&nbsp;所属组:<select class="form-control"  name="team"> 
+                   <option value="0">不限</option>
+                   {foreach from=$usergroup item=group key=k}
+                   <option value="{$group.groupid}" {if $userteam==$group.groupid}selected="selected"{/if}>{$group.groupname|escape:html}</option>
+                   {/foreach}
+                   </select>
+                 </div>
+
+                <div class="form-group">
+                 <label for="" class="sr-only">用户状态</label>
+                   &nbsp;&nbsp;用户状态:<select class="form-control"  name="isfrozen"> 
+                    <option value="3" selected="selected">全部用户</option>
+                    <option value="1">启用</option>
+                    <option value="2" >停用</option>
+                    </select>
+                 </div>
+
+                 <div class="form-group">
+                 <label for="" class="sr-only">所属层级</label>
+                   &nbsp;&nbsp;所属层级:<select class="form-control" name="layerid"> 
+                    <option value="-1">不限</option>
+                    {foreach from=$userlayer item=layer}
+                      <option value="{$layer.layerid}" >{$layer.name}</option>
+                    {/foreach}
+                    </select>
+                 </div>
+
+                 <div class="form-group">
+                 <label for="" class="sr-only">金额查询</label>
+                   &nbsp;&nbsp;&nbsp;&nbsp;<select class="form-control" name="moneytype" id="select_2"> 
+                    <option value="0">不限</option>
+                   <option value="money">账户余额</option>
+                   <option value="availamoney">可用余额</option>
+                   <option value="holdmoney">未结算金额</option>
+                   <option value="rechage">累计充值</option>
+                   <!-- <option value="5">累计投注</option> -->
+                   </select>
+                 </div>
+
+                <div class="form-group">
+                <label for="" class="sr-only">金额查询值</label>
+                   <input type="text" placeholder="最小金额" name="minmoney" id="value_2" class="form-control">
+                 </div>
+                 <span>~</span>
+                <div class="form-group">
+                <label for="" class="sr-only">金额查询值</label>
+                   <input type="text" placeholder="最大金额" name="maxmoney" id="value_3" class="form-control">
+                </div>
+
+                 </br></br>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">注册时间</label>
+                    注册时间: <input name="regstarttime" class="form-control layer-date" value='{$getDataArray.regstarttime}' placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                 </div>
+                <div class="form-group">
+                <label for="exampleInputPassword2" class="sr-only">结束时间</label>
+                    - <input name="regendtime" class="form-control layer-date" value="{$getDataArray.regendtime}" placeholder="" onclick="laydate({istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+                </div>
+
+                <div class="form-group">
+                    <label for="" class="sr-only">状态</label>
+                    &nbsp;&nbsp;状态:<select class="form-control"  name="isonline">
+                    <option value="3" {if $getDataArray['isonline']==3}selected="selected"{/if}>不限</option>
+                    <option value="1" {if $getDataArray['isonline']==1}selected="selected"{/if}>在线</option>
+                    <option value="2" {if $getDataArray['isonline']==2}selected="selected"{/if}>离线</option>
+                </select>
+                </div>
+            <div class="form-group">
+                <label for="" class="sr-only">最后在线</label>
+                &nbsp;&nbsp;最后在线:<select class="form-control"  name="lastonline">
+                <option value="3" selected="selected">不限</option>
+                <option value=">">小于</option>
+                <option value="=" >等于</option>
+                <option value="<" >大于</option>
+            </select>
+            </div>
+
+            <div class="form-group">
+                <input type="text"  name="lastonline_day"  class="form-control">天前
+                <label for="" class="sr-only"></label>
+
+            </div>
+            <button class="btn btn-primary pull-right mgr15 " type="submit" value="export" name="export" style="margin-left: 15px">导出</button>
+
+            <button class="btn btn-primary pull-right " onclick="window.location.reload()" type="button">刷新</button>
+                <a href="user_adduser.shtml" class="btn btn-primary pull-right mgr15">新增用户</a>
+                <a href="javascript:void(0);" class="btn btn-primary pull-right mgr15" id="bt_account">批量查询</a>
+            <button class="btn btn-primary pull-right mgr15 " type="submit" value="query">查询</button>
+        </form>
+    </div>
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $('#bt_account').click(function(){
+                layer.open({
+                    type: 1,
+                    area : ['600px', '600px'],
+                    title : '批量账号查询',
+                    resize : false,
+                    id : 'ufather',
+                    anim : 4,
+                    content:$('#account')
+                });
+            });
+            $('.close-all').click(function(){
+                layer.closeAll();
+            });
+            $('#search-all').click(function(){
+                layer.closeAll();
+                let uSearchAll = $.trim($('#u-search-all').val());
+                var text=$('#u-search-all').val().replace(/\n/g, ',');
+                document.getElementById('value_1').value = text;
+                $("#table_list_2").jqGrid("setGridParam", {page: 1, postData:{usernamea:uSearchAll}}).trigger('reloadGrid');
+            });
+
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["在线","用户名","所属组","用户层级","所属上级","返点","账户余额","累计充值","累计投注","注册日期","最后在线","用户状态","操作"],
+                //表格内容
+                colModel:[
+                    {name:"onlineStatus",index:"onlineStatus",sortable:false},
+                    {name:"username",index:"username",editable:true,sorttype:"int",search:true},
+                    {name:"proxylevel",index:"proxylevel",editable:true,sortable:false},
+                    {name:"name",index:"name",editable:true,sortable:false},
+                    {name:"parentName",index:"parentName",editable:true,sortable:false},
+                    {name:"maxpoint",index:"maxpoint",editable:true,formatter:mulmaxpoint},
+                    {name:"channelbalance",index:"channelbalance",align:"right",editable:true,sorttype:"float",formatter:AccountDetails},
+                    {name:"loadmoney",index:"loadmoney",align:"right",editable:true},
+                    {name:"totalbets",index:"totalbets",align:"right",editable:true,sorttype:"float"},
+                    {name:"registertime",index:"registertime",editable:true,width:"160", sorttype:"float"},
+                    {name:"lastloginday",index:"lastloginday",sortable:false},
+                    {name:"frozentype",index:"frozentype",align:"center", editable:true,sorttype:"float",formatter:'select',editoptions:{value:"0:启用;1:完全冻结;2:可登录,查看帮助中心,不可投注,不可充提;3:不可投注,可充提,查看用户列表和报表,帮助中心"}},
+                    {name:"operate",index:"operate",align:'left',width:"540",sortable:false,formatter:showlink},/*格式化本列为超链接*/
+                ],
+                //data:mydata,
+                height:650, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:30,       //每页展示的记录数
+                rowList:[30,50,100], //每页展示的记录数
+                pager:"#pager_list_2",viewrecords:true,
+                beforeRequest: function() {
+                    var postData = {ufather:''};
+                    $.each($("#subbox").serializeArray(), function(i, n){
+                        postData[n.name] = n.value;
+                    });
+                    $(this).jqGrid("setGridParam", {
+                        postData: postData
+                    });
+                },
+                loadComplete: function(){
+                    $(this).jqGrid("setGridParam", {
+                        postData: {usernamea:''}
+                    });
+                }
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+            //表单提交
+            $("#subbox").submit(function(){
+                var action = $(this).find("button[type=submit]:focus").val();
+                // 导出
+                if ('export' == action) {
+                    $(this).attr('action', 'user_exportusers.shtml');
+                    return true;
+                } else {
+                    $(this).attr('action', '');
+                }
+                $("#table_list_2").jqGrid("setGridParam", {
+                    mtype: "post",
+                    datatype: 'json'
+                }).trigger('reloadGrid');
+                return false;
+            });
+
+
+            // 搜索用户名下拉框
+            $(":input[id=select_1]").change(function(){
+                var id = 1; //$(this).attr('id');
+                $("#value_" + id).attr('name', $(this).val());
+            });
+            // 搜索金额下拉框
+            /*$(":input[id=select_2]").change(function() {
+                $("#value_2" ).attr('name', 'min'+$(this).val());
+                $("#value_3" ).attr('name', 'max'+$(this).val());
+
+            });*/
+        });
+        function mulmaxpoint(cellValue, options, rowObject) {
+          return (rowObject.maxpoint * 100).toFixed(1);
+        }
+        //自定义操作表格
+        function showlink(cellValue, options, rowObject) {  
+            //console.info([cellValue, options, rowObject]);
+            var html ="";  
+                html += "<a class=''  onclick='useredit("+rowObject.userid+");'>";  
+                html += "<span >修改</span></a>&nbsp;&nbsp;";    
+                /*html += "<a href='http://www.lexcusa.com/user_info.shtml?userid="+rowObject.userid+"' class=' ' >";  
+                html += "<span >奖金组</span></a>&nbsp;&nbsp;";  */
+                if(rowObject.isfrozen !=0){
+                    html += "<a class=' ' onclick='unfreeze("+rowObject.userid+");' >";  
+                    html += "<span style='color:#FF5151'>解冻</span></a>&nbsp;&nbsp;"; 
+                }else{
+                    html += "<a class=''  onclick='freeze("+rowObject.userid+");' >";  
+                    html += "<span >冻结</span></a>&nbsp;&nbsp;"; 
+                }
+
+                html += "<a class='' onclick='adjustpoint("+rowObject.userid+")'; >";  
+                html += "<span style='color:#1E9FFF'>调点</span></a>&nbsp;&nbsp;"; 
+                html += "<a class='' href='pgame_playlist.shtml?username="+rowObject.username+"&sTime="+rowObject.sTime+"'>";  
+                html += "<span >下注记录</span></a>&nbsp;&nbsp;";  
+                if(rowObject.lockcard == 0){
+                    html += "<a class='' >";  
+                    html += "<span  onclick='lockcard("+rowObject.userid+",1);' >锁卡</span></a>&nbsp;&nbsp;"; 
+                }else{
+                    html += "<a class='' >";  
+                    html += "<span style='color:#FF5151' onclick='unlockcard("+rowObject.userid+",0);' >解锁</span></a>&nbsp;&nbsp;"; 
+                }
+                if(rowObject.usertype==1){
+                  html += "<a class='' href='user_accquota.shtml?userid="+rowObject.userid+"'>";  
+                  html += "<span >配额设置</span></a>&nbsp;&nbsp;";  
+                }
+                html += '<a href="javascript:void(0);" onclick="changFather('+rowObject.userid+','+rowObject.parentid+')">修改上级</a>';
+            return html; 
+            }
+
+        //账户余额按钮
+        function AccountDetails(cellValue, options, rowObject) {
+            //console.info([cellValue, options, rowObject]);
+            var html ="";
+            html += "<a class='' >";
+            html += "<span style='color:#FF5151' data-userid='"+ rowObject.userid +"' data-channelbalance='"+ rowObject.channelbalance +"' data-holdbalance='"+ rowObject.holdbalance +"'  onclick='userDetails(this);' >"+ rowObject.channelbalance +"</span></a>&nbsp;&nbsp;";
+            return html;
+        }
+        // 修改上级
+        function changFather(userid, parentid) {
+            let w_confirm = '<span style="color: red;">因修改上级代理，会导致-有效会员列表、运营总报表、盈亏报表、' +
+                '代理统计报表；及代理前台团队余额、代理前台盈亏报表、代理前台帐变列表、代理前台统计报表等报表数据变动，确认修改么？</span>';
+            layer.confirm(w_confirm, {icon: 3, title:'提示'}, function(index){
+                layer.close(index);
+                //iframe窗
+                layer.open({
+                    type: 2,
+                    title: '修改上级',
+                    shadeClose: false,
+                    maxmin: true, //开启最大化最小化按钮
+                    area: ['379px', '471px'],
+                    content: ['user_changparent.shtml?userid='+userid+'&parentid='+parentid]
+
+                });
+            });
+        }
+        //冻结用户
+        function freeze(userid){
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '冻结用户',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['user_freeze.shtml?userid='+userid],
+                   
+            });
+        }
+        //冻结用户
+        function unfreeze(userid){
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '冻结用户',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['user_unfreeze.shtml?userid='+userid],
+                   
+            });
+        }
+        //锁定银行卡
+        function lockcard(userid,status) {
+            $.ajax({
+                    url:"user_lockcard.shtml",
+                    type: "POST",
+                    data:{'userid':userid,'status':status}, 
+                    success: function(data){
+                        var data = eval("("+data+")");
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                window.location.reload();
+                            });
+                        
+                        }
+                    }
+                });
+        }
+        //解锁用户银行卡页面
+        function unlockcard(userid,status){
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '解锁银行卡信息',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['1200px', '500px'],
+                  content: ['user_unlockcard.shtml?userid='+userid+'&status='+status],
+                  
+            });
+        }
+        //用户调点
+        function adjustpoint(userid,status){
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '调点',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '350px'],
+                  content: ['user_adjustpoint.shtml?userid='+userid],
+                  
+            });
+        }
+        //编辑用户
+        function useredit(userid){
+            //iframe窗
+             layer.open({
+                  type: 2,
+                  title: '',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '600px'],
+                  content: ['user_useredit.shtml?userid='+userid],
+            });
+        }
+
+        function userDetails(obj) {
+
+            // var sVendors = '<tr style="border-bottom: 1px solid #bbb;"><td>开元棋牌金额:</td><td style="padding-right: 60px;">20</td></tr>';
+            var sVendors = '';
+
+            var rdata = {
+                from: 'all',
+                userid: $(obj).attr("data-userid")
+            };
+            $.get("vendors_getbalance.shtml", rdata, function (data) {
+                var TotalAssets = 0;
+
+                $.each($.parseJSON(data),function (k,v) {
+                    var iAmount;
+                    var name = "";
+                    if (k === 'cp'){
+                        iAmount = v.userBalance;
+                        name = "主账号(彩票)"
+                    }else {
+                        iAmount = v.code<0?"获取失败":v.data.totalMoney;
+                        name = v.platname
+
+                    }
+                    sVendors += '<tr style="border-bottom: 1px solid #bbb;"><td>'+ name +':</td><td style="padding-right: 60px;">'+ iAmount +'</td></tr>';
+                    TotalAssets += parseFloat(iAmount)
+                });
+                var pwdstr = '<div style="margin-top:  20px;"><table style="text-align: right; height:  160px;width: 100%"><tbody> '+ sVendors +'<tr style="border-bottom: 1px solid #bbb;"><td>未结算金额:</td><td style="padding-right: 60px;">'+ $(obj).attr("data-holdbalance") +'</td></tr><tr><td>总资产:</td><td style="padding-right: 60px;">'+ TotalAssets +'</td></tr></tbody></table></div>';
+                var index = layer.open({
+                    type: 1,
+                    title: ['账户余额详情'],
+                    skin: 'layui-layer-rim', //加上边框
+                    area: ['300px', '300px'], //宽高
+                    content: pwdstr
+                });
+
+            });
+        }
+
+        //充值记录点击用户跳转次列表 默认搜寻此用户
+        var url, jumpWd
+        url = new URL(window.location.href);
+        jumpWd = url.searchParams.get("jump_name");
+        if(jumpWd){
+            $('#value_1').val(url.searchParams.get("jump_name"));
+            // $('button.mgr15').click();
+            history.pushState(null, null, 'user_mainlist.shtml'); //替换掉url参数
+        }
+
+        </script>
+</body>
+</html>

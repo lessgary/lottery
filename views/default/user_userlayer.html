@@ -1,0 +1,447 @@
+{include file="pageheader.html"}
+
+<body class="gray-bg">
+
+    <!--会员批量查询-->
+    <div id ="searchuser"  class="modal-body" style="display: none">
+            <form class="form-horizontal m-t" method="POST" action="user_belonglayer.shtml" id="searchUserForm">
+                    <span for="" class="">查询会员账号,一个会员一行:</span>
+                       <textarea name="usernames"  style="width: 100%;"  rows="15"  autofocus></textarea>
+                            <button class="btn btn-primary" id="searchsubmit" type="submit">提交</button>&nbsp;&nbsp;
+                            <button class="btn btn-primary cancel" type="submit">取消</button>
+            </form>
+    </div>
+    <!--end回归-->
+
+
+    <!--分层-->
+    <div id ="layer"  class="modal-body" style="display: none">
+    <div class="row">
+      <form class="form-horizontal m-t" method="POST" action="" onsubmit="return false;" id="signupForm">
+            <!-- <div class="form-group">
+                <label class="col-sm-3 control-label">分层方式:</label>
+                <div class="col-sm-8 ">
+                    <div class="checkbox">
+                    全部分层<input type="radio" id="mode_1" value="0" name="layermode" checked="checked"> 
+                    两层之间分层<input type="radio" id="mode_2" value="1" name="layermode" >
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- <div id="layermode_1" >
+                <div class="form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-8 ">
+                    点击确定后，系统会自动依分层条件自动分层用户，已被锁定的用户不会被分层
+                    </div>
+                </div>
+            </div>  -->      
+
+            <!-- <div id="layermode_2" style="display: none"> -->
+                    <div class="form-group">
+                        <label for="" class="col-sm-3 control-label">来源层级:</label>
+                        <div class="col-sm-8 ">
+                           <select class="form-control" id="select_1" name="layerid"> 
+                             {foreach from=$aLayerList item=layerlist key=k}
+                           <option value={$layerlist.layerid}>{$layerlist.name}</option>
+                           {/foreach}
+                           </select>
+                           </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="" class="col-sm-3 control-label">目标层级:</label>
+                        <div class="col-sm-8 ">
+                           <select class="form-control" id="select_2" name="layerval"> 
+                           {foreach from=$aLayerList item=layerlist key=k}
+                            <option value={$layerlist.layerid}>{$layerlist.name}</option>
+                           {/foreach}
+                           </select>
+                           </div>
+                    </div>
+
+                    <!-- <div class="form-group">
+                        <label class="col-sm-3 control-label">目标层级:</label>
+                            <div class="col-sm-8">
+                            全部分层<input type="checkbox" i value="1" name="layerval" > 
+                            </div>
+                    </div> -->
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label"></label>
+                        <div class="col-sm-8 ">
+                        选择确定后，系统将会把来源层级中属于目标层级用户自动分层到目标层级用户中被锁定的用户将不改变
+                        </div>
+                    <!-- </div> -->
+                     </div>  
+                    <div class="form-group">
+                         <div class="col-sm-8 col-sm-offset-3">
+                            <button class="btn btn-primary" id="formsubmit" type="submit">提交</button>&nbsp;&nbsp;
+                            <button class="btn btn-primary cancel"  type="submit">取消</button>
+                         </div>
+                    </div>
+        </form>
+        </div>
+    </div>
+    <!--end分层-->
+    <!--回归-->
+    <div id ="huigui"  class="modal-body" style="display: none">
+        <div class="row">
+            <form class="form-horizontal m-t" method="POST" action="" onsubmit="return false;" id="huiguiForm">
+                <div class="form-group">
+                    <label for="" class="col-sm-3 control-label">来源层级:</label>
+                        <div class="col-sm-8 ">
+                            <select class="form-control" id="select_1" name="layerid"> 
+                                {foreach from=$aLayerList item=layerlist key=k}
+                                    <option value={$layerlist.layerid}>{$layerlist.name}</option>
+                                {/foreach}
+                               </select>
+                         </div>
+                </div>  
+
+                <div class="form-group">
+                            <label class="col-sm-3 control-label"></label>
+                            <div class="col-sm-8 ">
+                            选择确定后,系统将会把选择回归层级中的会员,全部回归到,默认层级中
+                            </div>
+                        <!-- </div> -->
+                         </div>  
+                        <div class="form-group">
+                             <div class="col-sm-8 col-sm-offset-3">
+                                <button class="btn btn-primary" id="huiguisubmit" type="submit">提交</button>&nbsp;&nbsp;
+                                <button class="btn btn-primary cancel" type="submit">取消</button>
+                             </div>
+                        </div>
+            </form>
+        </div>
+    </div>
+    <!--end回归-->
+    <div class="ibox-content zom border-bottom">
+        <button class="btn  btn-primary pull-right " id="" onclick="window.location.reload()">刷新</button>
+        <button class="btn  btn-primary pull-right " id="huigui_layer" style="margin-right: 10px">回归</button>
+        <button class="btn  btn-primary pull-right " id="dispatch_layer" style="margin-right: 10px">分层</button>
+         &nbsp;&nbsp;
+         <a  onclick="addlayer()" class="btn  btn-primary pull-right " style="margin-right: 10px" >新增层级</a>
+         &nbsp;&nbsp;
+         <button class="btn  btn-primary pull-right " id="search_user" style="margin-right: 10px" type="submit">会员查询</button>
+    </div>
+
+    
+    <div class="wrapper wrapper-content  animated fadeInRight">
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div>
+                        <div class="jqGrid_wrapper bgcol-white">
+                            <table id="table_list_2"></table><!--初始化表格必须-->
+                            <div id="pager_list_2"></div><!--分页展示必须-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            $.jgrid.defaults.styleUI="Bootstrap";
+            $("#table_list_2").jqGrid({
+                //表格头
+                colNames:["ID","层级名称","存款次数" ,"存款总额","最大存款额度","提款次数","提款总额","会员人数","备注","支付平台选项设定","投注限额","操作"],
+                //表格内容
+                colModel:[
+                    {name:"layerid",index:"layerid",editable:true,sorttype:"int",search:true},
+                    {name:"name",index:"name",editable:true,search:true},
+                    {name:"rechargetimes",index:"rechargetimes",align:"right",editable:true},
+                    {name:"loadmoney",index:"loadmoney",align:"right", editable:true},
+                    {name:"loadmax",index:"loadmax",align:"right",editable:true},
+                    {name:"withdrawaltimes",index:"withdrawaltimes",align:"right",editable:true},
+                    {name:"totalwithdrawal",index:"totalwithdrawal",align:"right",editable:true},
+                    {name:"memberlist",index:"memberlist",align:"center",editable:true,formatter:memberlist},
+                    {name:"remark",index:"remark",editable:true},
+                    {name:"payid",index:"payid",editable:true,align:"center",width:220,formatter:getpaysetlist},
+                    {name:"payid",index:"payid",editable:true,align:"center",width:220,formatter:getbetlist},
+                    {name:"operate",index:"operate",align:'center',formatter:operate},/*格式化本列为超链接*/ 
+                ],
+                //data:mydata,
+                height:700, //默认高度
+                mtype: "post", //提交方式
+                datatype: "json",   //数据类型
+                page: 1,            //当前页码
+                autowidth:true,    //表格自适应宽度
+                shrinkToFit:true,   //自适应列宽
+                rowNum:100,       //每页展示的记录数
+                //rowList:[10,20,30], //每页展示的记录数
+               // pager:"#pager_list_2",viewrecords:true,
+            });
+            $("#table_list_2").setSelection(4,true);
+            //尾部导航栏
+            $("#table_list_2").jqGrid("navGrid","#pager_list_2",{edit:false,add:false,del:false,search:false},{height:200,reloadAfterSubmit:true});
+            //窗口自适应
+            $(window).bind("resize",function(){
+                var width = $(".jqGrid_wrapper").width();
+                $("#table_list_1").setGridWidth(width);
+                $("#table_list_2").setGridWidth(width);
+            });
+
+            $("#table_list_2").jqGrid('setGroupHeaders', {
+                useColSpanStyle: true,
+                groupHeaders:[
+                    {startColumnName:'rechargetimes', numberOfColumns:5, titleText: '加入条件'},
+                ] 
+            })
+
+            //表单提交
+            $("#subbox").submit(function(){
+                var postData = {};
+                $.each($(this).serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+                $("#table_list_2").jqGrid("setGridParam", {
+                    page: 1,
+                    mtype: "post",
+                    datatype: 'json',
+                    postData: postData
+                }).trigger('reloadGrid');
+
+                return false;
+            });
+
+
+            // 搜索用户名下拉框
+            $(":input[id=select_1]").change(function(){
+
+                $("#value_1").attr('name', $(this).val());
+            });
+           function getpaysetlist(cellValue, options, rowObject){
+                //用户分层
+                var html ="";  
+                    html += "<select  onchange='editpayset($(this),"+rowObject.layerid+");' name='payid'>"; 
+                    var key = [];
+                    for (var k in rowObject.paysetlist) {
+                      key.push(k);
+                        if(k == rowObject.p_paysetid){
+                            html +="<option value='"+k+"' selected>"+rowObject.paysetlist[k]+"</option>";
+                        }else{
+                            html +="<option value='"+k+"' >"+rowObject.paysetlist[k]+"</option>";
+                        }
+                     }
+                    if($.inArray(rowObject.p_paysetid,key)== -1){
+                      html+="<option value='' selected >请选择支付设定</option>";
+                    }
+                    html += "</select>";    
+                return html; 
+           }
+           //投注限额
+            function getbetlist(cellValue, options, rowObject){
+                //用户分层
+                var html ="";  
+                    html += "<select  onchange='editbetgroup($(this),"+rowObject.layerid+");' name='bet_group_id'>"; 
+                    var key = [];
+                    for (var k in rowObject.betlist) {
+                      key.push(k);
+                        if(k == rowObject.bet_group_id){
+                            html +="<option value='"+k+"' selected>"+rowObject.betlist[k]+"</option>";
+                        }else{
+                            html +="<option value='"+k+"' >"+rowObject.betlist[k]+"</option>";
+                        }
+                     }
+                    if($.inArray(rowObject.bet_group_id,key)== -1){
+                      html+="<option value='' selected >未设置限额</option>";
+                    }
+                    html += "</select>";    
+                return html; 
+           }
+            //自定义操作表格
+            function operate(cellValue, options, rowObject) {  
+                var html ="";  
+                if(rowObject.layerid != 0){
+                    html += "<a title='修改'  class='mgr15' onclick='editLayer("+rowObject.layerid+")'>";  
+                    html += "<span >修改</span></a>";    
+                    html += "<a title='删除' onclick='delLayer("+rowObject.layerid+")' >";  
+                    html += "删除</a>";    
+                }else{
+                    html += "<span style='color:black'>预设层级,不可修改或删除</span>&nbsp;&nbsp;&nbsp;";    
+
+                }
+                return html; 
+            }
+            //用户列表
+            function memberlist(cellValue, options, rowObject){
+                var html = "";
+                html += "<a title='点击到层级用户列表'  href='user_belonglayer.shtml?layerid="+rowObject.layerid+"&ucount="+rowObject.ucount+"' >";  
+                html += "<span style='color:red'>"+rowObject.ucount+"</span></a>&nbsp;";   
+                return html; 
+            } 
+            //分层方式切换
+            $("#mode_1").click(function(){
+                $("#layermode_1").css("display","block");
+                $("#layermode_2").css("display","none");
+            })
+            $("#mode_2").click(function(){
+                $("#layermode_1").css("display","none");
+                $("#layermode_2").css("display","block");
+            })
+            //展示分层div
+            $("#dispatch_layer").click(function(){
+                layer.open({
+                  type: 1,
+                  title: false,
+                  closeBtn: 0,
+                  offset:'10px',
+                  shadeClose: false,
+                  content: $('#layer')
+                });
+            })
+             //展示分层div
+            $("#huigui_layer").click(function(){
+                layer.open({
+                  type: 1,
+                  title: false,
+                  closeBtn: 0,
+                  offset:'10px',
+                  shadeClose: false,
+                  content: $('#huigui')
+                });
+            })
+             //多用户名查询
+            $("#search_user").click(function(){
+                layer.open({
+                  type: 1,
+                  title: false,
+                  closeBtn: 0,
+                  offset:'10px',
+                  area: ['500px', '450px'],
+                  shadeClose: false,
+                  content: $('#searchuser')
+                });
+            })
+            //隐藏分层div
+            $(".cancel").click(function(){
+                layer.closeAll()
+                return false;
+            })
+            //分层表单提交
+            $("#formsubmit").click(function(){
+                var postData = {};
+                $.each($("#signupForm").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+               /* var checboxval = $('input[type=checkbox]:checked').map(function(){return this.value}).get().join(',');
+                postData['layerval'] = checboxval;*/
+                 $.ajax({
+                    type: "POST",
+                    url:"user_dispatchlayer.shtml",
+                    data:postData, 
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                window.location.reload();
+                            });
+                        }
+                    }
+                });
+                 return false;
+            });
+            //回归表单提交
+            $("#huiguisubmit").click(function(){
+                var postData = {};
+                $.each($("#huiguiForm").serializeArray(), function(i, n){
+                    postData[n.name] = n.value;
+                });
+               /* var checboxval = $('input[type=checkbox]:checked').map(function(){return this.value}).get().join(',');
+                postData['layerval'] = checboxval;*/
+                 $.ajax({
+                    type: "POST",
+                    url:"user_resetlayer.shtml",
+                    data:postData, 
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.alert(data.msg);
+                        }else{
+                            layer.alert(data.msg,function(){
+                                window.location.reload();
+                            });
+                        }
+                    }
+                });
+                 return false;
+            }); 
+
+    }); //ready 结束
+        //添加层级
+        function addlayer(){
+             layer.open({
+                  type: 2,
+                  title: '新增层级',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '600px'],
+                   content: ['user_addlayer.shtml', 'no'],
+            });
+        }
+        //编辑层级
+        function editLayer(layerid){
+             layer.open({
+                  type: 2,
+                  title: '编辑层级',
+                  shadeClose: true,
+                  shade: false,
+                  maxmin: true, //开启最大化最小化按钮
+                  area: ['800px', '500px'],
+                   content: ['user_editlayer.shtml?layerid='+layerid, 'no'],
+            });
+        }
+        //删除层级
+        function delLayer(layerid){
+            layer.confirm('层级删除后,该层级下的会员会回归到未分层,确定删除吗？',{
+                btn:['确定','取消']
+            },function() {
+                window.location.href="user_dellayer.shtml?layerid="+layerid;
+
+            })
+            return false;
+        }
+        //层级支付设定
+        function editpayset(obj,layerid) {
+            var payid = obj.val();
+            $.ajax({
+                    type: "POST",
+                    url:"user_setlayerpayid.shtml",
+                    data:{"layerid":layerid,"payid":payid},
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.msg(data.msg);
+                        }else{
+                            layer.msg(data.msg);
+                        }
+                    }
+                });
+        }
+        //层级支付设定
+        function editbetgroup(obj,layerid) {
+            var bet_group_id = obj.val();
+            $.ajax({
+                    type: "POST",
+                    url:"user_setlayerbetid.shtml",
+                    data:{"layerid":layerid,"bet_group_id":bet_group_id},
+                    success: function(data) {
+                        var data = eval("("+data+")")
+                        if(data.code == 0){
+                            layer.msg(data.msg);
+                        }else{
+                            layer.msg(data.msg);
+                        }
+                    }
+                });
+        }
+        </script>
+</body>
+
+
+</html>
